@@ -1,0 +1,33 @@
+{
+    "name": "@nxsflow/amplify-overtone-monorepo",
+    "private": true,
+    "type": "module",
+    "license": "Apache-2.0",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/nxsflow/amplify-overtone.git"
+    },
+    "scripts": {
+        "build": "pnpm -r build",
+        "test": "pnpm -r test",
+        "typecheck": "pnpm -r typecheck",
+        "aws:login": "./scripts/aws-login.sh",
+        "lint": "biome check .",
+        "format": "biome format --write .",
+        "test-infra:bootstrap": "pnpm --filter @nxsflow/test-infra run bootstrap",
+        "test:e2e": "pnpm --filter @nxsflow/integration-tests run test:e2e",
+        "test-infra:deploy": "pnpm --filter @nxsflow/test-infra run deploy",
+        "test-infra:destroy": "pnpm --filter @nxsflow/test-infra run destroy"
+    },
+    "pnpm": {
+        "onlyBuiltDependencies": [
+            "@biomejs/biome",
+            "esbuild"
+        ]
+    },
+    "devDependencies": {
+        "@biomejs/biome": "^2.4.9",
+        "@changesets/cli": "^2.30.0",
+        "typescript": "^5.8.3"
+    }
+}
