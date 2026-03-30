@@ -14,13 +14,19 @@
             "types": "./dist/index.d.ts",
             "import": "./dist/index.js",
             "require": "./dist/index.cjs"
+        },
+        "./email": {
+            "types": "./dist/email/index.d.ts",
+            "import": "./dist/email/index.js",
+            "require": "./dist/email/index.cjs"
         }
     },
     "main": "dist/index.cjs",
     "module": "dist/index.js",
     "types": "dist/index.d.ts",
     "files": [
-        "dist"
+        "dist",
+        "src/functions"
     ],
     "scripts": {
         "build": "tsup",
