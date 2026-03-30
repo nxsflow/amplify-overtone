@@ -3,6 +3,7 @@
         "allow": [
             "Bash(cat:*)",
             "Bash(find:*)",
+            "Bash(pnpm format:*)",
             "Bash(gh api:*)",
             "Bash(git add:*)",
             "Bash(gh pr checks:*)",
@@ -22,7 +23,8 @@
             "Bash(pnpm lint:*)",
             "Bash(pnpm list:*)",
             "Bash(pnpm test:*)",
-            "Bash(pnpm test-infra:typecheck:*)",
+            "Bash(pnpm test-infra:deploy)",
+            "Bash(pnpm test-infra:typecheck)",
             "Bash(pnpm typecheck:*)",
             "mcp__aws-knowledge-mcp-server__*",
             "mcp__awslabs_aws-documentation-mcp-server__*",
