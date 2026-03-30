@@ -72,12 +72,13 @@ Every Amplify category returns a `ConstructFactory<T>` from `@aws-amplify/plugin
 
 ```typescript
 type ConstructFactory<T extends ResourceProvider = ResourceProvider> = {
-    readonly provides?: string;
-    getInstance: (props: ConstructFactoryGetInstanceProps) => T;
+  readonly provides?: string;
+  getInstance: (props: ConstructFactoryGetInstanceProps) => T;
 };
 ```
 
 `defineBackend()` calls `getInstance()` on each factory, which lazily creates the CDK construct. This allows:
+
 - Deferred instantiation until deployment time
 - Dependency resolution between resources
 - Integration with the Amplify resource graph
@@ -88,7 +89,9 @@ type ConstructFactory<T extends ResourceProvider = ResourceProvider> = {
 import { n } from "@nxsflow/amplify-overtone";
 import { defineBackend } from "@aws-amplify/backend";
 
-const schema = n.schema({ /* ... */ });
+const schema = n.schema({
+  /* ... */
+});
 const backend = defineBackend({ auth, data }); // overtone constructs are applied separately
 ```
 
@@ -104,8 +107,8 @@ Resources are defined using `define*` helper functions and combined in `amplify/
 import { defineBackend } from "@aws-amplify/backend";
 
 const backend = defineBackend({
-    auth,
-    data,
+  auth,
+  data,
 });
 ```
 
@@ -125,19 +128,19 @@ const overtoneResources = backend.data.resources;
 
 ### CLI Commands
 
-| Command                   | Description                   |
-| ------------------------- | ----------------------------- |
+| Command                     | Description                   |
+| --------------------------- | ----------------------------- |
 | `npm create amplify@latest` | Initialize Amplify in project |
-| `npx ampx sandbox`        | Start development sandbox     |
-| `npx ampx sandbox delete` | Delete sandbox resources      |
-| `npx ampx generate outputs` | Generate client config      |
+| `npx ampx sandbox`          | Start development sandbox     |
+| `npx ampx sandbox delete`   | Delete sandbox resources      |
+| `npx ampx generate outputs` | Generate client config        |
 
 ### Helper Functions
 
-| Function         | Import                 | Purpose                  |
-| ---------------- | ---------------------- | ------------------------ |
-| `defineBackend`  | `@aws-amplify/backend` | Create backend entry     |
-| `defineAuth`     | `@aws-amplify/backend` | Configure authentication |
-| `defineData`     | `@aws-amplify/backend` | Configure data/API       |
-| `defineFunction` | `@aws-amplify/backend` | Define Lambda function   |
-| `n.schema`       | `@nxsflow/amplify-overtone` | Define overtone schema |
+| Function         | Import                      | Purpose                  |
+| ---------------- | --------------------------- | ------------------------ |
+| `defineBackend`  | `@aws-amplify/backend`      | Create backend entry     |
+| `defineAuth`     | `@aws-amplify/backend`      | Configure authentication |
+| `defineData`     | `@aws-amplify/backend`      | Configure data/API       |
+| `defineFunction` | `@aws-amplify/backend`      | Define Lambda function   |
+| `n.schema`       | `@nxsflow/amplify-overtone` | Define overtone schema   |

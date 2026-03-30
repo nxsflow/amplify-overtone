@@ -26,6 +26,7 @@ packages/integration-tests/  # E2E tests against deployed infrastructure (privat
 Vitest config for the construct package: `packages/amplify-overtone/vitest.config.ts` matches `include: ["test/**/*.test.ts"]`.
 
 **When to write which:**
+
 - **Unit tests** (`packages/amplify-overtone/test/unit/`): Testing pure logic — factory behavior, prop validation, error messages. No `App` or `Stack` needed. These run fast.
 - **Construct tests** (`packages/amplify-overtone/test/construct/`): Testing the CloudFormation output of `OvertoneConstruct`. Always use `Template.fromStack()` to assert on synthesized resources.
 - **Integration tests** (`packages/integration-tests/`): E2E tests against deployed AWS infrastructure. Uses the test infrastructure defined in `packages/test-infra/`.
@@ -40,24 +41,24 @@ Vitest config for the construct package: `packages/amplify-overtone/vitest.confi
 
 ```typescript
 import { beforeEach, describe, expect, it } from "vitest";
-import { OvertoneFactory } from "../../src/factory.js";  // relative within packages/amplify-overtone/
+import { OvertoneFactory } from "../../src/factory.js"; // relative within packages/amplify-overtone/
 import { defineOvertone } from "../../src/index.js";
 
 describe("defineOvertone", () => {
-    beforeEach(() => {
-        OvertoneFactory.factoryCount = 0;
-    });
+  beforeEach(() => {
+    OvertoneFactory.factoryCount = 0;
+  });
 
-    it("returns an object with a getInstance method", () => {
-        const factory = defineOvertone({});
-        expect(factory).toBeDefined();
-        expect(typeof factory.getInstance).toBe("function");
-    });
+  it("returns an object with a getInstance method", () => {
+    const factory = defineOvertone({});
+    expect(factory).toBeDefined();
+    expect(typeof factory.getInstance).toBe("function");
+  });
 
-    it("throws on second call", () => {
-        defineOvertone({});
-        expect(() => defineOvertone({})).toThrow();
-    });
+  it("throws on second call", () => {
+    defineOvertone({});
+    expect(() => defineOvertone({})).toThrow();
+  });
 });
 ```
 
@@ -67,9 +68,9 @@ Test that invalid props produce clear error messages:
 
 ```typescript
 it("rejects invalid configuration", () => {
-    expect(() => defineOvertone({ invalidProp: "value" } as any)).toThrow(
-        /invalid/i,
-    );
+  expect(() => defineOvertone({ invalidProp: "value" } as any)).toThrow(
+    /invalid/i,
+  );
 });
 ```
 
@@ -89,28 +90,28 @@ import { Capture, Match, Template } from "aws-cdk-lib/assertions";
 
 ### Template Methods
 
-| Method | Purpose |
-|--------|---------|
-| `Template.fromStack(stack)` | Synthesize a stack and wrap it for assertions |
+| Method                                        | Purpose                                                        |
+| --------------------------------------------- | -------------------------------------------------------------- |
+| `Template.fromStack(stack)`                   | Synthesize a stack and wrap it for assertions                  |
 | `template.hasResourceProperties(type, props)` | Assert a resource exists with these properties (partial match) |
-| `template.hasResource(type, props)` | Match including metadata, condition, DependsOn |
-| `template.resourceCountIs(type, count)` | Assert exact number of resources of this type |
-| `template.findResources(type, props?)` | Return all matching resources as an object |
-| `template.hasOutput(logicalId, props)` | Validate stack outputs |
+| `template.hasResource(type, props)`           | Match including metadata, condition, DependsOn                 |
+| `template.resourceCountIs(type, count)`       | Assert exact number of resources of this type                  |
+| `template.findResources(type, props?)`        | Return all matching resources as an object                     |
+| `template.hasOutput(logicalId, props)`        | Validate stack outputs                                         |
 
 ### Match Helpers
 
-| Matcher | Purpose |
-|---------|---------|
-| `Match.objectLike({})` | Partial object match (default for `hasResourceProperties`) |
-| `Match.objectEquals({})` | Exact object match — fails if extra keys present |
-| `Match.anyValue()` | Matches anything except absent |
-| `Match.absent()` | Asserts key does not exist |
-| `Match.not(inner)` | Inverts a matcher |
-| `Match.serializedJson(inner)` | Parse a JSON string, then apply inner matcher |
-| `Match.arrayWith([...])` | Array contains these elements (order-independent) |
-| `Match.exact(value)` | Exact primitive match |
-| `Match.stringLikeRegexp(pattern)` | Matches a string against a regex pattern |
+| Matcher                           | Purpose                                                    |
+| --------------------------------- | ---------------------------------------------------------- |
+| `Match.objectLike({})`            | Partial object match (default for `hasResourceProperties`) |
+| `Match.objectEquals({})`          | Exact object match — fails if extra keys present           |
+| `Match.anyValue()`                | Matches anything except absent                             |
+| `Match.absent()`                  | Asserts key does not exist                                 |
+| `Match.not(inner)`                | Inverts a matcher                                          |
+| `Match.serializedJson(inner)`     | Parse a JSON string, then apply inner matcher              |
+| `Match.arrayWith([...])`          | Array contains these elements (order-independent)          |
+| `Match.exact(value)`              | Exact primitive match                                      |
+| `Match.stringLikeRegexp(pattern)` | Matches a string against a regex pattern                   |
 
 ### Capture
 
@@ -119,9 +120,9 @@ Capture a dynamic value from the template for later assertion:
 ```typescript
 const arnCapture = new Capture();
 template.hasResourceProperties("AWS::IAM::Policy", {
-    PolicyDocument: {
-        Statement: [{ Resource: arnCapture }],
-    },
+  PolicyDocument: {
+    Statement: [{ Resource: arnCapture }],
+  },
 });
 expect(arnCapture.asString()).toContain(":lambda:");
 ```
@@ -150,11 +151,13 @@ import type { OvertoneProps } from "../../src/types.js";
 
 const defaultProps: OvertoneProps = {};
 
-export function createOvertoneTemplate(overrides?: Partial<OvertoneProps>): Template {
-    const app = new App();
-    const stack = new Stack(app, "TestStack");
-    new OvertoneConstruct(stack, "Overtone", { ...defaultProps, ...overrides });
-    return Template.fromStack(stack);
+export function createOvertoneTemplate(
+  overrides?: Partial<OvertoneProps>,
+): Template {
+  const app = new App();
+  const stack = new Stack(app, "TestStack");
+  new OvertoneConstruct(stack, "Overtone", { ...defaultProps, ...overrides });
+  return Template.fromStack(stack);
 }
 ```
 
@@ -168,7 +171,7 @@ import { createOvertoneTemplate } from "./helpers.js";
 let template: Template;
 
 beforeEach(() => {
-    template = createOvertoneTemplate();
+  template = createOvertoneTemplate();
 });
 ```
 
@@ -182,21 +185,21 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { createOvertoneTemplate } from "./helpers.js";
 
 describe("Core resources", () => {
-    let template: Template;
+  let template: Template;
 
-    beforeEach(() => {
-        template = createOvertoneTemplate();
-    });
+  beforeEach(() => {
+    template = createOvertoneTemplate();
+  });
 
-    it("creates the primary resource", () => {
-        // Assert the main AWS resource type created by OvertoneConstruct
-        // Replace "AWS::SomeService::SomeResource" with the actual resource type
-        expect(template.toJSON().Resources).toBeDefined();
-    });
+  it("creates the primary resource", () => {
+    // Assert the main AWS resource type created by OvertoneConstruct
+    // Replace "AWS::SomeService::SomeResource" with the actual resource type
+    expect(template.toJSON().Resources).toBeDefined();
+  });
 
-    it("creates exactly one handler Lambda", () => {
-        template.resourceCountIs("AWS::Lambda::Function", 1);
-    });
+  it("creates exactly one handler Lambda", () => {
+    template.resourceCountIs("AWS::Lambda::Function", 1);
+  });
 });
 ```
 
@@ -208,28 +211,28 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { createOvertoneTemplate } from "./helpers.js";
 
 describe("Handler Lambda", () => {
-    let template: Template;
+  let template: Template;
 
-    beforeEach(() => {
-        template = createOvertoneTemplate();
-    });
+  beforeEach(() => {
+    template = createOvertoneTemplate();
+  });
 
-    it("creates a Lambda function with Node 22", () => {
-        template.hasResourceProperties("AWS::Lambda::Function", {
-            Runtime: "nodejs22.x",
-            Timeout: 15,
-        });
+  it("creates a Lambda function with Node 22", () => {
+    template.hasResourceProperties("AWS::Lambda::Function", {
+      Runtime: "nodejs22.x",
+      Timeout: 15,
     });
+  });
 
-    it("passes required environment variables", () => {
-        template.hasResourceProperties("AWS::Lambda::Function", {
-            Environment: {
-                Variables: Match.objectLike({
-                    // Add expected environment variable keys here
-                }),
-            },
-        });
+  it("passes required environment variables", () => {
+    template.hasResourceProperties("AWS::Lambda::Function", {
+      Environment: {
+        Variables: Match.objectLike({
+          // Add expected environment variable keys here
+        }),
+      },
     });
+  });
 });
 ```
 
@@ -241,24 +244,24 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { createOvertoneTemplate } from "./helpers.js";
 
 describe("IAM permissions", () => {
-    let template: Template;
+  let template: Template;
 
-    beforeEach(() => {
-        template = createOvertoneTemplate();
-    });
+  beforeEach(() => {
+    template = createOvertoneTemplate();
+  });
 
-    it("grants required permissions to the Lambda", () => {
-        template.hasResourceProperties("AWS::IAM::Policy", {
-            PolicyDocument: {
-                Statement: Match.arrayWith([
-                    Match.objectLike({
-                        // Replace with actual actions granted by OvertoneConstruct
-                        Action: Match.anyValue(),
-                        Effect: "Allow",
-                    }),
-                ]),
-            },
-        });
+  it("grants required permissions to the Lambda", () => {
+    template.hasResourceProperties("AWS::IAM::Policy", {
+      PolicyDocument: {
+        Statement: Match.arrayWith([
+          Match.objectLike({
+            // Replace with actual actions granted by OvertoneConstruct
+            Action: Match.anyValue(),
+            Effect: "Allow",
+          }),
+        ]),
+      },
     });
+  });
 });
 ```

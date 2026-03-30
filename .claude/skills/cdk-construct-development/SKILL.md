@@ -13,12 +13,12 @@ Every Amplify category implements this interface from `@aws-amplify/plugin-types
 
 ```typescript
 type ConstructFactory<T extends ResourceProvider = ResourceProvider> = {
-    readonly provides?: string;
-    getInstance: (props: ConstructFactoryGetInstanceProps) => T;
+  readonly provides?: string;
+  getInstance: (props: ConstructFactoryGetInstanceProps) => T;
 };
 
 type ResourceProvider<T = Record<string, unknown>> = {
-    resources: T;
+  resources: T;
 };
 ```
 
@@ -52,26 +52,27 @@ import { Construct } from "constructs";
 import type { OvertoneProps, OvertoneResources } from "./types.js";
 
 export class OvertoneConstruct extends Construct {
-    public readonly resources: OvertoneResources;
+  public readonly resources: OvertoneResources;
 
-    constructor(scope: Construct, id: string, props: OvertoneProps) {
-        super(scope, id);
+  constructor(scope: Construct, id: string, props: OvertoneProps) {
+    super(scope, id);
 
-        // Create Lambda
-        const handlerFn = new NodejsFunction(this, "OvertoneHandlerFunction", {
-            entry: new URL("./functions/handler/handler.ts", import.meta.url).pathname,
-            // ...
-        });
+    // Create Lambda
+    const handlerFn = new NodejsFunction(this, "OvertoneHandlerFunction", {
+      entry: new URL("./functions/handler/handler.ts", import.meta.url)
+        .pathname,
+      // ...
+    });
 
-        // Create additional AWS resources as needed
-        // ...
+    // Create additional AWS resources as needed
+    // ...
 
-        // Expose resources
-        this.resources = {
-            lambda: handlerFn,
-            lambdaFunctionName: handlerFn.functionName,
-        };
-    }
+    // Expose resources
+    this.resources = {
+      lambda: handlerFn,
+      lambdaFunctionName: handlerFn.functionName,
+    };
+  }
 }
 ```
 
@@ -91,38 +92,38 @@ import { describe, expect, it } from "vitest";
 import { OvertoneConstruct } from "../src/construct.js";
 
 describe("OvertoneConstruct construct", () => {
-    it("creates a Lambda function", () => {
-        const app = new App();
-        const stack = new Stack(app, "TestStack");
+  it("creates a Lambda function", () => {
+    const app = new App();
+    const stack = new Stack(app, "TestStack");
 
-        new OvertoneConstruct(stack, "Overtone", {});
+    new OvertoneConstruct(stack, "Overtone", {});
 
-        const template = Template.fromStack(stack);
-        template.hasResourceProperties("AWS::Lambda::Function", {
-            Timeout: 15,
-        });
+    const template = Template.fromStack(stack);
+    template.hasResourceProperties("AWS::Lambda::Function", {
+      Timeout: 15,
     });
+  });
 
-    it("creates exactly one Lambda function", () => {
-        const app = new App();
-        const stack = new Stack(app, "TestStack");
+  it("creates exactly one Lambda function", () => {
+    const app = new App();
+    const stack = new Stack(app, "TestStack");
 
-        new OvertoneConstruct(stack, "Overtone", {});
+    new OvertoneConstruct(stack, "Overtone", {});
 
-        const template = Template.fromStack(stack);
-        template.resourceCountIs("AWS::Lambda::Function", 1);
-    });
+    const template = Template.fromStack(stack);
+    template.resourceCountIs("AWS::Lambda::Function", 1);
+  });
 
-    it("creates supporting AWS resources", () => {
-        const app = new App();
-        const stack = new Stack(app, "TestStack");
+  it("creates supporting AWS resources", () => {
+    const app = new App();
+    const stack = new Stack(app, "TestStack");
 
-        new OvertoneConstruct(stack, "Overtone", {});
+    new OvertoneConstruct(stack, "Overtone", {});
 
-        const template = Template.fromStack(stack);
-        // Assert on any additional resources created by the construct
-        expect(template.toJSON()).toBeDefined();
-    });
+    const template = Template.fromStack(stack);
+    // Assert on any additional resources created by the construct
+    expect(template.toJSON()).toBeDefined();
+  });
 });
 ```
 
@@ -141,8 +142,8 @@ const template = Template.fromStack(stack);
 
 // Assert a resource exists with specific properties
 template.hasResourceProperties("AWS::Lambda::Function", {
-    Runtime: "nodejs22.x",
-    Timeout: 15,
+  Runtime: "nodejs22.x",
+  Timeout: 15,
 });
 
 // Count resources
@@ -156,14 +157,14 @@ template.hasOutput("OvertoneOutput", { Value: "some-value" });
 
 // Assert IAM policy statement
 template.hasResourceProperties("AWS::IAM::Policy", {
-    PolicyDocument: {
-        Statement: [
-            {
-                Action: ["execute-api:Invoke"],
-                Effect: "Allow",
-            },
-        ],
-    },
+  PolicyDocument: {
+    Statement: [
+      {
+        Action: ["execute-api:Invoke"],
+        Effect: "Allow",
+      },
+    ],
+  },
 });
 ```
 
@@ -186,13 +187,14 @@ Lambda handlers inside the construct (e.g. `packages/amplify-overtone/src/functi
 
 ## Peer Dependency Convention
 
-| Package | Range | Rule |
-|---------|-------|------|
-| `aws-cdk-lib` | `^2.0.0` | Permissive — consumer controls their CDK version |
-| `constructs` | `^10.0.0` | CDK base class |
-| `@aws-amplify/plugin-types` | `^1.0.0` | ConstructFactory interface |
+| Package                     | Range     | Rule                                             |
+| --------------------------- | --------- | ------------------------------------------------ |
+| `aws-cdk-lib`               | `^2.0.0`  | Permissive — consumer controls their CDK version |
+| `constructs`                | `^10.0.0` | CDK base class                                   |
+| `@aws-amplify/plugin-types` | `^1.0.0`  | ConstructFactory interface                       |
 
 **Rules:**
+
 - Never bundle peer deps — they're externalized in tsup config
 - Test against the minimum supported version, not latest
 - Keep ranges permissive (`^2.0.0` not `^2.170.0`) — consumers have their own CDK constraints

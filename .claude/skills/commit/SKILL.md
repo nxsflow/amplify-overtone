@@ -39,12 +39,12 @@ The header is required. Scope is optional. All lines must stay under 100 charact
 
 In this monorepo, scope commits to the affected package:
 
-| Scope | Package |
-|-------|---------|
-| `amplify-overtone` | `packages/amplify-overtone/` — backend |
-| `amplify-overtone-client` | `packages/amplify-overtone-client/` — frontend |
-| `integration-tests` | `packages/integration-tests/` — E2E tests |
-| `test-infra` | `packages/test-infra/` — CDK test infrastructure |
+| Scope                     | Package                                          |
+| ------------------------- | ------------------------------------------------ |
+| `amplify-overtone`        | `packages/amplify-overtone/` — backend           |
+| `amplify-overtone-client` | `packages/amplify-overtone-client/` — frontend   |
+| `integration-tests`       | `packages/integration-tests/` — E2E tests        |
+| `test-infra`              | `packages/test-infra/` — CDK test infrastructure |
 
 Examples: `feat(amplify-overtone): Add auth propagation Lambda`, `fix(amplify-overtone-client): Handle missing config`.
 
@@ -149,6 +149,7 @@ git commit -m "feat(amplify-overtone): Add auth propagation Lambda"
 ```
 
 **When to create a changeset:**
+
 - `feat` — always (minor bump)
 - `fix` — always (patch bump)
 - `ref` / `perf` — if it changes published output (patch bump)

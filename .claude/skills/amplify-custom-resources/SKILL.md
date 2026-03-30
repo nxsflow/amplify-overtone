@@ -65,7 +65,7 @@ When passing Amplify resources to custom constructs:
 ```typescript
 // In backend.ts
 const construct = new MyConstruct(stack, "MyConstruct", {
-    processorFunction: backend.myFunction.resources.lambda, // IFunction for CDK
+  processorFunction: backend.myFunction.resources.lambda, // IFunction for CDK
 });
 
 // Add env vars via Amplify wrapper for typed access
@@ -83,9 +83,9 @@ import type { IUserPool } from "aws-cdk-lib/aws-cognito";
 import type { IBucket } from "aws-cdk-lib/aws-s3";
 
 export interface MyConstructProps {
-    lambdaFunction: IFunction;   // backend.myFn.resources.lambda
-    userPool?: IUserPool;        // backend.auth.resources.userPool
-    bucket?: IBucket;            // backend.storage.resources.bucket
+  lambdaFunction: IFunction; // backend.myFn.resources.lambda
+  userPool?: IUserPool; // backend.auth.resources.userPool
+  bucket?: IBucket; // backend.storage.resources.bucket
 }
 ```
 
@@ -106,7 +106,7 @@ new SnsConstruct(backend.createStack("SnsStack"), "Sns", {...});
 ```typescript
 // In construct
 export class MyConstruct extends Construct {
-    public readonly queueUrl: string; // Export for addEnvironment
+  public readonly queueUrl: string; // Export for addEnvironment
 }
 
 // In backend.ts
@@ -121,9 +121,9 @@ const url = env.QUEUE_URL;
 
 ```typescript
 export class MyConstruct {
-    grantPublish(fn: IFunction) {
-        this.topic.grantPublish(fn);
-    }
+  grantPublish(fn: IFunction) {
+    this.topic.grantPublish(fn);
+  }
 }
 
 // In backend.ts

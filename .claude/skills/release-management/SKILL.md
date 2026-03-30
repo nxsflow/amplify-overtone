@@ -11,20 +11,20 @@ CI/CD pipeline and publishing workflow. How code gets from main to npm.
 
 This monorepo publishes two packages independently:
 
-| Package | Path | npm |
-|---------|------|-----|
-| `@nxsflow/amplify-overtone` | `packages/amplify-overtone/` | Backend construct |
+| Package                            | Path                                | npm                |
+| ---------------------------------- | ----------------------------------- | ------------------ |
+| `@nxsflow/amplify-overtone`        | `packages/amplify-overtone/`        | Backend construct  |
 | `@nxsflow/amplify-overtone-client` | `packages/amplify-overtone-client/` | Server-side client |
 
 Changesets handles multi-package versioning automatically. Each package has its own `CHANGELOG.md` and version in its `package.json`. A single changeset can bump one or both packages.
 
 ## Branch Strategy
 
-| Branch | Purpose | Dist-tag | Trigger |
-|--------|---------|----------|---------|
-| `main` | Stable releases | `latest` | Merge "Version Packages" PR |
-| `alpha/*` | Alpha pre-releases | `alpha` | Push to branch |
-| `beta/*` | Beta pre-releases | `beta` | Push to branch |
+| Branch    | Purpose            | Dist-tag | Trigger                     |
+| --------- | ------------------ | -------- | --------------------------- |
+| `main`    | Stable releases    | `latest` | Merge "Version Packages" PR |
+| `alpha/*` | Alpha pre-releases | `alpha`  | Push to branch              |
+| `beta/*`  | Beta pre-releases  | `beta`   | Push to branch              |
 
 Pre-release mode (`changeset pre enter`) is only used on feature branches, never on main.
 
@@ -32,11 +32,11 @@ Pre-release mode (`changeset pre enter`) is only used on feature branches, never
 
 ## Tiered Quality Gates
 
-| Channel | Gates | Rationale |
-|---------|-------|-----------|
-| `alpha` | `pnpm build` + `pnpm typecheck` | Fast iteration, types must be sound |
-| `beta` | + `pnpm test` + `pnpm lint` | Feature-complete, full validation |
-| `stable` | + manual approval (GitHub environment protection) | Rock-solid, human sign-off |
+| Channel  | Gates                                             | Rationale                           |
+| -------- | ------------------------------------------------- | ----------------------------------- |
+| `alpha`  | `pnpm build` + `pnpm typecheck`                   | Fast iteration, types must be sound |
+| `beta`   | + `pnpm test` + `pnpm lint`                       | Feature-complete, full validation   |
+| `stable` | + manual approval (GitHub environment protection) | Rock-solid, human sign-off          |
 
 ---
 
@@ -171,14 +171,15 @@ jobs:
 
 ### Repository Secrets
 
-| Secret | Purpose | Where to get it |
-|--------|---------|-----------------|
-| `NPM_TOKEN` | Publish to npm | npmjs.com → Access Tokens → Generate (Automation type) |
-| `GITHUB_TOKEN` | Create PRs, push tags | Provided automatically by GitHub Actions |
+| Secret         | Purpose               | Where to get it                                        |
+| -------------- | --------------------- | ------------------------------------------------------ |
+| `NPM_TOKEN`    | Publish to npm        | npmjs.com → Access Tokens → Generate (Automation type) |
+| `GITHUB_TOKEN` | Create PRs, push tags | Provided automatically by GitHub Actions               |
 
 ### GitHub Environment
 
 Create a `production` environment in GitHub repo settings:
+
 1. Settings → Environments → New environment → "production"
 2. Add required reviewers (at least one)
 3. The `release.yml` workflow references this environment for manual approval
@@ -276,10 +277,10 @@ Before any manual publish:
 
 ## Rollback
 
-| Scenario | Action |
-|----------|--------|
+| Scenario        | Action                                                                        |
+| --------------- | ----------------------------------------------------------------------------- |
 | Within 72 hours | `npm unpublish @nxsflow/amplify-overtone@X.Y.Z` (repeat for client if needed) |
-| After 72 hours | `npm deprecate @nxsflow/amplify-overtone@X.Y.Z "use X.Y.Z+1"` + publish patch |
-| Pre-release | Publish the next pre-release number (`-alpha.1` replaces `-alpha.0`) |
+| After 72 hours  | `npm deprecate @nxsflow/amplify-overtone@X.Y.Z "use X.Y.Z+1"` + publish patch |
+| Pre-release     | Publish the next pre-release number (`-alpha.1` replaces `-alpha.0`)          |
 
 **Note:** `npm unpublish` removes the version entirely. Use it only for broken releases. When rolling back, check if both packages need action or just one.

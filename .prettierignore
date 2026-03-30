@@ -1,0 +1,3 @@
+# Prettier only handles markdown — Biome handles everything else.
+# Override default dot-directory ignore so .claude/skills/*.md gets formatted.
+!.claude/
