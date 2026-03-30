@@ -32,7 +32,7 @@ function generatePassword(length = 16): string {
     const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const lower = "abcdefghijklmnopqrstuvwxyz";
     const digits = "0123456789";
-    const symbols = "!@#$%^&*";
+    const symbols = "!-";
     const all = upper + lower + digits + symbols;
 
     // Ensure at least one of each category
