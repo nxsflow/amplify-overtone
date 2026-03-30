@@ -14,10 +14,25 @@ set -a
 source "$ENV_FILE"
 set +a
 
-if [ -z "${AWS_PROFILE:-}" ]; then
-    echo "Error: AWS_PROFILE is not set in $ENV_FILE"
-    exit 1
+# Validate required variables (needed for CDK app synthesis)
+for var in TEST_RECIPIENT_DOMAIN TEST_RECIPIENT_HOSTED_ZONE_ID TEST_RECIPIENT_HOSTED_ZONE_DOMAIN; do
+    if [ -z "${!var:-}" ]; then
+        echo "Error: $var is not set in $ENV_FILE"
+        exit 1
+    fi
+done
+
+SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+
+CDK_ARGS=(
+    --context "recipientDomain=$TEST_RECIPIENT_DOMAIN"
+    --context "hostedZoneId=$TEST_RECIPIENT_HOSTED_ZONE_ID"
+    --context "hostedZoneDomain=$TEST_RECIPIENT_HOSTED_ZONE_DOMAIN"
+)
+
+if [ -n "${AWS_PROFILE:-}" ]; then
+    CDK_ARGS+=(--profile "$AWS_PROFILE")
 fi
 
-echo "Bootstrapping CDK with profile: $AWS_PROFILE"
-npx cdk bootstrap --profile "$AWS_PROFILE"
+cd "$SCRIPT_DIR"
+npx cdk bootstrap "${CDK_ARGS[@]}"
