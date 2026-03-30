@@ -14,7 +14,7 @@ import { RetentionDays } from "aws-cdk-lib/aws-logs";
 import { HostedZone, MxRecord } from "aws-cdk-lib/aws-route53";
 import { BlockPublicAccess, Bucket, BucketEncryption } from "aws-cdk-lib/aws-s3";
 import { CfnReceiptRule, CfnReceiptRuleSet } from "aws-cdk-lib/aws-ses";
-import { Provider } from "aws-cdk-lib/custom-resources";
+import { AwsCustomResource, AwsCustomResourcePolicy, PhysicalResourceId, Provider } from "aws-cdk-lib/custom-resources";
 import type { Construct } from "constructs";
 
 export interface OvertoneTestInfraStackProps extends StackProps {
@@ -82,6 +82,35 @@ export class OvertoneTestInfraStack extends Stack {
         });
 
         receiptRule.node.addDependency(emailBucket.policy!);
+
+        // Activate the receipt rule set (only one can be active per account/region)
+        new AwsCustomResource(this, "ActivateReceiptRuleSet", {
+            onCreate: {
+                service: "SES",
+                action: "setActiveReceiptRuleSet",
+                parameters: { RuleSetName: ruleSet.ruleSetName },
+                physicalResourceId: PhysicalResourceId.of("ActivateReceiptRuleSet"),
+            },
+            onUpdate: {
+                service: "SES",
+                action: "setActiveReceiptRuleSet",
+                parameters: { RuleSetName: ruleSet.ruleSetName },
+                physicalResourceId: PhysicalResourceId.of("ActivateReceiptRuleSet"),
+            },
+            onDelete: {
+                service: "SES",
+                action: "setActiveReceiptRuleSet",
+                parameters: {},
+            },
+            policy: AwsCustomResourcePolicy.fromStatements([
+                new PolicyStatement({
+                    effect: Effect.ALLOW,
+                    actions: ["ses:SetActiveReceiptRuleSet"],
+                    resources: ["*"],
+                }),
+            ]),
+            logRetention: RetentionDays.ONE_WEEK,
+        });
 
         const hostedZone = HostedZone.fromHostedZoneAttributes(this, "HostedZone", {
             hostedZoneId,
