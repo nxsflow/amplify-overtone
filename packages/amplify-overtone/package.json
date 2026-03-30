@@ -1,0 +1,46 @@
+{
+    "name": "@nxsflow/amplify-overtone",
+    "version": "0.1.0",
+    "description": "AWS Amplify Gen 2 extensions — collaborative data, auth inheritance, local-first storage, and schema-defined actions",
+    "type": "module",
+    "license": "Apache-2.0",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/nxsflow/amplify-overtone.git",
+        "directory": "packages/amplify-overtone"
+    },
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js",
+            "require": "./dist/index.cjs"
+        }
+    },
+    "main": "dist/index.cjs",
+    "module": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "tsup",
+        "dev": "tsup --watch",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "typecheck": "tsc --noEmit"
+    },
+    "peerDependencies": {
+        "@aws-amplify/plugin-types": "^1.0.0",
+        "aws-cdk-lib": "^2.0.0",
+        "constructs": "^10.0.0"
+    },
+    "devDependencies": {
+        "@aws-amplify/plugin-types": "^1.12.0",
+        "@types/node": "^22.0.0",
+        "aws-cdk-lib": "^2.170.0",
+        "constructs": "^10.4.2",
+        "esbuild": "^0.27.0",
+        "tsup": "^8.4.0",
+        "vitest": "^4.1.2"
+    }
+}
