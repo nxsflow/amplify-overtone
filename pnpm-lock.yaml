@@ -122,6 +122,9 @@ importers:
       '@aws-sdk/client-secrets-manager':
         specifier: ^3.1019.0
         version: 3.1019.0
+      '@types/aws-lambda':
+        specifier: ^8.10.161
+        version: 8.10.161
       '@types/node':
         specifier: ^22.0.0
         version: 22.19.15

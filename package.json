@@ -17,7 +17,8 @@
         "test-infra:bootstrap": "pnpm --filter @nxsflow/test-infra run bootstrap",
         "test:e2e": "pnpm --filter @nxsflow/integration-tests run test:e2e",
         "test-infra:deploy": "pnpm --filter @nxsflow/test-infra run deploy",
-        "test-infra:destroy": "pnpm --filter @nxsflow/test-infra run destroy"
+        "test-infra:destroy": "pnpm --filter @nxsflow/test-infra run destroy",
+        "test-infra:typecheck": "pnpm --filter @nxsflow/test-infra run typecheck"
     },
     "pnpm": {
         "onlyBuiltDependencies": [
