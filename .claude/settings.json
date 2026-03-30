@@ -4,6 +4,7 @@
             "Bash(cat:*)",
             "Bash(find:*)",
             "Bash(gh api:*)",
+            "Bash(git add:*)",
             "Bash(gh pr checks:*)",
             "Bash(gh pr list:*)",
             "Bash(gh pr view:*)",
@@ -12,9 +13,12 @@
             "Bash(gh search:*)",
             "Bash(npm view:*)",
             "Bash(npx biome:*)",
+            "Bash(pnpm add:*)",
             "Bash(pnpm biome check:*)",
             "Bash(pnpm build:*)",
+            "Bash(pnpm changeset:*)",
             "Bash(pnpm format:*)",
+            "Bash(pnpm install:*)",
             "Bash(pnpm lint:*)",
             "Bash(pnpm list:*)",
             "Bash(pnpm test:*)",
@@ -23,9 +27,7 @@
             "mcp__awslabs_aws-documentation-mcp-server__*",
             "Skill",
             "WebFetch",
-            "WebSearch",
-            "Bash(pnpm changeset:*)",
-            "Bash(pnpm add:*)"
+            "WebSearch"
         ]
     },
     "enabledMcpjsonServers": [

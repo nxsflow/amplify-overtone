@@ -1,6 +1,6 @@
 # @nxsflow/amplify-overtone — Technical Specification
 
-> *"Overtone adds the richness that Amplify's core signal doesn't cover — collaboration, offline-first, and schema-defined actions."*
+> _"Overtone adds the richness that Amplify's core signal doesn't cover — collaboration, offline-first, and schema-defined actions."_
 
 ## 1. Overview
 
@@ -18,7 +18,7 @@ The library acts as a **schema compiler**: it accepts an extended schema definit
 ### 1.2 Design Principles
 
 - **Companion, not fork.** `n` (nxsflow) works alongside Amplify's `a` namespace. Standard Amplify types (`a.string()`, `a.id()`, `a.integer()`, etc.) are used for field definitions. `n` extends with higher-level abstractions.
-- **Declarative over imperative.** Developers express *what* they want (collaborative, local-first, auth-inherited) in the schema. The library decides *how* (DDB tables, resolvers, streams, client-side sync).
+- **Declarative over imperative.** Developers express _what_ they want (collaborative, local-first, auth-inherited) in the schema. The library decides _how_ (DDB tables, resolvers, streams, client-side sync).
 - **Opt-in per model.** Each capability (`.collaborative()`, `.localFirst()`, `.inheritsAuthRules()`) is independently toggleable per model.
 - **Type-safe end-to-end.** The schema definition produces TypeScript types for the client. Actions, models, and relations are fully typed.
 
@@ -49,13 +49,19 @@ import { a } from "@aws-amplify/backend";
 const schema = n
   .schema({
     // Models (data)
-    Document: n.model({ /* ... */ }),
-    DocumentParagraph: n.model({ /* ... */ }),
+    Document: n.model({
+      /* ... */
+    }),
+    DocumentParagraph: n.model({
+      /* ... */
+    }),
 
     // Actions (side effects)
-    inviteEmail: n.email({ /* ... */ }),
+    inviteEmail: n.email({
+      /* ... */
+    }),
   })
-  .conflicts("automerge");   // Global CRDT strategy
+  .conflicts("automerge"); // Global CRDT strategy
 ```
 
 **Processing pipeline:**
@@ -81,33 +87,31 @@ n.schema(definition)
 `n.model()` extends `a.model()` with additional chainable methods.
 
 ```typescript
-Document: n
-  .model({
-    documentId: a.id().required(),
-    name: a.string(),
-    owner: n.owner().required(),
-    coOwners: n.coOwners(),
-    editors: n.editors(),
-    readers: n.readers(),
-    paragraphs: n
-      .hasMany("DocumentParagraph", "documentId")
-      .inheritsAuthRules(),
-  })
+Document: n.model({
+  documentId: a.id().required(),
+  name: a.string(),
+  owner: n.owner().required(),
+  coOwners: n.coOwners(),
+  editors: n.editors(),
+  readers: n.readers(),
+  paragraphs: n.hasMany("DocumentParagraph", "documentId").inheritsAuthRules(),
+})
   .identifier(["documentId"])
   .collaborative()
-  .localFirst()
+  .localFirst();
 ```
 
 **Chainable methods on `n.model()`:**
 
-| Method | Description |
-|---|---|
-| `.identifier(fields)` | Pass-through to `a.model().identifier()` |
-| `.collaborative()` | Enable CRDT-based conflict resolution for this model |
-| `.localFirst()` | Enable IndexedDB-first storage with background sync |
-| `.authorization(fn)` | Standard Amplify auth rules (pass-through) |
+| Method                | Description                                          |
+| --------------------- | ---------------------------------------------------- |
+| `.identifier(fields)` | Pass-through to `a.model().identifier()`             |
+| `.collaborative()`    | Enable CRDT-based conflict resolution for this model |
+| `.localFirst()`       | Enable IndexedDB-first storage with background sync  |
+| `.authorization(fn)`  | Standard Amplify auth rules (pass-through)           |
 
 **Behavior rules:**
+
 - `.localFirst()` implies `.collaborative()`. A model cannot be local-first without conflict resolution.
 - `.collaborative()` does NOT imply `.localFirst()`. A model can use server-side CRDT without offline support.
 - If a model has `.inheritsAuthRules()` on a relation from a parent that is `.collaborative()`, the child is automatically `.collaborative()` as well.
@@ -117,10 +121,10 @@ Document: n
 Instead of Amplify's `.authorization()` chain, nxsflow models authorization as **first-class data fields**. This makes permissions queryable, indexable, and inheritable.
 
 ```typescript
-owner: n.owner().required()      // Single owner (string: user sub/identity)
-coOwners: n.coOwners()           // Array of user subs with full owner-level access
-editors: n.editors()             // Array of user subs with read + update access
-readers: n.readers()             // Array of user subs with read-only access
+owner: n.owner().required(); // Single owner (string: user sub/identity)
+coOwners: n.coOwners(); // Array of user subs with full owner-level access
+editors: n.editors(); // Array of user subs with read + update access
+readers: n.readers(); // Array of user subs with read-only access
 ```
 
 **Underlying DynamoDB representation:**
@@ -139,6 +143,7 @@ readers: n.readers()             // Array of user subs with read-only access
 **Generated AppSync authorization logic:**
 
 For each operation, the resolver checks:
+
 - **Create:** caller must be `owner` or in `coOwners`
 - **Read:** caller must be `owner`, in `coOwners`, `editors`, or `readers`
 - **Update:** caller must be `owner`, in `coOwners`, or `editors`
@@ -152,9 +157,7 @@ These rules are generated as AppSync JS resolvers at deploy time.
 #### 2.4.1 `n.hasMany()` with `.inheritsAuthRules()`
 
 ```typescript
-paragraphs: n
-  .hasMany("DocumentParagraph", "documentId")
-  .inheritsAuthRules()
+paragraphs: n.hasMany("DocumentParagraph", "documentId").inheritsAuthRules();
 ```
 
 **Semantics:** Every `DocumentParagraph` inherits its authorization from the `Document` identified by `documentId`. The child model does NOT need its own `owner`/`editors`/`readers` fields in the schema definition.
@@ -168,6 +171,7 @@ paragraphs: n
 3. **On child read/update/delete:** The resolver checks the inherited auth fields on the child record directly (no parent lookup required at read time — this is critical for performance).
 
 **Generated infrastructure:**
+
 - GSI on child table: `documentId` as partition key (for efficient fan-out queries)
 - DynamoDB Stream on parent table (filtered to auth field changes)
 - Lambda function: `AuthPropagation-{modelName}`
@@ -180,7 +184,7 @@ DocumentParagraph: n.model({
   document: n.belongsTo("Document", "documentId"),
   content: a.string(),
   sortOrder: a.integer(),
-})
+});
 ```
 
 `n.belongsTo()` behaves identically to `a.belongsTo()` but is auth-inheritance-aware. If the parent's `hasMany` declares `.inheritsAuthRules()`, the child's resolver logic is auto-generated.
@@ -194,7 +198,7 @@ DocumentParagraph: n.model({
   documentId: a.string().required(),
   document: n.belongsTo("Document", "documentId"),
   comments: n.hasMany("ParagraphComment", "paragraphId").inheritsAuthRules(),
-})
+});
 ```
 
 The auth propagation must resolve transitively. `ParagraphComment` inherits from `DocumentParagraph`, which inherits from `Document`. The Lambda propagation function must handle cascading updates:
@@ -209,6 +213,7 @@ The auth propagation must resolve transitively. `ParagraphComment` inherits from
 #### 2.5.1 CRDT Strategy
 
 The library uses **Automerge** as its CRDT engine. Rationale:
+
 - Native JSON document model (maps directly to DynamoDB items)
 - Binary-efficient sync protocol
 - Strong TypeScript support
@@ -217,7 +222,9 @@ The library uses **Automerge** as its CRDT engine. Rationale:
 The CRDT strategy is set at the schema level:
 
 ```typescript
-n.schema({ /* ... */ }).conflicts("automerge");
+n.schema({
+  /* ... */
+}).conflicts("automerge");
 ```
 
 Currently only `"automerge"` is supported. The architecture allows future strategies but mixing strategies within a schema is not permitted.
@@ -246,11 +253,13 @@ OpsLog Table Schema:
 Two read modes:
 
 **Standard read** (`client.models.Document.get({ id })`):
+
 - Reads only from the State Table
 - Returns the last-compacted state
 - Fast, cheap, eventually consistent with ongoing edits
 
 **Collaborative read** (`client.models.Document.observe({ id })`):
+
 - Returns an Observable/subscription
 - On initial load: reads State Table + OpsLog, merges with Automerge
 - On subsequent updates: receives real-time OpsLog entries via AppSync subscription, applies incrementally
@@ -281,6 +290,7 @@ The OpsLog grows unboundedly without compaction. The Compaction Lambda runs on e
 4. Sets TTL on processed OpsLog entries
 
 **Full compaction** (periodic, via EventBridge schedule — e.g., daily):
+
 - Creates a fresh Automerge snapshot
 - Replaces the `__automergeState` field
 - Allows old ops to expire via TTL
@@ -300,12 +310,15 @@ This is stored on the client (IndexedDB for local-first models, in-memory otherw
 #### 2.6.1 `.localFirst()` Behavior
 
 ```typescript
-Document: n.model({ /* ... */ })
+Document: n.model({
+  /* ... */
+})
   .collaborative()
-  .localFirst()
+  .localFirst();
 ```
 
 A local-first model:
+
 - Stores all data in IndexedDB (via **cr-sqlite** WASM — SQLite with CRDT support)
 - Reads always hit local storage first (zero latency)
 - Writes go to local storage immediately, then sync to DynamoDB in the background
@@ -314,6 +327,7 @@ A local-first model:
 #### 2.6.2 Local Storage Architecture
 
 **cr-sqlite** is chosen over raw IndexedDB because:
+
 - Full SQL query support locally (not just key-value)
 - Built-in CRDT column types
 - Reactive queries (subscribe to query result changes)
@@ -340,11 +354,13 @@ CREATE TABLE Document (
 #### 2.6.3 Sync Protocol
 
 **Online → Offline transition:**
+
 1. All data is already local (no special handling needed)
 2. Writes continue to local storage
 3. OpsLog entries are queued in a local `__pendingSync` table
 
 **Offline → Online transition (reconnect):**
+
 1. Renew authorization lease (see §2.6.4)
 2. Check if permissions changed during offline period
 3. If permissions revoked: delete local data, discard pending ops, notify user
@@ -362,36 +378,37 @@ CREATE TABLE Document (
 
 ```typescript
 interface AuthorizationLease {
-  modelId: string;        // e.g., "doc-123"
-  modelName: string;      // e.g., "Document"
-  userId: string;         // user sub
+  modelId: string; // e.g., "doc-123"
+  modelName: string; // e.g., "Document"
+  userId: string; // user sub
   role: "owner" | "coOwner" | "editor" | "reader";
-  grantedAt: number;      // Unix ms
-  expiresAt: number;      // Unix ms
+  grantedAt: number; // Unix ms
+  expiresAt: number; // Unix ms
   lastVerifiedAt: number; // Unix ms — last successful server check
 }
 ```
 
 **Default TTLs by role:**
 
-| Role | Offline Lease Duration | Post-Expiry Behavior |
-|---|---|---|
-| `owner` | Unlimited | Never restricted offline |
-| `coOwner` | 7 days | Falls to read-only, then data retained but locked |
-| `editor` | 48 hours | Falls to read-only |
-| `reader` | 7 days | Local data is **deleted** (privacy/security) |
+| Role      | Offline Lease Duration | Post-Expiry Behavior                              |
+| --------- | ---------------------- | ------------------------------------------------- |
+| `owner`   | Unlimited              | Never restricted offline                          |
+| `coOwner` | 7 days                 | Falls to read-only, then data retained but locked |
+| `editor`  | 48 hours               | Falls to read-only                                |
+| `reader`  | 7 days                 | Local data is **deleted** (privacy/security)      |
 
 **TTL configuration in schema:**
 
 ```typescript
-n.schema({ /* ... */ })
-  .localFirst({
-    leases: {
-      coOwner: "7d",
-      editor: "48h",
-      reader: "7d",
-    }
-  });
+n.schema({
+  /* ... */
+}).localFirst({
+  leases: {
+    coOwner: "7d",
+    editor: "48h",
+    reader: "7d",
+  },
+});
 ```
 
 **Lease lifecycle:**
@@ -409,7 +426,9 @@ n.schema({ /* ... */ })
 // Listen for lease events in the UI
 client.models.Document.onLeaseExpired(({ modelId, role, action }) => {
   if (action === "readOnly") {
-    showBanner("Your editing access has expired. Reconnect to continue editing.");
+    showBanner(
+      "Your editing access has expired. Reconnect to continue editing.",
+    );
   }
   if (action === "purged") {
     showBanner("Your access to this document has expired.");
@@ -433,13 +452,11 @@ Actions are NOT models. They do not have tables. They produce AppSync mutations 
 #### 3.2.1 Schema Definition
 
 ```typescript
-inviteEmail: n
-  .email({
-    sender: "noreply",                         // key from defineEmail() senders
-    subject: ({ inviter }) =>
-      `${inviter} has invited you to collaborate`,
-    template: "invite-v1",                     // key from defineEmail() templates
-  })
+inviteEmail: n.email({
+  sender: "noreply", // key from defineEmail() senders
+  subject: ({ inviter }) => `${inviter} has invited you to collaborate`,
+  template: "invite-v1", // key from defineEmail() templates
+})
   .arguments({
     recipientEmail: a.email().required(),
     invitee: a.string().required(),
@@ -451,11 +468,9 @@ inviteEmail: n
     a.customType({
       messageId: a.string().required(),
       status: a.enum(["sent", "queued", "failed"]),
-    })
+    }),
   )
-  .authorization(allow => [
-    allow.authenticated(),
-  ])
+  .authorization((allow) => [allow.authenticated()]);
 ```
 
 #### 3.2.2 Backend Infrastructure — `defineEmail()`
@@ -467,12 +482,12 @@ import { defineEmail } from "@nxsflow/amplify-overtone";
 const email = defineEmail({
   domain: "notifications.nexflow.it",
   senders: {
-    noreply: "noreply",       // → noreply@notifications.nexflow.it
-    support: "support",       // → support@notifications.nexflow.it
+    noreply: "noreply", // → noreply@notifications.nexflow.it
+    support: "support", // → support@notifications.nexflow.it
   },
   templates: {
     "invite-v1": {
-      source: "./templates/invite.html",    // HTML template with {{variable}} placeholders
+      source: "./templates/invite.html", // HTML template with {{variable}} placeholders
       textFallback: "./templates/invite.txt",
     },
     "welcome-v1": {
@@ -483,6 +498,7 @@ const email = defineEmail({
 ```
 
 **Generated CDK constructs:**
+
 - SES domain identity verification (DNS records via Route53 if available)
 - SES email templates (from HTML source files)
 - IAM role for AppSync to invoke SES
@@ -519,18 +535,17 @@ if (data) {
 ### 3.3 Push Notification Actions — `n.pushNotification()`
 
 ```typescript
-documentSharedPush: n
-  .pushNotification({
-    channel: "document-updates",
-    title: ({ documentName }) => `New shared document: ${documentName}`,
-    body: ({ inviter }) => `${inviter} shared a document with you`,
-  })
+documentSharedPush: n.pushNotification({
+  channel: "document-updates",
+  title: ({ documentName }) => `New shared document: ${documentName}`,
+  body: ({ inviter }) => `${inviter} shared a document with you`,
+})
   .arguments({
     recipientUserId: a.string().required(),
     documentName: a.string().required(),
     inviter: a.string().required(),
   })
-  .authorization(allow => [allow.authenticated()])
+  .authorization((allow) => [allow.authenticated()]);
 ```
 
 **Generated infrastructure:** Amazon SNS topic or Amazon Pinpoint campaign (configurable). AppSync resolver to publish.
@@ -538,18 +553,17 @@ documentSharedPush: n
 ### 3.4 Webhook Actions — `n.webhook()`
 
 ```typescript
-onDocumentFinalized: n
-  .webhook({
-    method: "POST",
-    headers: { "X-Source": "nxsflow" },
-    timeout: 10,   // seconds
-  })
+onDocumentFinalized: n.webhook({
+  method: "POST",
+  headers: { "X-Source": "nxsflow" },
+  timeout: 10, // seconds
+})
   .arguments({
     documentId: a.id().required(),
     callbackUrl: a.url().required(),
     payload: a.json(),
   })
-  .authorization(allow => [allow.groups(["admins"])])
+  .authorization((allow) => [allow.groups(["admins"])]);
 ```
 
 **Generated infrastructure:** Lambda function that performs the HTTP call (AppSync cannot make arbitrary HTTP requests). Retry policy: 3 attempts with exponential backoff.
@@ -574,10 +588,13 @@ ActionAuditLog Table Schema:
 Enable per action:
 
 ```typescript
-inviteEmail: n
-  .email({ /* ... */ })
-  .arguments({ /* ... */ })
-  .audit({ enabled: true, retainDays: 90, includePII: false })
+inviteEmail: n.email({
+  /* ... */
+})
+  .arguments({
+    /* ... */
+  })
+  .audit({ enabled: true, retainDays: 90, includePII: false });
 ```
 
 ---
@@ -597,47 +614,47 @@ const backend = defineBackend({ auth, data, email });
 
 // Apply Amplify Overtone extensions to the Amplify-generated stack
 new OvertoneConstruct(backend.data.stack, "Overtone", {
-  schema: schema,              // The n.schema() output
-  amplifyData: backend.data,   // Reference to Amplify's data construct
-  email: email,                // Optional: defineEmail() output
+  schema: schema, // The n.schema() output
+  amplifyData: backend.data, // Reference to Amplify's data construct
+  email: email, // Optional: defineEmail() output
 });
 ```
 
 ### 4.2 Generated Resources Per Feature
 
-#### Collaborative Models:
+#### Collaborative Models
 
-| Resource | Purpose |
-|---|---|
-| DynamoDB Table: `{Model}-OpsLog` | Stores Automerge operations |
-| DynamoDB Stream on OpsLog | Triggers compaction |
-| Lambda: `{Model}-Compaction` | Merges ops into state table |
-| EventBridge Rule | Periodic full compaction (daily) |
-| AppSync Resolvers | OpsLog mutations + subscriptions |
+| Resource                         | Purpose                          |
+| -------------------------------- | -------------------------------- |
+| DynamoDB Table: `{Model}-OpsLog` | Stores Automerge operations      |
+| DynamoDB Stream on OpsLog        | Triggers compaction              |
+| Lambda: `{Model}-Compaction`     | Merges ops into state table      |
+| EventBridge Rule                 | Periodic full compaction (daily) |
+| AppSync Resolvers                | OpsLog mutations + subscriptions |
 
-#### Auth Inheritance:
+#### Auth Inheritance
 
-| Resource | Purpose |
-|---|---|
-| DynamoDB Stream on parent table | Detects auth field changes |
-| Lambda: `AuthPropagation-{Model}` | Fans out auth updates to children |
-| GSI on child table: `byParentId` | Efficient child lookup for propagation |
+| Resource                          | Purpose                                |
+| --------------------------------- | -------------------------------------- |
+| DynamoDB Stream on parent table   | Detects auth field changes             |
+| Lambda: `AuthPropagation-{Model}` | Fans out auth updates to children      |
+| GSI on child table: `byParentId`  | Efficient child lookup for propagation |
 
-#### Local-First:
+#### Local-First
 
-| Resource | Purpose |
-|---|---|
+| Resource                         | Purpose                                    |
+| -------------------------------- | ------------------------------------------ |
 | AppSync Resolver: `sync-{Model}` | Delta sync endpoint (version-vector based) |
-| Additional fields on model | `__syncVersion`, `__lastModifiedBy` |
+| Additional fields on model       | `__syncVersion`, `__lastModifiedBy`        |
 
-#### Email Actions:
+#### Email Actions
 
-| Resource | Purpose |
-|---|---|
-| SES Domain Identity | Verified sending domain |
-| SES Templates | Email templates |
-| IAM Role | AppSync → SES permissions |
-| AppSync Resolver: `{actionName}` | Mutation resolver |
+| Resource                         | Purpose                   |
+| -------------------------------- | ------------------------- |
+| SES Domain Identity              | Verified sending domain   |
+| SES Templates                    | Email templates           |
+| IAM Role                         | AppSync → SES permissions |
+| AppSync Resolver: `{actionName}` | Mutation resolver         |
 
 ---
 
@@ -661,7 +678,9 @@ interface NxsflowClient {
 
       // nxsflow collaborative extensions
       observe(input: { documentId: string }): Observable<Document>;
-      getCollaborativeSession(input: { documentId: string }): CollaborativeSession<Document>;
+      getCollaborativeSession(input: {
+        documentId: string;
+      }): CollaborativeSession<Document>;
 
       // nxsflow local-first extensions
       onLeaseExpired(handler: LeaseExpiredHandler): Unsubscribe;
@@ -682,8 +701,9 @@ interface NxsflowClient {
 ### 5.2 Collaborative Session API
 
 ```typescript
-const session = await client.models.Document
-  .getCollaborativeSession({ documentId: "doc-123" });
+const session = await client.models.Document.getCollaborativeSession({
+  documentId: "doc-123",
+});
 
 // Get current state (Automerge document)
 const doc = session.document;
@@ -742,11 +762,11 @@ When offline, mutations are queued:
 
 ```typescript
 interface PendingMutation {
-  id: string;                    // UUID
+  id: string; // UUID
   modelName: string;
   recordId: string;
   type: "create" | "update" | "delete";
-  ops: Uint8Array;               // Automerge operations
+  ops: Uint8Array; // Automerge operations
   createdAt: number;
   retryCount: number;
 }
@@ -831,7 +851,8 @@ const schema = n
     inviteCollaborator: n
       .email({
         sender: "noreply",
-        subject: ({ inviterName }) => `${inviterName} invited you to collaborate`,
+        subject: ({ inviterName }) =>
+          `${inviterName} invited you to collaborate`,
         template: "invite-v1",
       })
       .arguments({
@@ -845,9 +866,9 @@ const schema = n
         a.customType({
           messageId: a.string(),
           status: a.enum(["sent", "queued", "failed"]),
-        })
+        }),
       )
-      .authorization(allow => [allow.authenticated()])
+      .authorization((allow) => [allow.authenticated()])
       .audit({ enabled: true }),
   })
   .conflicts("automerge")
@@ -902,8 +923,9 @@ const { data: emailResult } = await client.actions.inviteCollaborator({
 });
 
 // Start collaborative editing
-const session = await client.models.Document
-  .getCollaborativeSession({ documentId: doc.documentId });
+const session = await client.models.Document.getCollaborativeSession({
+  documentId: doc.documentId,
+});
 
 session.change((d) => {
   d.name = "Updated Project Brief";
@@ -922,8 +944,9 @@ await client.models.DocumentParagraph.create({
 });
 
 // Check sync status
-const status = client.models.Document
-  .getSyncStatus({ documentId: doc.documentId });
+const status = client.models.Document.getSyncStatus({
+  documentId: doc.documentId,
+});
 // → { state: "synced" | "syncing" | "offline" | "error", pendingOps: 0, lastSyncedAt: ... }
 
 // Handle lease expiration
