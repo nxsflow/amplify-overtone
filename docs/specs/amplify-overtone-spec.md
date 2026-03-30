@@ -121,10 +121,10 @@ Document: n.model({
 Instead of Amplify's `.authorization()` chain, nxsflow models authorization as **first-class data fields**. This makes permissions queryable, indexable, and inheritable.
 
 ```typescript
-owner: n.owner().required(); // Single owner (string: user sub/identity)
-coOwners: n.coOwners(); // Array of user subs with full owner-level access
-editors: n.editors(); // Array of user subs with read + update access
-readers: n.readers(); // Array of user subs with read-only access
+owner: n.owner().required(); // Single owner — full control + can transfer ownership
+coOwners: n.coOwners(); // Array of user subs — same as owner except cannot transfer ownership
+editors: n.editors(); // Array of user subs — edit existing records + create child records
+readers: n.readers(); // Array of user subs — read-only, cannot share with others
 ```
 
 **Underlying DynamoDB representation:**
@@ -140,15 +140,17 @@ readers: n.readers(); // Array of user subs with read-only access
 }
 ```
 
-**Generated AppSync authorization logic:**
+**Generated AppSync authorization logic (opinionated defaults, customization planned for future):**
 
 For each operation, the resolver checks:
 
-- **Create:** caller must be `owner` or in `coOwners`
+- **Create parent record:** caller must be `owner` or in `coOwners`
+- **Create child record:** caller must be `owner`, in `coOwners`, or `editors` (editors can create children but not top-level parents)
 - **Read:** caller must be `owner`, in `coOwners`, `editors`, or `readers`
 - **Update:** caller must be `owner`, in `coOwners`, or `editors`
 - **Delete:** caller must be `owner` or in `coOwners`
-- **Manage permissions (add/remove editors/readers):** caller must be `owner` or in `coOwners`
+- **Transfer ownership (change `owner` field):** caller must be current `owner` only
+- **Manage sharing (add/remove coOwners, editors, readers):** caller must be `owner` or in `coOwners`
 
 These rules are generated as AppSync JS resolvers at deploy time.
 
