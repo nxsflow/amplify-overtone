@@ -4,7 +4,6 @@
     "version": "0.0.0",
     "type": "module",
     "scripts": {
-        "build": "tsc --noEmit",
         "typecheck": "tsc --noEmit",
         "bootstrap": "./scripts/bootstrap.sh",
         "deploy": "./scripts/cdk.sh deploy",
