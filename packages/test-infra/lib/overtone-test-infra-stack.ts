@@ -1,4 +1,11 @@
-import { CfnOutput, CustomResource, Duration, RemovalPolicy, Stack, type StackProps } from "aws-cdk-lib";
+import {
+    CfnOutput,
+    CustomResource,
+    Duration,
+    RemovalPolicy,
+    Stack,
+    type StackProps,
+} from "aws-cdk-lib";
 import { UserPool, UserPoolClient } from "aws-cdk-lib/aws-cognito";
 import { Effect, PolicyStatement, ServicePrincipal } from "aws-cdk-lib/aws-iam";
 import { Runtime } from "aws-cdk-lib/aws-lambda";

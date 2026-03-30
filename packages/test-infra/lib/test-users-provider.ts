@@ -43,8 +43,9 @@ function generatePassword(length = 16): string {
         symbols[Math.floor(Math.random() * symbols.length)]!,
     ];
 
-    const remaining = Array.from({ length: length - required.length }, () =>
-        all[Math.floor(Math.random() * all.length)]!,
+    const remaining = Array.from(
+        { length: length - required.length },
+        () => all[Math.floor(Math.random() * all.length)]!,
     );
 
     // Shuffle all characters
@@ -104,10 +105,7 @@ async function deleteUser(userPoolId: string, email: string): Promise<void> {
     }
 }
 
-async function createOrUpdateSecret(
-    secretName: string,
-    secretValue: string,
-): Promise<string> {
+async function createOrUpdateSecret(secretName: string, secretValue: string): Promise<string> {
     try {
         const result = await secrets.send(
             new CreateSecretCommand({

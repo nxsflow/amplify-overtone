@@ -22,6 +22,7 @@
             "Bash(pnpm lint:*)",
             "Bash(pnpm list:*)",
             "Bash(pnpm test:*)",
+            "Bash(pnpm test-infra:typecheck:*)",
             "Bash(pnpm typecheck:*)",
             "mcp__aws-knowledge-mcp-server__*",
             "mcp__awslabs_aws-documentation-mcp-server__*",
