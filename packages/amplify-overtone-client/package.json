@@ -1,0 +1,41 @@
+{
+    "name": "@nxsflow/amplify-overtone-client",
+    "version": "0.1.0",
+    "description": "Client-side runtime for @nxsflow/amplify-overtone — sync engine, offline storage, and collaborative session API",
+    "type": "module",
+    "license": "Apache-2.0",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/nxsflow/amplify-overtone.git",
+        "directory": "packages/amplify-overtone-client"
+    },
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js",
+            "require": "./dist/index.cjs"
+        }
+    },
+    "main": "dist/index.cjs",
+    "module": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "tsup",
+        "dev": "tsup --watch",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "typecheck": "tsc --noEmit"
+    },
+    "peerDependencies": {
+        "aws-amplify": "^6.0.0"
+    },
+    "devDependencies": {
+        "@types/node": "^22.0.0",
+        "aws-amplify": "^6.16.3",
+        "tsup": "^8.4.0",
+        "vitest": "^4.1.2"
+    }
+}
