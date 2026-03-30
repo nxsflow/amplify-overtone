@@ -1,0 +1,20 @@
+{
+    "name": "@nxsflow/test-infra",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+        "build": "tsc --noEmit",
+        "typecheck": "tsc --noEmit",
+        "bootstrap": "./scripts/bootstrap.sh",
+        "deploy": "./scripts/cdk.sh deploy",
+        "destroy": "./scripts/cdk.sh destroy"
+    },
+    "devDependencies": {
+        "@types/node": "^22.0.0",
+        "aws-cdk": "^2.170.0",
+        "aws-cdk-lib": "^2.170.0",
+        "constructs": "^10.4.2",
+        "tsx": "^4.19.0"
+    }
+}
