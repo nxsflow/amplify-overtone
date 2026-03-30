@@ -4,16 +4,20 @@
     "version": "0.0.0",
     "type": "module",
     "scripts": {
+        "build": "tsc --noEmit",
         "typecheck": "tsc --noEmit",
         "bootstrap": "./scripts/bootstrap.sh",
         "deploy": "./scripts/cdk.sh deploy",
         "destroy": "./scripts/cdk.sh destroy"
     },
     "devDependencies": {
+        "@aws-sdk/client-cognito-identity-provider": "^3.1019.0",
+        "@aws-sdk/client-secrets-manager": "^3.1019.0",
         "@types/node": "^22.0.0",
         "aws-cdk": "^2.170.0",
         "aws-cdk-lib": "^2.170.0",
         "constructs": "^10.4.2",
+        "esbuild": "^0.27.0",
         "tsx": "^4.19.0"
     }
 }
