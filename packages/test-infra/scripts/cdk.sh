@@ -53,47 +53,42 @@ if [ "$ACTION" = "deploy" ]; then
     echo ""
     echo "Assembling $OUTPUT_FILE from stack outputs..."
 
-    PROFILE_ARG=""
+    AWS_ARGS=()
     if [ -n "${AWS_PROFILE:-}" ]; then
-        PROFILE_ARG="--profile $AWS_PROFILE"
+        AWS_ARGS+=(--profile "$AWS_PROFILE")
     fi
 
-    # Read CFN stack outputs
-    STACK_OUTPUTS=$(aws cloudformation describe-stacks \
-        --stack-name "$STACK_NAME" \
-        $PROFILE_ARG \
-        --query "Stacks[0].Outputs" \
-        --output json)
-
-    get_output() {
-        echo "$STACK_OUTPUTS" | node -e "
-            const outputs = JSON.parse(require('fs').readFileSync('/dev/stdin', 'utf-8'));
-            const match = outputs.find(o => o.OutputKey === '$1');
-            process.stdout.write(match ? match.OutputValue : '');
-        "
+    # Helper: extract a single output value from the stack by OutputKey
+    get_stack_output() {
+        aws cloudformation describe-stacks \
+            --stack-name "$STACK_NAME" \
+            "${AWS_ARGS[@]}" \
+            --query "Stacks[0].Outputs[?OutputKey=='$1'].OutputValue | [0]" \
+            --output text
     }
 
-    USER_POOL_ID=$(get_output "UserPoolId")
-    USER_POOL_CLIENT_ID=$(get_output "UserPoolClientId")
-    RECEIPT_S3_BUCKET=$(get_output "ReceiptS3BucketName")
-    RECIPIENT_DOMAIN=$(get_output "RecipientDomain")
-    SECRET_ARN=$(get_output "TestUsersSecretArn")
+    USER_POOL_ID=$(get_stack_output "UserPoolId")
+    USER_POOL_CLIENT_ID=$(get_stack_output "UserPoolClientId")
+    RECEIPT_S3_BUCKET=$(get_stack_output "ReceiptS3BucketName")
+    RECIPIENT_DOMAIN=$(get_stack_output "RecipientDomain")
+    SECRET_ARN=$(get_stack_output "TestUsersSecretArn")
 
     # Read test user credentials from Secrets Manager
     TEST_USERS=$(aws secretsmanager get-secret-value \
         --secret-id "$SECRET_ARN" \
-        $PROFILE_ARG \
+        "${AWS_ARGS[@]}" \
         --query "SecretString" \
         --output text)
 
     # Assemble the output JSON
-    # Uses process.argv to avoid shell quoting issues with special chars in passwords
-    node -e "
-        const [,, outputFile, userPoolId, userPoolClientId, receiptS3Bucket, recipientDomain, testUsersJson] = process.argv;
-        const testUsers = JSON.parse(testUsersJson);
+    # TEST_USERS is piped via stdin because passwords contain $ characters
+    # that bash would interpret as variable expansions in arguments
+    echo "$TEST_USERS" | node -e "
+        const [, outputFile, userPoolId, userPoolClientId, receiptS3Bucket, recipientDomain] = process.argv;
+        const testUsers = JSON.parse(require('fs').readFileSync('/dev/stdin', 'utf-8'));
         const output = { userPoolId, userPoolClientId, receiptS3Bucket, recipientDomain, testUsers };
         require('fs').writeFileSync(outputFile, JSON.stringify(output, null, 4) + '\n');
-    " "$OUTPUT_FILE" "$USER_POOL_ID" "$USER_POOL_CLIENT_ID" "$RECEIPT_S3_BUCKET" "$RECIPIENT_DOMAIN" "$TEST_USERS"
+    " "$OUTPUT_FILE" "$USER_POOL_ID" "$USER_POOL_CLIENT_ID" "$RECEIPT_S3_BUCKET" "$RECIPIENT_DOMAIN"
 
     echo "Written: $OUTPUT_FILE"
 fi
