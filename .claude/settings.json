@@ -1,0 +1,36 @@
+{
+    "permissions": {
+        "allow": [
+            "Bash(cat:*)",
+            "Bash(find:*)",
+            "Bash(gh api:*)",
+            "Bash(gh pr checks:*)",
+            "Bash(gh pr list:*)",
+            "Bash(gh pr view:*)",
+            "Bash(gh repo:*)",
+            "Bash(gh run view:*)",
+            "Bash(gh search:*)",
+            "Bash(npm view:*)",
+            "Bash(npx biome:*)",
+            "Bash(pnpm biome check:*)",
+            "Bash(pnpm build:*)",
+            "Bash(pnpm format:*)",
+            "Bash(pnpm lint:*)",
+            "Bash(pnpm list:*)",
+            "Bash(pnpm test:*)",
+            "Bash(pnpm typecheck:*)",
+            "mcp__aws-knowledge-mcp-server__*",
+            "mcp__awslabs_aws-documentation-mcp-server__*",
+            "Skill",
+            "WebFetch",
+            "WebSearch",
+            "Bash(pnpm changeset:*)",
+            "Bash(pnpm add:*)"
+        ]
+    },
+    "enabledMcpjsonServers": [
+        "aws-knowledge-mcp-server",
+        "awslabs.cdk-mcp-server",
+        "awslabs.aws-documentation-mcp-server"
+    ]
+}
