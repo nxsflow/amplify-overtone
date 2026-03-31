@@ -1,4 +1,4 @@
-# @nxsflow/amplify-overtone
+# Amplify Overtone
 
 Open-source AWS Amplify Gen 2 extensions for collaborative data, auth inheritance, local-first storage, and schema-defined actions. Monorepo with two published packages and integration test infrastructure.
 
@@ -73,7 +73,7 @@ pnpm lint                                            # check for lint errors
 ```bash
 cp .env.example .env                                 # fill in real values (incl. AWS_PROFILE)
 pnpm test-infra:deploy                               # deploy test infra (once)
-pnpm test:e2e                                        # run e2e tests
+pnpm e2e:test                                        # run e2e tests
 ```
 
 ## Conventions

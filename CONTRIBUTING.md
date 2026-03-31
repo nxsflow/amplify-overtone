@@ -1,4 +1,4 @@
-# Contributing to @nxsflow/amplify-overtone
+# Contributing to Amplify Overtone
 
 ## Getting Started
 
@@ -12,18 +12,20 @@ pnpm install
 
 ```bash
 pnpm install          # install all workspace deps
-pnpm -r build         # build all packages
-pnpm -r test          # run all unit tests
+pnpm build            # build all packages
+pnpm test             # run all unit tests
 pnpm lint             # biome check
 pnpm format           # biome format --write
 ```
 
-To work on a single package:
+To work on a single package, use the root convenience scripts:
 
 ```bash
-pnpm --filter @nxsflow/amplify-overtone build
-pnpm --filter @nxsflow/amplify-overtone test
-pnpm --filter @nxsflow/amplify-overtone typecheck
+pnpm overtone:build      # build backend package
+pnpm overtone:test       # test backend package
+pnpm overtone:typecheck  # typecheck backend package
+pnpm client:build        # build client package
+pnpm client:test         # test client package
 ```
 
 ## Project Structure
@@ -58,7 +60,7 @@ packages/
 Run all unit tests across the monorepo:
 
 ```bash
-pnpm -r test
+pnpm test
 ```
 
 #### When to Write Which Test
@@ -76,7 +78,7 @@ cp .env.example .env                    # fill in real AWS values (incl. AWS_PRO
 pnpm test-infra:deploy                  # deploy test infrastructure
 
 # Run e2e tests
-pnpm test:e2e
+pnpm e2e:test
 
 # Tear down test infrastructure
 pnpm test-infra:destroy
@@ -118,7 +120,7 @@ Push your branch and open a pull request against `main`. CI runs build, typechec
 
 ## Versioning
 
-This project uses [Changesets](https://github.com/changesets/changesets) for version management across both published packages (`@nxsflow/amplify-overtone` and `@nxsflow/amplify-overtone-client`). Versions follow [Semantic Versioning](https://semver.org/):
+Amplify Overtone uses [Changesets](https://github.com/changesets/changesets) for version management across both published packages (`@nxsflow/amplify-overtone` and `@nxsflow/amplify-overtone-client`). Versions follow [Semantic Versioning](https://semver.org/):
 
 | Bump    | When                                                             | Example                               |
 | ------- | ---------------------------------------------------------------- | ------------------------------------- |
