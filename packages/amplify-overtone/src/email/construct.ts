@@ -93,7 +93,7 @@ export class AmplifyEmail extends Construct {
             }
         } else {
             // Mode 1: senders use senderEmail
-            const senders: Record<string, SenderWithEmail> | undefined = props.senders;
+            const senders = props.senders as Record<string, SenderWithEmail> | undefined;
             if (senders) {
                 for (const [key, sender] of Object.entries(senders)) {
                     normalizedSenders[key] = {
