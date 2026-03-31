@@ -34,6 +34,7 @@ describe("renderTemplate — confirmation-code", () => {
             "TestBrand",
         );
         expect(result.html).toContain("15");
+        expect(result.html).toContain("minutes");
         expect(result.text).toContain("15 minutes");
     });
 });
