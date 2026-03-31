@@ -5,30 +5,32 @@ import type { TestProjectBase } from "../../test-project-setup/test_project_base
 import { customDomainEmailTestProjectCreator } from "../../test-projects/custom-domain-email/test_project_creator.js";
 import { assertEmailOutputsExist } from "../../utilities/amplify_outputs_validator.js";
 import { S3Mailbox } from "../../utilities/s3_mailbox.js";
+import { loadTestInfraConfig } from "../../utilities/test_infra_config.js";
 
-const recipientDomain = process.env.TEST_RECIPIENT_DOMAIN!;
-const receiptBucket = process.env.TEST_RECEIPT_S3_BUCKET!;
-
-for (const [name, value] of Object.entries({
-    TEST_SENDER_DOMAIN: process.env.TEST_SENDER_DOMAIN,
-    TEST_SENDER_HOSTED_ZONE_ID: process.env.TEST_SENDER_HOSTED_ZONE_ID,
-    TEST_SENDER_HOSTED_ZONE_DOMAIN: process.env.TEST_SENDER_HOSTED_ZONE_DOMAIN,
-    TEST_RECIPIENT_DOMAIN: recipientDomain,
-    TEST_RECEIPT_S3_BUCKET: receiptBucket,
-})) {
-    if (!value) {
+// Sender domain env vars are still needed for the Amplify deploy
+for (const name of [
+    "TEST_SENDER_DOMAIN",
+    "TEST_SENDER_HOSTED_ZONE_ID",
+    "TEST_SENDER_HOSTED_ZONE_DOMAIN",
+]) {
+    if (!process.env[name]) {
         throw new Error(`Required env var ${name} is not set`);
     }
 }
 
 describe("all-templates-email integration test", { concurrency: false }, () => {
     let testProject: TestProjectBase;
+    let recipientDomain: string;
+    let mailbox: S3Mailbox;
     const e2eProjectDir = "./e2e-tests";
     const lambda = new LambdaClient({});
-    const mailbox = new S3Mailbox(receiptBucket);
 
     before(
         async () => {
+            const infra = await loadTestInfraConfig();
+            recipientDomain = infra.recipientDomain;
+            mailbox = new S3Mailbox(infra.receiptS3Bucket);
+
             testProject = await customDomainEmailTestProjectCreator.createProject(e2eProjectDir);
             await testProject.deploy();
         },
