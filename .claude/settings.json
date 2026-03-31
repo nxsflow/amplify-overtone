@@ -36,8 +36,10 @@
             "Bash(pnpm test-infra:destroy)",
             "Bash(pnpm test-infra:typecheck)",
             "Bash(pnpm typecheck)",
+            "Fetch",
             "mcp__aws-knowledge-mcp-server__*",
             "mcp__awslabs_aws-documentation-mcp-server__*",
+            "mcp__playwright__*",
             "Skill",
             "WebFetch",
             "WebSearch"
@@ -46,6 +48,7 @@
     "enabledMcpjsonServers": [
         "aws-knowledge-mcp-server",
         "awslabs.cdk-mcp-server",
-        "awslabs.aws-documentation-mcp-server"
+        "awslabs.aws-documentation-mcp-server",
+        "playwright"
     ]
 }
