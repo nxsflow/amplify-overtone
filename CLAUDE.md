@@ -11,16 +11,31 @@ Open-source AWS Amplify Gen 2 extensions for collaborative data, auth inheritanc
 | `packages/integration-tests`       | (private)                           | E2E tests: deploy real Amplify backends, verify behavior per feature          |
 | `packages/test-infra`              | (private)                           | CDK app: Cognito user pool (pre-confirmed users), S3 + SES receipt rules     |
 
-## Development Commands
+## Root Scripts
+
+| Script | Command | Description |
+| --- | --- | --- |
+| `pnpm build` | `pnpm -r build` | Build all packages |
+| `pnpm test` | `pnpm -r test` | Run all unit/construct tests (vitest) |
+| `pnpm typecheck` | `pnpm -r typecheck` | Typecheck all packages |
+| `pnpm lint` | `biome check .` | Lint all files |
+| `pnpm format` | `biome format --write .` | Auto-format all files |
+| `pnpm aws:login` | `./scripts/aws-login.sh` | AWS SSO login (reads AWS_PROFILE from .env) |
+| `pnpm test:overtone` | `pnpm --filter @nxsflow/amplify-overtone test` | Run tests for backend package only |
+| `pnpm typecheck:overtone` | `pnpm --filter @nxsflow/amplify-overtone typecheck` | Typecheck backend package only |
+| `pnpm test-infra:bootstrap` | `pnpm --filter @nxsflow/test-infra run bootstrap` | CDK bootstrap for test infrastructure |
+| `pnpm test-infra:deploy` | `pnpm --filter @nxsflow/test-infra run deploy` | Deploy test infra + write `overtone_test_infra.json` |
+| `pnpm test-infra:destroy` | `pnpm --filter @nxsflow/test-infra run destroy` | Tear down test infrastructure |
+| `pnpm test-infra:typecheck` | `pnpm --filter @nxsflow/test-infra run typecheck` | Typecheck test-infra package only |
+| `pnpm test:e2e` | `pnpm --filter @nxsflow/integration-tests run test:e2e` | Run e2e tests (requires deployed test-infra + .env) |
+
+### Quick Start
 
 ```bash
 pnpm install                                         # install all workspace deps
-pnpm -r build                                        # build all packages
-pnpm -r test                                         # run all unit tests
-pnpm --filter @nxsflow/amplify-overtone test         # test one package
-pnpm --filter @nxsflow/amplify-overtone typecheck    # typecheck one package
-pnpm lint                                            # biome check (root)
-pnpm format                                          # biome format --write (root)
+pnpm build                                           # build all packages
+pnpm test                                            # run all unit tests
+pnpm lint                                            # check for lint errors
 ```
 
 ### Integration Tests

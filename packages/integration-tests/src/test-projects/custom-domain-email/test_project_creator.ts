@@ -1,7 +1,7 @@
 import fsp from "node:fs/promises";
 import path from "node:path";
-import { execaSync } from "execa";
 import { CloudFormationClient } from "@aws-sdk/client-cloudformation";
+import { execaSync } from "execa";
 import { TestProjectBase } from "../../test-project-setup/test_project_base.js";
 import type { TestProjectCreator } from "../../test-project-setup/test_project_creator.js";
 

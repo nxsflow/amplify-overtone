@@ -22,6 +22,7 @@
             "Bash(pnpm install:*)",
             "Bash(pnpm lint:*)",
             "Bash(pnpm list:*)",
+            "Bash(pnpm test:overtone)",
             "Bash(pnpm test:*)",
             "Bash(pnpm test-infra:deploy)",
             "Bash(pnpm test-infra:typecheck)",

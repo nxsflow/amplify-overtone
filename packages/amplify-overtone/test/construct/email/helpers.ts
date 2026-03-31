@@ -32,9 +32,7 @@ export function createEmailTemplate(overrides?: Partial<EmailProps>): Template {
 /**
  * Synth a CDK template for Mode 1 (no domain).
  */
-export function createNoDomainTemplate(
-    overrides?: Partial<EmailProps>,
-): Template {
+export function createNoDomainTemplate(overrides?: Partial<EmailProps>): Template {
     const app = new App();
     const stack = new Stack(app, "TestStack");
     new AmplifyEmail(stack, "Email", {
@@ -46,9 +44,7 @@ export function createNoDomainTemplate(
 /**
  * Synth a CDK template for Mode 2 (domain only, no Route 53).
  */
-export function createDomainOnlyTemplate(
-    overrides?: Partial<EmailProps>,
-): Template {
+export function createDomainOnlyTemplate(overrides?: Partial<EmailProps>): Template {
     const app = new App();
     const stack = new Stack(app, "TestStack");
     new AmplifyEmail(stack, "Email", {

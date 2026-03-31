@@ -7,9 +7,9 @@ import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import {
     CnameRecord,
     HostedZone,
+    type IHostedZone,
     MxRecord,
     TxtRecord,
-    type IHostedZone,
 } from "aws-cdk-lib/aws-route53";
 import {
     CloudWatchDimensionSource,
@@ -28,11 +28,7 @@ import {
 import { Construct } from "constructs";
 import type { EmailProps, EmailResources, SenderConfig } from "./types.js";
 
-const HANDLER_DIR = path.resolve(
-    path.dirname(fileURLToPath(import.meta.url)),
-    "functions",
-    "send",
-);
+const HANDLER_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "functions", "send");
 
 /**
  * CDK construct that provisions email infrastructure for an Amplify backend.
@@ -80,9 +76,7 @@ export class AmplifyEmail extends Construct {
             reputationMetrics: true,
         });
 
-        const dimensionDefault = domain
-            ? domain.replace(/\./g, "-")
-            : "ses-default";
+        const dimensionDefault = domain ? domain.replace(/\./g, "-") : "ses-default";
 
         configurationSet.addEventDestination("CloudWatch", {
             destination: EventDestination.cloudWatchDimensions([
@@ -250,14 +244,10 @@ export class AmplifyEmail extends Construct {
             account,
         } = opts;
 
-        const hostedZone: IHostedZone = HostedZone.fromHostedZoneAttributes(
-            this,
-            "HostedZone",
-            {
-                hostedZoneId,
-                zoneName: hostedZoneDomain,
-            },
-        );
+        const hostedZone: IHostedZone = HostedZone.fromHostedZoneAttributes(this, "HostedZone", {
+            hostedZoneId,
+            zoneName: hostedZoneDomain,
+        });
 
         const emailIdentity = new EmailIdentity(this, "EmailIdentity", {
             identity: Identity.domain(domain),
@@ -295,9 +285,7 @@ export class AmplifyEmail extends Construct {
         new MxRecord(this, "MxRecord", {
             zone: hostedZone,
             recordName: domain,
-            values: [
-                { priority: 10, hostName: `inbound-smtp.${region}.amazonaws.com` },
-            ],
+            values: [{ priority: 10, hostName: `inbound-smtp.${region}.amazonaws.com` }],
         });
 
         // --- SPF TXT record ---
@@ -322,8 +310,7 @@ export class AmplifyEmail extends Construct {
                 resources: [
                     `arn:aws:ses:${region}:${account}:identity/${domain}`,
                     ...sandboxRecipients.map(
-                        (email) =>
-                            `arn:aws:ses:${region}:${account}:identity/${email}`,
+                        (email) => `arn:aws:ses:${region}:${account}:identity/${email}`,
                     ),
                     `arn:aws:ses:${region}:${account}:configuration-set/${configurationSet.configurationSetName}`,
                 ],
@@ -345,8 +332,7 @@ export class AmplifyEmail extends Construct {
         region: string;
         account: string;
     }): string {
-        const { sendFn, configurationSet, domain, sandboxRecipients, region, account } =
-            opts;
+        const { sendFn, configurationSet, domain, sandboxRecipients, region, account } = opts;
 
         const emailIdentity = new EmailIdentity(this, "EmailIdentity", {
             identity: Identity.domain(domain),
@@ -356,14 +342,12 @@ export class AmplifyEmail extends Construct {
 
         // Output DNS records for manual creation
         for (let i = 1; i <= 3; i++) {
-            const tokenName =
-                emailIdentity[
-                    `dkimDnsTokenName${i}` as keyof typeof emailIdentity
-                ] as string;
-            const tokenValue =
-                emailIdentity[
-                    `dkimDnsTokenValue${i}` as keyof typeof emailIdentity
-                ] as string;
+            const tokenName = emailIdentity[
+                `dkimDnsTokenName${i}` as keyof typeof emailIdentity
+            ] as string;
+            const tokenValue = emailIdentity[
+                `dkimDnsTokenValue${i}` as keyof typeof emailIdentity
+            ] as string;
 
             new CfnOutput(this, `DkimCname${i}Name`, {
                 value: tokenName,
@@ -404,8 +388,7 @@ export class AmplifyEmail extends Construct {
                 resources: [
                     `arn:aws:ses:${region}:${account}:identity/${domain}`,
                     ...sandboxRecipients.map(
-                        (email) =>
-                            `arn:aws:ses:${region}:${account}:identity/${email}`,
+                        (email) => `arn:aws:ses:${region}:${account}:identity/${email}`,
                     ),
                     `arn:aws:ses:${region}:${account}:configuration-set/${configurationSet.configurationSetName}`,
                 ],

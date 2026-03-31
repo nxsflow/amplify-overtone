@@ -70,10 +70,7 @@ export function assertEmailSendersOutput(
 
     assert.ok(email.senders, "custom.email.senders should be present");
     for (const key of expectedSenderKeys) {
-        assert.ok(
-            email.senders[key],
-            `custom.email.senders should contain sender '${key}'`,
-        );
+        assert.ok(email.senders[key], `custom.email.senders should contain sender '${key}'`);
         assert.ok(
             email.senders[key]!.localPart,
             `custom.email.senders['${key}'].localPart should be present`,

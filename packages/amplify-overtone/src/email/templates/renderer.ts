@@ -1,8 +1,8 @@
-import type { TemplateDefinition } from "./types.js";
 import { confirmationCodeTemplate } from "./defaults/confirmation-code.js";
-import { passwordResetTemplate } from "./defaults/password-reset.js";
-import { inviteTemplate } from "./defaults/invite.js";
 import { gettingStartedTemplate } from "./defaults/getting-started.js";
+import { inviteTemplate } from "./defaults/invite.js";
+import { passwordResetTemplate } from "./defaults/password-reset.js";
+import type { TemplateDefinition } from "./types.js";
 
 /**
  * Escapes special HTML characters to prevent XSS injection.
@@ -19,7 +19,7 @@ export function escapeHtml(text: string): string {
 const templateRegistry: Record<string, TemplateDefinition> = {
     "confirmation-code": confirmationCodeTemplate,
     "password-reset": passwordResetTemplate,
-    "invite": inviteTemplate,
+    invite: inviteTemplate,
     "getting-started": gettingStartedTemplate,
 };
 

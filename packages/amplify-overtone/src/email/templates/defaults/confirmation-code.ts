@@ -5,9 +5,7 @@ export const confirmationCodeTemplate: TemplateDefinition = {
 
     renderHtml(data: Record<string, string>, _brandName: string): string {
         if (!data["code"]) {
-            throw new Error(
-                'Template "confirmation-code" requires data.code',
-            );
+            throw new Error('Template "confirmation-code" requires data.code');
         }
 
         const expiryHtml = data["expiresInMinutes"]
@@ -23,9 +21,7 @@ export const confirmationCodeTemplate: TemplateDefinition = {
 
     renderText(data: Record<string, string>, _brandName: string): string {
         if (!data["code"]) {
-            throw new Error(
-                'Template "confirmation-code" requires data.code',
-            );
+            throw new Error('Template "confirmation-code" requires data.code');
         }
 
         const parts = [`Your confirmation code is: ${data["code"]}`];

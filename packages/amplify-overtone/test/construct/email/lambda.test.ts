@@ -1,9 +1,6 @@
 import { Match } from "aws-cdk-lib/assertions";
 import { describe, it } from "vitest";
-import {
-    createEmailTemplate,
-    createNoDomainTemplate,
-} from "./helpers.js";
+import { createEmailTemplate, createNoDomainTemplate } from "./helpers.js";
 
 // ---------------------------------------------------------------------------
 // Lambda function tests
@@ -66,9 +63,7 @@ describe("Lambda — Mode 1 (no domain)", () => {
     it("does NOT set EMAIL_DOMAIN env var", () => {
         template.hasResourceProperties("AWS::Lambda::Function", {
             Environment: {
-                Variables: Match.not(
-                    Match.objectLike({ EMAIL_DOMAIN: Match.anyValue() }),
-                ),
+                Variables: Match.not(Match.objectLike({ EMAIL_DOMAIN: Match.anyValue() })),
             },
         });
     });

@@ -5,14 +5,10 @@ export const inviteTemplate: TemplateDefinition = {
 
     renderHtml(data: Record<string, string>, _brandName: string): string {
         if (!data["inviterName"]) {
-            throw new Error(
-                'Template "invite" requires data.inviterName',
-            );
+            throw new Error('Template "invite" requires data.inviterName');
         }
         if (!data["inviteLink"]) {
-            throw new Error(
-                'Template "invite" requires data.inviteLink',
-            );
+            throw new Error('Template "invite" requires data.inviteLink');
         }
 
         const resourceText = data["resourceName"]
@@ -28,19 +24,13 @@ export const inviteTemplate: TemplateDefinition = {
 
     renderText(data: Record<string, string>, _brandName: string): string {
         if (!data["inviterName"]) {
-            throw new Error(
-                'Template "invite" requires data.inviterName',
-            );
+            throw new Error('Template "invite" requires data.inviterName');
         }
         if (!data["inviteLink"]) {
-            throw new Error(
-                'Template "invite" requires data.inviteLink',
-            );
+            throw new Error('Template "invite" requires data.inviteLink');
         }
 
-        const resourceText = data["resourceName"]
-            ? ` on ${data["resourceName"]}`
-            : "";
+        const resourceText = data["resourceName"] ? ` on ${data["resourceName"]}` : "";
 
         const parts = [
             `${data["inviterName"]} invited you to collaborate${resourceText}.`,

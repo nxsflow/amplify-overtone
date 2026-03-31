@@ -1,9 +1,6 @@
 import { Match } from "aws-cdk-lib/assertions";
 import { describe, expect, it } from "vitest";
-import {
-    createEmailTemplate,
-    createNoDomainTemplate,
-} from "./helpers.js";
+import { createEmailTemplate, createNoDomainTemplate } from "./helpers.js";
 
 // ---------------------------------------------------------------------------
 // Warnings and sandbox check tests
@@ -20,9 +17,7 @@ describe("SES sandbox check — AwsCustomResource", () => {
 
     it("creates a SesSandboxWarning CfnOutput", () => {
         const outputs = template.toJSON().Outputs ?? {};
-        const sandboxOutputs = Object.keys(outputs).filter((k) =>
-            k.includes("SesSandboxWarning"),
-        );
+        const sandboxOutputs = Object.keys(outputs).filter((k) => k.includes("SesSandboxWarning"));
         expect(sandboxOutputs.length).toBeGreaterThanOrEqual(1);
     });
 });

@@ -183,10 +183,7 @@ interface EmailPropsDomainWithRoute53 extends EmailPropsBase {
  * 2. **Domain only** — SES identity created, DNS records output for manual creation
  * 3. **Domain + Route 53** — SES identity + automatic DNS record creation
  */
-export type EmailProps =
-    | EmailPropsNoDomain
-    | EmailPropsDomainOnly
-    | EmailPropsDomainWithRoute53;
+export type EmailProps = EmailPropsNoDomain | EmailPropsDomainOnly | EmailPropsDomainWithRoute53;
 
 export interface EmailResources {
     /** The send-email Lambda function (for grantInvoke, addEnvironment). */

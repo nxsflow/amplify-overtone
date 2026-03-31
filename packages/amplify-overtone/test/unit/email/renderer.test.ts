@@ -1,8 +1,8 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { escapeHtml, renderTemplate } from "../../../src/email/templates/renderer.js";
 
 describe("escapeHtml", () => {
-    it("escapes <script>alert(\"xss\")</script> correctly", () => {
+    it('escapes <script>alert("xss")</script> correctly', () => {
         const result = escapeHtml(`<script>alert("xss")</script>`);
         expect(result).toBe("&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;");
     });
@@ -124,15 +124,11 @@ describe("renderTemplate — error handling", () => {
     });
 
     it("throws when required data is missing — invite without inviterName", () => {
-        expect(() =>
-            renderTemplate("invite", { inviteLink: "https://x.com" }, "Test"),
-        ).toThrow();
+        expect(() => renderTemplate("invite", { inviteLink: "https://x.com" }, "Test")).toThrow();
     });
 
     it("throws when required data is missing — invite without inviteLink", () => {
-        expect(() =>
-            renderTemplate("invite", { inviterName: "Alice" }, "Test"),
-        ).toThrow();
+        expect(() => renderTemplate("invite", { inviterName: "Alice" }, "Test")).toThrow();
     });
 });
 

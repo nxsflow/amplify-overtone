@@ -5,9 +5,7 @@ export const passwordResetTemplate: TemplateDefinition = {
 
     renderHtml(data: Record<string, string>, _brandName: string): string {
         if (!data["resetLink"]) {
-            throw new Error(
-                'Template "password-reset" requires data.resetLink',
-            );
+            throw new Error('Template "password-reset" requires data.resetLink');
         }
 
         const expiryHtml = data["expiresInMinutes"]
@@ -24,9 +22,7 @@ ${expiryHtml}`;
 
     renderText(data: Record<string, string>, _brandName: string): string {
         if (!data["resetLink"]) {
-            throw new Error(
-                'Template "password-reset" requires data.resetLink',
-            );
+            throw new Error('Template "password-reset" requires data.resetLink');
         }
 
         const parts = [`Reset your password: ${data["resetLink"]}`];

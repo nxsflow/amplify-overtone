@@ -42,7 +42,9 @@ describe("all-templates-email integration test", { concurrency: false }, () => {
         { timeout: 300_000 },
     );
 
-    it("confirmation-code template delivers email with correct subject", { timeout: 120_000 }, async () => {
+    it("confirmation-code template delivers email with correct subject", {
+        timeout: 120_000,
+    }, async () => {
         const testRecipient = `test@${recipientDomain}`;
 
         await mailbox.clearMailbox();
@@ -73,7 +75,9 @@ describe("all-templates-email integration test", { concurrency: false }, () => {
         );
     });
 
-    it("password-reset template delivers email with correct subject", { timeout: 120_000 }, async () => {
+    it("password-reset template delivers email with correct subject", {
+        timeout: 120_000,
+    }, async () => {
         const testRecipient = `test@${recipientDomain}`;
 
         await mailbox.clearMailbox();
@@ -138,7 +142,9 @@ describe("all-templates-email integration test", { concurrency: false }, () => {
         );
     });
 
-    it("getting-started template delivers email with correct subject", { timeout: 120_000 }, async () => {
+    it("getting-started template delivers email with correct subject", {
+        timeout: 120_000,
+    }, async () => {
         const testRecipient = `test@${recipientDomain}`;
 
         await mailbox.clearMailbox();

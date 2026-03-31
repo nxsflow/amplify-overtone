@@ -1,8 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-    createEmailTemplate,
-    createNoDomainTemplate,
-} from "./helpers.js";
+import { createEmailTemplate, createNoDomainTemplate } from "./helpers.js";
 
 // ---------------------------------------------------------------------------
 // SES identity and ConfigurationSet tests
@@ -22,10 +19,7 @@ describe("SES — Mode 3 (domain + Route 53)", () => {
     });
 
     it("creates a ConfigurationSet event destination", () => {
-        template.resourceCountIs(
-            "AWS::SES::ConfigurationSetEventDestination",
-            1,
-        );
+        template.resourceCountIs("AWS::SES::ConfigurationSetEventDestination", 1);
     });
 });
 
@@ -41,9 +35,6 @@ describe("SES — Mode 1 (no domain)", () => {
     });
 
     it("still creates a ConfigurationSet event destination", () => {
-        template.resourceCountIs(
-            "AWS::SES::ConfigurationSetEventDestination",
-            1,
-        );
+        template.resourceCountIs("AWS::SES::ConfigurationSetEventDestination", 1);
     });
 });
