@@ -3,7 +3,7 @@ name: release-management
 description: CI/CD pipeline and publishing workflow for @nxsflow/amplify-overtone and @nxsflow/amplify-overtone-client — GitHub Actions workflows, tiered quality gates (alpha/beta/stable), npm dist-tags, manual fallback, and rollback. Use when publishing to npm, setting up CI/CD, or managing releases.
 ---
 
-# Release Management: @nxsflow/amplify-overtone Monorepo
+# Release Management: Amplify Overtone Monorepo
 
 CI/CD pipeline and publishing workflow. How code gets from main to npm.
 
@@ -173,8 +173,10 @@ jobs:
 
 | Secret         | Purpose               | Where to get it                                        |
 | -------------- | --------------------- | ------------------------------------------------------ |
-| `NPM_TOKEN`    | Publish to npm        | npmjs.com → Access Tokens → Generate (Automation type) |
+| `NPM_TOKEN`    | Publish to npm        | npmjs.com → Granular Access Token (Read and write, @nxsflow scope, 90 days) |
 | `GITHUB_TOKEN` | Create PRs, push tags | Provided automatically by GitHub Actions               |
+
+Both secrets and the production environment can be configured automatically via `pnpm release:setup` (reads `NPM_TOKEN` from `.env`).
 
 ### GitHub Environment
 
@@ -205,7 +207,7 @@ Each package publishes only its `dist/` directory (controlled by `"files": ["dis
 packages/amplify-overtone/dist/        packages/amplify-overtone-client/dist/
 ├── index.js      ← ESM entry          ├── index.js      ← ESM entry
 ├── index.cjs     ← CJS entry          ├── index.cjs     ← CJS entry
-├── index.d.ts    ← TypeScript          ├── index.d.ts    ← TypeScript
+├── index.d.ts    ← TypeScript         ├── index.d.ts    ← TypeScript
 └── *.js.map      ← source maps        └── *.js.map      ← source maps
 ```
 

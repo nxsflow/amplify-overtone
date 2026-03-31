@@ -43,8 +43,13 @@ if [ -z "${NPM_TOKEN:-}" ]; then
     echo ""
     echo "To generate a token:"
     echo "  1. Go to https://www.npmjs.com/settings/<your-username>/tokens"
-    echo "  2. Click 'Generate New Token' → 'Automation'"
-    echo "  3. Copy the token and add it to .env as NPM_TOKEN=npm_..."
+    echo "  2. Click 'Generate New Token' → 'Granular Access Token'"
+    echo "  3. Settings:"
+    echo "     - Token name: amplify-overtone-ci"
+    echo "     - Packages & scopes: Read and write → Only select: @nxsflow"
+    echo "     - Organizations: No access"
+    echo "     - Expiration: 90 days (maximum for write tokens)"
+    echo "  4. Copy the token and add it to .env as NPM_TOKEN=npm_..."
     exit 1
 fi
 

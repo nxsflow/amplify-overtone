@@ -147,7 +147,11 @@ Pre-releases allow testing unreleased versions before they reach `latest`:
 Before the CI/CD pipeline can publish to npm, run the setup script:
 
 1. Create an npm account at [npmjs.com](https://www.npmjs.com/) if you don't have one
-2. Generate an **Automation** token at npmjs.com → Access Tokens → Generate
+2. Generate a **Granular Access Token** at npmjs.com → Access Tokens → Generate:
+   - **Token name:** `amplify-overtone-ci`
+   - **Packages & scopes:** Read and write → Only select: `@nxsflow`
+   - **Organizations:** No access
+   - **Expiration:** 90 days (maximum for write tokens)
 3. Add the token to `.env` as `NPM_TOKEN=npm_...`
 4. Run the setup script:
 
