@@ -11,16 +11,22 @@
         "build": "pnpm -r build",
         "test": "pnpm -r test",
         "typecheck": "pnpm -r typecheck",
-        "aws:login": "./scripts/aws-login.sh",
         "lint": "biome check .",
         "format": "biome format --write .",
+        "aws:login": "./scripts/aws-login.sh",
+        "overtone:build": "pnpm --filter @nxsflow/amplify-overtone build",
+        "overtone:test": "pnpm --filter @nxsflow/amplify-overtone test",
+        "overtone:typecheck": "pnpm --filter @nxsflow/amplify-overtone typecheck",
+        "client:build": "pnpm --filter @nxsflow/amplify-overtone-client build",
+        "client:test": "pnpm --filter @nxsflow/amplify-overtone-client test",
+        "client:typecheck": "pnpm --filter @nxsflow/amplify-overtone-client typecheck",
+        "test-infra:build": "pnpm --filter @nxsflow/test-infra build",
+        "test-infra:typecheck": "pnpm --filter @nxsflow/test-infra typecheck",
         "test-infra:bootstrap": "pnpm --filter @nxsflow/test-infra run bootstrap",
-        "test:e2e": "pnpm --filter @nxsflow/integration-tests run test:e2e",
         "test-infra:deploy": "pnpm --filter @nxsflow/test-infra run deploy",
         "test-infra:destroy": "pnpm --filter @nxsflow/test-infra run destroy",
-        "test-infra:typecheck": "pnpm --filter @nxsflow/test-infra run typecheck",
-        "test:overtone": "pnpm --filter @nxsflow/amplify-overtone test",
-        "typecheck:overtone": "pnpm --filter @nxsflow/amplify-overtone typecheck"
+        "e2e:typecheck": "pnpm --filter @nxsflow/integration-tests typecheck",
+        "e2e:test": "pnpm --filter @nxsflow/integration-tests run test:e2e"
     },
     "pnpm": {
         "onlyBuiltDependencies": [

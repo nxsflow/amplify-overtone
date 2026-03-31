@@ -13,21 +13,51 @@ Open-source AWS Amplify Gen 2 extensions for collaborative data, auth inheritanc
 
 ## Root Scripts
 
-| Script | Command | Description |
-| --- | --- | --- |
-| `pnpm build` | `pnpm -r build` | Build all packages |
-| `pnpm test` | `pnpm -r test` | Run all unit/construct tests (vitest) |
-| `pnpm typecheck` | `pnpm -r typecheck` | Typecheck all packages |
-| `pnpm lint` | `biome check .` | Lint all files |
-| `pnpm format` | `biome format --write .` | Auto-format all files |
-| `pnpm aws:login` | `./scripts/aws-login.sh` | AWS SSO login (reads AWS_PROFILE from .env) |
-| `pnpm test:overtone` | `pnpm --filter @nxsflow/amplify-overtone test` | Run tests for backend package only |
-| `pnpm typecheck:overtone` | `pnpm --filter @nxsflow/amplify-overtone typecheck` | Typecheck backend package only |
-| `pnpm test-infra:bootstrap` | `pnpm --filter @nxsflow/test-infra run bootstrap` | CDK bootstrap for test infrastructure |
-| `pnpm test-infra:deploy` | `pnpm --filter @nxsflow/test-infra run deploy` | Deploy test infra + write `overtone_test_infra.json` |
-| `pnpm test-infra:destroy` | `pnpm --filter @nxsflow/test-infra run destroy` | Tear down test infrastructure |
-| `pnpm test-infra:typecheck` | `pnpm --filter @nxsflow/test-infra run typecheck` | Typecheck test-infra package only |
-| `pnpm test:e2e` | `pnpm --filter @nxsflow/integration-tests run test:e2e` | Run e2e tests (requires deployed test-infra + .env) |
+**Always use root scripts instead of `pnpm --filter`** — they are shorter, permission-allowlisted, and consistent.
+
+### Global
+
+| Script | Description |
+| --- | --- |
+| `pnpm build` | Build all packages |
+| `pnpm test` | Run all unit/construct tests (vitest) |
+| `pnpm typecheck` | Typecheck all packages |
+| `pnpm lint` | Lint all files (Biome) |
+| `pnpm format` | Auto-format all files (Biome) |
+| `pnpm aws:login` | AWS SSO login (reads AWS_PROFILE from .env) |
+
+### Backend (`@nxsflow/amplify-overtone`)
+
+| Script | Description |
+| --- | --- |
+| `pnpm overtone:build` | Build backend package |
+| `pnpm overtone:test` | Run backend unit + construct tests |
+| `pnpm overtone:typecheck` | Typecheck backend package |
+
+### Client (`@nxsflow/amplify-overtone-client`)
+
+| Script | Description |
+| --- | --- |
+| `pnpm client:build` | Build client package |
+| `pnpm client:test` | Run client tests |
+| `pnpm client:typecheck` | Typecheck client package |
+
+### Test Infrastructure (`@nxsflow/test-infra`)
+
+| Script | Description |
+| --- | --- |
+| `pnpm test-infra:build` | Typecheck test-infra (tsc --noEmit) |
+| `pnpm test-infra:typecheck` | Typecheck test-infra |
+| `pnpm test-infra:bootstrap` | CDK bootstrap for test infrastructure |
+| `pnpm test-infra:deploy` | Deploy test infra + write `overtone_test_infra.json` |
+| `pnpm test-infra:destroy` | Tear down test infrastructure |
+
+### Integration Tests (`@nxsflow/integration-tests`)
+
+| Script | Description |
+| --- | --- |
+| `pnpm e2e:typecheck` | Typecheck integration tests |
+| `pnpm e2e:test` | Run e2e tests (requires deployed test-infra + .env) |
 
 ### Quick Start
 
