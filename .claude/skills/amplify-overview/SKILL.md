@@ -83,13 +83,17 @@ type ConstructFactory<T extends ResourceProvider = ResourceProvider> = {
 - Dependency resolution between resources
 - Integration with the Amplify resource graph
 
-### How @nxsflow/amplify-overtone fits in
+### How Amplify Overtone fits in
 
 ```typescript
 import { n } from "@nxsflow/amplify-overtone";
 import { defineBackend } from "@aws-amplify/backend";
 
 const schema = n.schema({
+  /* ... */
+});
+const data = defineData({
+  schema,
   /* ... */
 });
 const backend = defineBackend({ auth, data }); // overtone constructs are applied separately
