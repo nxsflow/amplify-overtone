@@ -1,7 +1,6 @@
 import fsp from "node:fs/promises";
 import path from "node:path";
 import { CloudFormationClient } from "@aws-sdk/client-cloudformation";
-import { execaSync } from "execa";
 import { TestProjectBase } from "../../test-project-setup/test_project_base.js";
 import type { TestProjectCreator } from "../../test-project-setup/test_project_creator.js";
 
@@ -20,23 +19,12 @@ export const defaultEmailTestProjectCreator: TestProjectCreator = {
         await fsp.mkdir(projectDir, { recursive: true });
         await fsp.cp(sourceAmplifyDir, amplifyDir, { recursive: true });
 
+        // Minimal package.json — dependencies resolve from the monorepo's node_modules
+        // (Node walks up the directory tree to find them)
         await fsp.writeFile(
             path.join(projectDir, "package.json"),
-            JSON.stringify(
-                {
-                    name: "default-email-test",
-                    type: "module",
-                    dependencies: {
-                        "@aws-amplify/backend": "^1.21.0",
-                        "@nxsflow/amplify-overtone": "file:../../../packages/amplify-overtone",
-                    },
-                },
-                null,
-                2,
-            ),
+            JSON.stringify({ name: "default-email-test", type: "module" }, null, 2),
         );
-
-        execaSync("npm", ["install"], { cwd: projectDir, stdio: "inherit" });
 
         return new DefaultEmailTestProject(
             "default-email",
