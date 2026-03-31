@@ -26,8 +26,11 @@ describe("SES — Mode 3 (domain + Route 53)", () => {
 describe("SES — Mode 1 (no domain)", () => {
     const template = createNoDomainTemplate();
 
-    it("does NOT create an SES EmailIdentity", () => {
-        template.resourceCountIs("AWS::SES::EmailIdentity", 0);
+    it("creates an SES EmailIdentity for the sender address", () => {
+        template.hasResourceProperties("AWS::SES::EmailIdentity", {
+            EmailIdentity: "noreply@example.com",
+        });
+        template.resourceCountIs("AWS::SES::EmailIdentity", 1);
     });
 
     it("still creates a ConfigurationSet", () => {

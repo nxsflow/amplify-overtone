@@ -16,8 +16,8 @@ export const email = defineEmail({
     hostedZoneId,
     hostedZoneDomain,
     senders: {
-        noreply: { localPart: "noreply", displayName: "Overtone Test" },
-        support: { localPart: "support", displayName: "Overtone Support" },
+        noreply: { senderPrefix: "noreply", displayName: "Overtone Test" },
+        support: { senderPrefix: "support", displayName: "Overtone Support" },
     },
     defaultSender: "noreply",
     sandboxRecipients: recipientDomain ? [`test@${recipientDomain}`] : [],

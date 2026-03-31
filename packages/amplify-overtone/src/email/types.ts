@@ -1,66 +1,107 @@
 import type { IFunction } from "aws-cdk-lib/aws-lambda";
 
+// ---------------------------------------------------------------------------
+// Sender configuration
+// ---------------------------------------------------------------------------
+
 /**
- * Configuration for a named email sender.
+ * Sender configuration when a custom domain is set on `defineEmail()`.
  *
- * Senders are referenced by key in schema-defined email actions (Spec B).
- * The full "From" address is built as: `"${displayName}" <${localPart}@${domain}>`.
+ * The full "From" address is built as `"${displayName}" <${senderPrefix}@${domain}>`,
+ * where `domain` comes from the `defineEmail()` configuration.
  *
  * @example
  * ```ts
- * const senders = {
- *   noreply: { localPart: "noreply", displayName: "NexusFlow" },
- *   support: { localPart: "support", displayName: "NexusFlow Support" },
- * };
+ * defineEmail({
+ *   domain: "mail.nxsflow.com",
+ *   senders: {
+ *     noreply: { senderPrefix: "noreply", displayName: "NexusFlow" },
+ *     support: { senderPrefix: "support", displayName: "NexusFlow Support" },
+ *   },
+ * });
+ * // → "NexusFlow" <noreply@mail.nxsflow.com>
+ * // → "NexusFlow Support" <support@mail.nxsflow.com>
  * ```
  */
-export interface SenderConfig {
+export interface SenderWithPrefix {
     /**
-     * Local part of the email address — the portion before the `@` sign.
+     * Prefix of the sender email address — the portion before the `@` sign.
      *
      * Combined with the `domain` from `defineEmail()` to form the full sender
-     * address. When no custom domain is configured, this is used as-is with
-     * the SES default domain.
+     * address (e.g., `noreply` + `mail.nxsflow.com` → `noreply@mail.nxsflow.com`).
      *
-     * @example "noreply" → noreply@notifications.nxsflowemail.com
+     * @example "noreply"
+     * @example "support"
      */
-    localPart: string;
+    senderPrefix: string;
 
     /**
-     * Display name shown in email clients (e.g., "NexusFlow").
+     * Display name shown in email clients.
      *
-     * Appears as the sender name in the recipient's inbox. Also used as the
-     * brand name in the built-in email template header.
+     * Appears as the sender name in the recipient's inbox (e.g., "NexusFlow").
+     * Also used as the brand name in the built-in email template header.
      *
-     * @example "NexusFlow" → "NexusFlow" <noreply@notifications.nxsflowemail.com>
+     * @example "NexusFlow" → "NexusFlow" <noreply@mail.nxsflow.com>
      */
     displayName: string;
 }
 
 /**
+ * Sender configuration when no custom domain is set on `defineEmail()`.
+ *
+ * Requires a full email address. The construct registers this address as a
+ * verified SES identity, and SES sends a verification email that must be
+ * confirmed before the application can send from this address.
+ *
+ * @example
+ * ```ts
+ * defineEmail({
+ *   senders: {
+ *     noreply: { senderEmail: "noreply@gmail.com", displayName: "MyApp" },
+ *   },
+ * });
+ * // → "MyApp" <noreply@gmail.com>
+ * // → noreply@gmail.com is created as a verified SES identity
+ * ```
+ */
+export interface SenderWithEmail {
+    /**
+     * Full email address to send from (e.g., `noreply@gmail.com`).
+     *
+     * The construct creates an SES `EmailIdentity` for this address so SES
+     * can send from it. A verification email is sent to this address — it
+     * must be confirmed before the application can send emails.
+     *
+     * @example "noreply@gmail.com"
+     * @example "notifications@mycompany.com"
+     */
+    senderEmail: string;
+
+    /**
+     * Display name shown in email clients.
+     *
+     * Appears as the sender name in the recipient's inbox (e.g., "MyApp").
+     * Also used as the brand name in the built-in email template header.
+     *
+     * @example "MyApp" → "MyApp" <noreply@gmail.com>
+     */
+    displayName: string;
+}
+
+/**
+ * Sender configuration — either prefix-based (with custom domain) or
+ * full email (without custom domain).
+ */
+export type SenderConfig = SenderWithPrefix | SenderWithEmail;
+
+// ---------------------------------------------------------------------------
+// EmailProps — discriminated union
+// ---------------------------------------------------------------------------
+
+/**
  * Shared properties available in all `defineEmail()` configurations.
  */
 interface EmailPropsBase {
-    /**
-     * Named email senders.
-     *
-     * Keys are identifiers referenced by schema-defined email actions (Spec B).
-     * Values configure the sender address and display name.
-     *
-     * When omitted, a single `"noreply"` sender is created with an empty display name.
-     *
-     * @default `{ noreply: { localPart: "noreply", displayName: "" } }`
-     *
-     * @example
-     * ```ts
-     * senders: {
-     *   noreply: { localPart: "noreply", displayName: "NexusFlow" },
-     *   support: { localPart: "support", displayName: "NexusFlow Support" },
-     * }
-     * ```
-     */
-    senders?: Record<string, SenderConfig>;
-
     /**
      * Key from the `senders` map to use when no sender is explicitly specified.
      *
@@ -95,19 +136,40 @@ interface EmailPropsBase {
 /**
  * Configuration without a custom domain.
  *
- * SES uses its default `amazonses.com` MAIL FROM domain. No DNS setup required.
- * Emails are sent but lack custom DKIM/DMARC alignment.
+ * SES requires each sender address to be individually verified. Senders must
+ * provide a full email address via `senderEmail`. The construct creates an
+ * SES identity for each sender and sends a verification email.
  *
  * @example
  * ```ts
- * const email = defineEmail({});
- * const email = defineEmail({ senders: { noreply: { localPart: "noreply", displayName: "MyApp" } } });
+ * const email = defineEmail({
+ *   senders: {
+ *     noreply: { senderEmail: "noreply@gmail.com", displayName: "MyApp" },
+ *   },
+ * });
  * ```
  */
 interface EmailPropsNoDomain extends EmailPropsBase {
     domain?: undefined;
     hostedZoneId?: undefined;
     hostedZoneDomain?: undefined;
+
+    /**
+     * Named email senders with full email addresses.
+     *
+     * Each sender requires `senderEmail` (a full email address) since there is
+     * no custom domain. The construct verifies each address as an SES identity.
+     *
+     * When omitted, you must verify sender addresses manually in the SES console.
+     *
+     * @example
+     * ```ts
+     * senders: {
+     *   noreply: { senderEmail: "noreply@gmail.com", displayName: "MyApp" },
+     * }
+     * ```
+     */
+    senders?: Record<string, SenderWithEmail>;
 }
 
 /**
@@ -122,7 +184,7 @@ interface EmailPropsNoDomain extends EmailPropsBase {
  * ```ts
  * const email = defineEmail({
  *   domain: "mail.example.com",
- *   senders: { noreply: { localPart: "noreply", displayName: "MyApp" } },
+ *   senders: { noreply: { senderPrefix: "noreply", displayName: "MyApp" } },
  * });
  * // → Check stack outputs for DNS records to add at your DNS provider
  * ```
@@ -132,6 +194,24 @@ interface EmailPropsDomainOnly extends EmailPropsBase {
     domain: string;
     hostedZoneId?: undefined;
     hostedZoneDomain?: undefined;
+
+    /**
+     * Named email senders with prefix-based addresses.
+     *
+     * Each sender uses `senderPrefix` which is combined with the custom `domain`
+     * to form the full email address (e.g., `noreply` → `noreply@mail.nxsflow.com`).
+     *
+     * When omitted, a single `"noreply"` sender is created with an empty display name.
+     *
+     * @example
+     * ```ts
+     * senders: {
+     *   noreply: { senderPrefix: "noreply", displayName: "NexusFlow" },
+     *   support: { senderPrefix: "support", displayName: "NexusFlow Support" },
+     * }
+     * ```
+     */
+    senders?: Record<string, SenderWithPrefix>;
 }
 
 /**
@@ -151,7 +231,7 @@ interface EmailPropsDomainOnly extends EmailPropsBase {
  *   domain: "mail.nxsflow.com",
  *   hostedZoneId: "Z0123456789ABCDEFGHIJ",
  *   hostedZoneDomain: "nxsflow.com",
- *   senders: { noreply: { localPart: "noreply", displayName: "NexusFlow" } },
+ *   senders: { noreply: { senderPrefix: "noreply", displayName: "NexusFlow" } },
  * });
  * ```
  */
@@ -173,17 +253,39 @@ interface EmailPropsDomainWithRoute53 extends EmailPropsBase {
      * DKIM records are created under `_domainkey.mail` within the zone.
      */
     hostedZoneDomain: string;
+
+    /**
+     * Named email senders with prefix-based addresses.
+     *
+     * Each sender uses `senderPrefix` which is combined with the custom `domain`
+     * to form the full email address (e.g., `noreply` → `noreply@mail.nxsflow.com`).
+     *
+     * When omitted, a single `"noreply"` sender is created with an empty display name.
+     *
+     * @example
+     * ```ts
+     * senders: {
+     *   noreply: { senderPrefix: "noreply", displayName: "NexusFlow" },
+     *   support: { senderPrefix: "support", displayName: "NexusFlow Support" },
+     * }
+     * ```
+     */
+    senders?: Record<string, SenderWithPrefix>;
 }
 
 /**
  * Props for `defineEmail()`.
  *
  * Three configuration modes:
- * 1. **No domain** — SES default, no DNS needed
- * 2. **Domain only** — SES identity created, DNS records output for manual creation
- * 3. **Domain + Route 53** — SES identity + automatic DNS record creation
+ * 1. **No domain** — senders provide full `senderEmail`, each verified as SES identity
+ * 2. **Domain only** — senders use `senderPrefix` + domain, DNS records output for manual creation
+ * 3. **Domain + Route 53** — senders use `senderPrefix` + domain, DNS records created automatically
  */
 export type EmailProps = EmailPropsNoDomain | EmailPropsDomainOnly | EmailPropsDomainWithRoute53;
+
+// ---------------------------------------------------------------------------
+// Resources exposed after construct instantiation
+// ---------------------------------------------------------------------------
 
 export interface EmailResources {
     /** The send-email Lambda function (for grantInvoke, addEnvironment). */

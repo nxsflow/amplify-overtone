@@ -1,6 +1,7 @@
-import { Match } from "aws-cdk-lib/assertions";
+import { Annotations, Match } from "aws-cdk-lib/assertions";
 import { describe, expect, it } from "vitest";
-import { createEmailTemplate, createNoDomainTemplate } from "./helpers.js";
+import type { EmailProps } from "../../../src/email/types.js";
+import { createEmailTemplate, createNoDomainStack, createNoDomainTemplate } from "./helpers.js";
 
 // ---------------------------------------------------------------------------
 // Warnings and sandbox check tests
@@ -36,8 +37,39 @@ describe("Sandbox recipients", () => {
         });
     });
 
-    it("creates exactly 2 sandbox recipient identities", () => {
-        template.resourceCountIs("AWS::SES::EmailIdentity", 2);
+    it("creates sender identity + 2 sandbox recipient identities", () => {
+        // 1 sender (noreply@example.com) + 2 sandbox recipients = 3
+        template.resourceCountIs("AWS::SES::EmailIdentity", 3);
+    });
+});
+
+describe("No domain — Mode 1", () => {
+    it("emits a warning about sender verification", () => {
+        const stack = createNoDomainStack();
+        const annotations = Annotations.fromStack(stack);
+        annotations.hasWarning("*", Match.stringLikeRegexp("No custom domain configured"));
+    });
+
+    it("creates EmailIdentity for each sender address", () => {
+        const template = createNoDomainTemplate();
+        template.hasResourceProperties("AWS::SES::EmailIdentity", {
+            EmailIdentity: "noreply@example.com",
+        });
+    });
+
+    it("creates multiple sender identities when multiple senders provided", () => {
+        const template = createNoDomainTemplate({
+            senders: {
+                noreply: { senderEmail: "noreply@example.com", displayName: "App" },
+                support: { senderEmail: "support@example.com", displayName: "Support" },
+            },
+        } as EmailProps);
+        template.hasResourceProperties("AWS::SES::EmailIdentity", {
+            EmailIdentity: "noreply@example.com",
+        });
+        template.hasResourceProperties("AWS::SES::EmailIdentity", {
+            EmailIdentity: "support@example.com",
+        });
     });
 });
 

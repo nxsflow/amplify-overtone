@@ -35,7 +35,7 @@ export class EmailFactory implements ConstructFactory<ResourceProvider<EmailReso
                 generateContainerEntry: ({ scope }) => {
                     const construct = new AmplifyEmail(scope, "AmplifyEmail", emailProps);
 
-                    // Register outputs so generateClient() can auto-discover config
+                    // Register outputs so schema actions (Spec B) can discover config
                     outputStrategy.appendToBackendOutputList("AWS::Amplify::Custom", {
                         version: "1",
                         payload: {
@@ -46,9 +46,6 @@ export class EmailFactory implements ConstructFactory<ResourceProvider<EmailReso
                                         ...(construct.resources.emailDomain
                                             ? { domain: construct.resources.emailDomain }
                                             : {}),
-                                        senders: emailProps.senders ?? {
-                                            noreply: { localPart: "noreply", displayName: "" },
-                                        },
                                         defaultSender: emailProps.defaultSender ?? "noreply",
                                     },
                                 },
@@ -87,8 +84,8 @@ export class EmailFactory implements ConstructFactory<ResourceProvider<EmailReso
  *   hostedZoneId: "Z0123456789ABCDEFGHIJ",
  *   hostedZoneDomain: "nxsflow.com",
  *   senders: {
- *     noreply: { localPart: "noreply", displayName: "NexusFlow" },
- *     support: { localPart: "support", displayName: "NexusFlow Support" },
+ *     noreply: { senderPrefix: "noreply", displayName: "NexusFlow" },
+ *     support: { senderPrefix: "support", displayName: "NexusFlow Support" },
  *   },
  * });
  * ```
@@ -97,7 +94,16 @@ export class EmailFactory implements ConstructFactory<ResourceProvider<EmailReso
  * ```ts
  * export const email = defineEmail({
  *   domain: "mail.example.com",
- *   // Omit hostedZoneId/hostedZoneDomain → DNS records output as stack outputs
+ *   senders: { noreply: { senderPrefix: "noreply", displayName: "MyApp" } },
+ * });
+ * ```
+ *
+ * @example No custom domain (individual sender verification)
+ * ```ts
+ * export const email = defineEmail({
+ *   senders: {
+ *     noreply: { senderEmail: "noreply@gmail.com", displayName: "MyApp" },
+ *   },
  * });
  * ```
  */

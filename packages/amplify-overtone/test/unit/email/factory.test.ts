@@ -23,18 +23,32 @@ describe("defineEmail", () => {
         expect(factory).toBeDefined();
     });
 
-    it("accepts domain-only props", () => {
-        const factory = defineEmail({ domain: "mail.example.com" });
+    it("accepts domain-only props with senderPrefix", () => {
+        const factory = defineEmail({
+            domain: "mail.example.com",
+            senders: {
+                noreply: { senderPrefix: "noreply", displayName: "Test" },
+            },
+        });
         expect(factory).toBeDefined();
     });
 
-    it("accepts full Route 53 props", () => {
+    it("accepts full Route 53 props with senderPrefix", () => {
         const factory = defineEmail({
             domain: "mail.example.com",
             hostedZoneId: "Z1234567890",
             hostedZoneDomain: "example.com",
             senders: {
-                noreply: { localPart: "noreply", displayName: "Test" },
+                noreply: { senderPrefix: "noreply", displayName: "Test" },
+            },
+        });
+        expect(factory).toBeDefined();
+    });
+
+    it("accepts no-domain props with senderEmail", () => {
+        const factory = defineEmail({
+            senders: {
+                noreply: { senderEmail: "noreply@gmail.com", displayName: "Test" },
             },
         });
         expect(factory).toBeDefined();

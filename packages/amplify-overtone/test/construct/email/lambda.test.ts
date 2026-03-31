@@ -15,13 +15,13 @@ describe("Lambda — Mode 3 (domain + Route 53)", () => {
         });
     });
 
-    it("sets SENDERS_CONFIG env var with JSON", () => {
+    it("sets SENDERS_CONFIG env var with normalized sender", () => {
         template.hasResourceProperties("AWS::Lambda::Function", {
             Environment: {
                 Variables: Match.objectLike({
                     SENDERS_CONFIG: JSON.stringify({
                         noreply: {
-                            localPart: "noreply",
+                            email: "noreply@mail.example.com",
                             displayName: "TestApp",
                         },
                     }),
@@ -68,12 +68,15 @@ describe("Lambda — Mode 1 (no domain)", () => {
         });
     });
 
-    it("sets SENDERS_CONFIG with default sender", () => {
+    it("sets SENDERS_CONFIG with normalized sender email", () => {
         template.hasResourceProperties("AWS::Lambda::Function", {
             Environment: {
                 Variables: Match.objectLike({
                     SENDERS_CONFIG: JSON.stringify({
-                        noreply: { localPart: "noreply", displayName: "" },
+                        noreply: {
+                            email: "noreply@example.com",
+                            displayName: "TestApp",
+                        },
                     }),
                 }),
             },

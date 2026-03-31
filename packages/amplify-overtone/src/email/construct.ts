@@ -26,9 +26,18 @@ import {
     PhysicalResourceId,
 } from "aws-cdk-lib/custom-resources";
 import { Construct } from "constructs";
-import type { EmailProps, EmailResources, SenderConfig } from "./types.js";
+import type { EmailProps, EmailResources, SenderWithEmail, SenderWithPrefix } from "./types.js";
 
 const HANDLER_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "functions", "send");
+
+/**
+ * Internal sender representation passed to the Lambda as SENDERS_CONFIG.
+ * The Lambda uses `email` to build the From address regardless of mode.
+ */
+interface NormalizedSender {
+    email: string;
+    displayName: string;
+}
 
 /**
  * CDK construct that provisions email infrastructure for an Amplify backend.
@@ -36,16 +45,18 @@ const HANDLER_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "
  * Three configuration modes:
  *
  * **Mode 1 — No domain** (`domain` is undefined):
- *   - No SES identity or DNS records
- *   - Broad SES send permissions (`identity/*`)
- *   - Lambda and ConfigurationSet still created
+ *   - Senders provide `senderEmail` (full address)
+ *   - Each sender email is verified as an SES identity
+ *   - Warning about sender verification
  *
  * **Mode 2 — Domain only** (`domain` set, no `hostedZoneId`):
+ *   - Senders provide `senderPrefix` (combined with domain)
  *   - SES EmailIdentity with EasyDKIM
  *   - DNS records output as CfnOutput for manual creation
  *   - Warning annotation about manual DNS setup
  *
  * **Mode 3 — Domain + Route 53** (`domain` + `hostedZoneId` + `hostedZoneDomain`):
+ *   - Senders provide `senderPrefix` (combined with domain)
  *   - SES EmailIdentity with EasyDKIM
  *   - Automatic Route 53 DNS records (3 DKIM CNAMEs, SPF, DMARC, MX)
  */
@@ -61,12 +72,37 @@ export class AmplifyEmail extends Construct {
         const defaultSender = props.defaultSender ?? "noreply";
         const timeoutSeconds = props.timeoutSeconds ?? 15;
         const sandboxRecipients = props.sandboxRecipients ?? [];
-
-        const senders: Record<string, SenderConfig> = props.senders ?? {
-            noreply: { localPart: "noreply", displayName: "" },
-        };
-
         const domain = props.domain;
+
+        // -----------------------------------------------------------------
+        // Normalize senders to { email, displayName } for the Lambda
+        // -----------------------------------------------------------------
+
+        const normalizedSenders: Record<string, NormalizedSender> = {};
+
+        if (domain) {
+            // Mode 2 or 3: senders use senderPrefix + domain
+            const senders: Record<string, SenderWithPrefix> = props.senders ?? {
+                noreply: { senderPrefix: "noreply", displayName: "" },
+            };
+            for (const [key, sender] of Object.entries(senders)) {
+                normalizedSenders[key] = {
+                    email: `${sender.senderPrefix}@${domain}`,
+                    displayName: sender.displayName,
+                };
+            }
+        } else {
+            // Mode 1: senders use senderEmail
+            const senders: Record<string, SenderWithEmail> | undefined = props.senders;
+            if (senders) {
+                for (const [key, sender] of Object.entries(senders)) {
+                    normalizedSenders[key] = {
+                        email: sender.senderEmail,
+                        displayName: sender.displayName,
+                    };
+                }
+            }
+        }
 
         // -----------------------------------------------------------------
         // SES ConfigurationSet (always created — tracks send/delivery/bounce)
@@ -109,7 +145,7 @@ export class AmplifyEmail extends Construct {
                 externalModules: ["@aws-sdk/*"],
             },
             environment: {
-                SENDERS_CONFIG: JSON.stringify(senders),
+                SENDERS_CONFIG: JSON.stringify(normalizedSenders),
                 DEFAULT_SENDER: defaultSender,
                 ...(domain ? { EMAIL_DOMAIN: domain } : {}),
             },
@@ -144,14 +180,44 @@ export class AmplifyEmail extends Construct {
                 account,
             });
         } else {
-            // Mode 1: No domain — broad SES send permission
+            // Mode 1: No domain — verify individual sender addresses
+            const senderEmails = Object.values(normalizedSenders).map((s) => s.email);
+
+            for (const [key, sender] of Object.entries(normalizedSenders)) {
+                new EmailIdentity(this, `SenderIdentity-${key}`, {
+                    identity: Identity.email(sender.email),
+                });
+            }
+
             sendFn.addToRolePolicy(
                 new PolicyStatement({
                     effect: Effect.ALLOW,
                     actions: ["ses:SendEmail", "ses:SendRawEmail"],
-                    resources: [`arn:aws:ses:${region}:${account}:identity/*`],
+                    resources: [
+                        ...senderEmails.map(
+                            (email) => `arn:aws:ses:${region}:${account}:identity/${email}`,
+                        ),
+                        ...sandboxRecipients.map(
+                            (email) => `arn:aws:ses:${region}:${account}:identity/${email}`,
+                        ),
+                        `arn:aws:ses:${region}:${account}:configuration-set/${configurationSet.configurationSetName}`,
+                    ],
                 }),
             );
+
+            if (senderEmails.length > 0) {
+                Annotations.of(this).addWarning(
+                    `No custom domain configured. SES verification emails will be sent to: ${senderEmails.join(", ")}. ` +
+                        "Each sender must confirm the verification email before the application can send from that address. " +
+                        "To avoid per-address verification, configure a custom domain on defineEmail().",
+                );
+            } else {
+                Annotations.of(this).addWarning(
+                    "No custom domain and no senders configured. " +
+                        "SES requires verified sender identities to send email. " +
+                        "Either configure senders with senderEmail or set a custom domain.",
+                );
+            }
         }
 
         // -----------------------------------------------------------------

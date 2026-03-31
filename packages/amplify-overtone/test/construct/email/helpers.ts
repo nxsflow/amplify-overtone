@@ -4,7 +4,7 @@ import { AmplifyEmail } from "../../../src/email/construct.js";
 import type { EmailProps } from "../../../src/email/types.js";
 
 // ---------------------------------------------------------------------------
-// Default props: Mode 3 (domain + Route 53)
+// Default props: Mode 3 (domain + Route 53) with SenderWithPrefix
 // ---------------------------------------------------------------------------
 
 const defaultProps: EmailProps = {
@@ -12,7 +12,7 @@ const defaultProps: EmailProps = {
     hostedZoneId: "Z1234567890",
     hostedZoneDomain: "example.com",
     senders: {
-        noreply: { localPart: "noreply", displayName: "TestApp" },
+        noreply: { senderPrefix: "noreply", displayName: "TestApp" },
     },
 };
 
@@ -30,15 +30,33 @@ export function createEmailTemplate(overrides?: Partial<EmailProps>): Template {
 }
 
 /**
- * Synth a CDK template for Mode 1 (no domain).
+ * Synth a CDK template for Mode 1 (no domain) with SenderWithEmail.
  */
 export function createNoDomainTemplate(overrides?: Partial<EmailProps>): Template {
     const app = new App();
     const stack = new Stack(app, "TestStack");
     new AmplifyEmail(stack, "Email", {
+        senders: {
+            noreply: { senderEmail: "noreply@example.com", displayName: "TestApp" },
+        },
         ...overrides,
     } as EmailProps);
     return Template.fromStack(stack);
+}
+
+/**
+ * Return the raw Stack for Mode 1 (no domain) — use with Annotations.fromStack().
+ */
+export function createNoDomainStack(overrides?: Partial<EmailProps>): Stack {
+    const app = new App();
+    const stack = new Stack(app, "TestStack");
+    new AmplifyEmail(stack, "Email", {
+        senders: {
+            noreply: { senderEmail: "noreply@example.com", displayName: "TestApp" },
+        },
+        ...overrides,
+    } as EmailProps);
+    return stack;
 }
 
 /**
@@ -50,7 +68,7 @@ export function createDomainOnlyTemplate(overrides?: Partial<EmailProps>): Templ
     new AmplifyEmail(stack, "Email", {
         domain: "mail.example.com",
         senders: {
-            noreply: { localPart: "noreply", displayName: "TestApp" },
+            noreply: { senderPrefix: "noreply", displayName: "TestApp" },
         },
         ...overrides,
     } as EmailProps);

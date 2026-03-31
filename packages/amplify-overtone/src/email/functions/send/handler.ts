@@ -1,4 +1,3 @@
-// src/email/functions/send/handler.ts
 import { SESv2Client, SendEmailCommand } from "@aws-sdk/client-sesv2";
 import { renderTemplate } from "../../templates/renderer.js";
 
@@ -19,17 +18,18 @@ export interface SendEmailResult {
     messageId: string | undefined;
 }
 
+/** Normalized sender config as serialized by the construct. */
+interface NormalizedSender {
+    email: string;
+    displayName: string;
+}
+
 export const handler = async (event: SendEmailPayload): Promise<SendEmailResult> => {
-    // Read env vars
     const sendersConfigRaw = process.env.SENDERS_CONFIG ?? "{}";
     const defaultSenderKey = process.env.DEFAULT_SENDER ?? "noreply";
-    const emailDomain = process.env.EMAIL_DOMAIN;
 
-    // Parse senders config
-    const sendersConfig: Record<string, { localPart: string; displayName: string }> =
-        JSON.parse(sendersConfigRaw);
+    const sendersConfig: Record<string, NormalizedSender> = JSON.parse(sendersConfigRaw);
 
-    // Resolve sender key
     const senderKey = event.sender ?? defaultSenderKey;
     const senderConfig = sendersConfig[senderKey];
 
@@ -39,16 +39,10 @@ export const handler = async (event: SendEmailPayload): Promise<SendEmailResult>
         );
     }
 
-    const { localPart, displayName } = senderConfig;
+    const { email: senderEmail, displayName } = senderConfig;
 
     // Build the From address
-    let fromAddress: string;
-    if (emailDomain) {
-        const address = `${localPart}@${emailDomain}`;
-        fromAddress = displayName ? `"${displayName}" <${address}>` : address;
-    } else {
-        fromAddress = localPart;
-    }
+    const fromAddress = displayName ? `"${displayName}" <${senderEmail}>` : senderEmail;
 
     // Render template
     const { subject, html, text } = renderTemplate(event.template, event.data, displayName);
