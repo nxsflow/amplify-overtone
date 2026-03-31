@@ -28,7 +28,17 @@ import {
 import { Construct } from "constructs";
 import type { EmailProps, EmailResources, SenderWithEmail, SenderWithPrefix } from "./types.js";
 
-const HANDLER_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "functions", "send");
+// At runtime, import.meta.url points to dist/email/construct.js.
+// Go up two levels (dist/email → package root) then into src/email/functions/send.
+const HANDLER_DIR = path.resolve(
+    path.dirname(fileURLToPath(import.meta.url)),
+    "..",
+    "..",
+    "src",
+    "email",
+    "functions",
+    "send",
+);
 
 /**
  * Internal sender representation passed to the Lambda as SENDERS_CONFIG.
