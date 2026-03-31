@@ -1,7 +1,7 @@
 {
     "name": "@nxsflow/amplify-overtone-client",
     "version": "0.1.0",
-    "description": "Client-side runtime for @nxsflow/amplify-overtone — sync engine, offline storage, and collaborative session API",
+    "description": "Extend AWS Amplify Gen 2 with email, collaboration, and local-first support — client runtime",
     "type": "module",
     "license": "Apache-2.0",
     "repository": {

@@ -1,7 +1,7 @@
 {
     "name": "@nxsflow/amplify-overtone",
     "version": "0.1.0",
-    "description": "AWS Amplify Gen 2 extensions — collaborative data, auth inheritance, local-first storage, and schema-defined actions",
+    "description": "Extend AWS Amplify Gen 2 with email, collaboration, and local-first support — backend constructs and resolvers",
     "type": "module",
     "license": "Apache-2.0",
     "repository": {
