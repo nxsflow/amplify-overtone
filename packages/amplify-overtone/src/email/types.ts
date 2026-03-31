@@ -284,6 +284,56 @@ interface EmailPropsDomainWithRoute53 extends EmailPropsBase {
 export type EmailProps = EmailPropsNoDomain | EmailPropsDomainOnly | EmailPropsDomainWithRoute53;
 
 // ---------------------------------------------------------------------------
+// Lambda payload types (shared across packages)
+// ---------------------------------------------------------------------------
+
+/**
+ * Built-in email template keys.
+ */
+export type EmailTemplateName =
+    | "confirmation-code"
+    | "password-reset"
+    | "invite"
+    | "getting-started";
+
+/**
+ * Payload for the send-email Lambda function.
+ *
+ * Used by integration tests, schema action resolvers (Spec B), and
+ * any code that invokes the Lambda directly.
+ *
+ * @example
+ * ```ts
+ * const payload: SendEmailPayload = {
+ *   template: "invite",
+ *   to: "colleague@example.com",
+ *   data: {
+ *     inviterName: "Alice",
+ *     inviteLink: "https://app.example.com/invite/abc",
+ *   },
+ * };
+ * ```
+ */
+export interface SendEmailPayload {
+    /** Built-in template to render. */
+    template: EmailTemplateName;
+    /** Full recipient email address. */
+    to: string;
+    /** Key from the senders map. Defaults to the `defaultSender` configured on `defineEmail()`. */
+    sender?: string;
+    /** Template-specific data values. All values are HTML-escaped before rendering. */
+    data: Record<string, string>;
+}
+
+/**
+ * Response from the send-email Lambda function.
+ */
+export interface SendEmailResult {
+    /** SES message ID. */
+    messageId: string | undefined;
+}
+
+// ---------------------------------------------------------------------------
 // Resources exposed after construct instantiation
 // ---------------------------------------------------------------------------
 

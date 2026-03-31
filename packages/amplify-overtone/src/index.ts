@@ -1,6 +1,9 @@
 export type {
     EmailProps,
     EmailResources,
+    EmailTemplateName,
+    SendEmailPayload,
+    SendEmailResult,
     SenderConfig,
     SenderWithEmail,
     SenderWithPrefix,

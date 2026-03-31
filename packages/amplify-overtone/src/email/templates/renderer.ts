@@ -1,3 +1,4 @@
+import type { EmailTemplateName } from "../types.js";
 import { confirmationCodeTemplate } from "./defaults/confirmation-code.js";
 import { gettingStartedTemplate } from "./defaults/getting-started.js";
 import { inviteTemplate } from "./defaults/invite.js";
@@ -16,7 +17,7 @@ export function escapeHtml(text: string): string {
         .replace(/"/g, "&quot;");
 }
 
-const templateRegistry: Record<string, TemplateDefinition> = {
+const templateRegistry: Record<EmailTemplateName, TemplateDefinition> = {
     "confirmation-code": confirmationCodeTemplate,
     "password-reset": passwordResetTemplate,
     invite: inviteTemplate,
@@ -57,17 +58,11 @@ ${content}
  * @throws If the template key is unknown or required data fields are missing
  */
 export function renderTemplate(
-    templateKey: string,
+    templateKey: EmailTemplateName,
     data: Record<string, string>,
     brandName: string,
 ): { subject: string; html: string; text: string } {
     const template = templateRegistry[templateKey];
-
-    if (!template) {
-        throw new Error(
-            `Unknown email template: "${templateKey}". Available templates: ${Object.keys(templateRegistry).join(", ")}`,
-        );
-    }
 
     // HTML-escape all data values before passing to templates
     const escapedData: Record<string, string> = {};

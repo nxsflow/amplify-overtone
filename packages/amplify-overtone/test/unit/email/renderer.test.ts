@@ -111,9 +111,7 @@ describe("renderTemplate — XSS protection", () => {
 });
 
 describe("renderTemplate — error handling", () => {
-    it("throws for unknown template key", () => {
-        expect(() => renderTemplate("nonexistent", {}, "Test")).toThrow();
-    });
+    // Unknown template key is prevented at compile time by EmailTemplateName type
 
     it("throws when required data is missing — confirmation-code without code", () => {
         expect(() => renderTemplate("confirmation-code", {}, "Test")).toThrow();

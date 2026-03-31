@@ -1,22 +1,8 @@
 import { SESv2Client, SendEmailCommand } from "@aws-sdk/client-sesv2";
 import { renderTemplate } from "../../templates/renderer.js";
+import type { SendEmailPayload, SendEmailResult } from "../../types.js";
 
 const ses = new SESv2Client({});
-
-export interface SendEmailPayload {
-    /** Template to render. */
-    template: "confirmation-code" | "password-reset" | "invite" | "getting-started";
-    /** Full recipient email address. */
-    to: string;
-    /** Key from the senders map. Defaults to DEFAULT_SENDER env var. */
-    sender?: string;
-    /** Template data values. */
-    data: Record<string, string>;
-}
-
-export interface SendEmailResult {
-    messageId: string | undefined;
-}
 
 /** Normalized sender config as serialized by the construct. */
 interface NormalizedSender {
