@@ -26,7 +26,7 @@
     "types": "dist/index.d.ts",
     "files": [
         "dist",
-        "src/functions"
+        "src/email/functions"
     ],
     "scripts": {
         "build": "tsup",
