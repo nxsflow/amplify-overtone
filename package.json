@@ -26,7 +26,8 @@
         "test-infra:deploy": "pnpm --filter @nxsflow/test-infra run deploy",
         "test-infra:destroy": "pnpm --filter @nxsflow/test-infra run destroy",
         "e2e:typecheck": "pnpm --filter @nxsflow/integration-tests typecheck",
-        "e2e:test": "pnpm --filter @nxsflow/integration-tests run test:e2e"
+        "e2e:test": "pnpm --filter @nxsflow/integration-tests run test:e2e",
+        "release:setup": "./scripts/release-setup.sh"
     },
     "pnpm": {
         "onlyBuiltDependencies": [

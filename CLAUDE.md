@@ -4,12 +4,12 @@ Open-source AWS Amplify Gen 2 extensions for collaborative data, auth inheritanc
 
 ## Packages
 
-| Package                            | npm name                            | Purpose                                                                       |
-| ---------------------------------- | ----------------------------------- | ----------------------------------------------------------------------------- |
-| `packages/amplify-overtone`        | `@nxsflow/amplify-overtone`        | Backend: schema builder, CDK constructs, resolvers                            |
-| `packages/amplify-overtone-client` | `@nxsflow/amplify-overtone-client` | Frontend: sync engine, IndexedDB storage, collaborative session API           |
-| `packages/integration-tests`       | (private)                           | E2E tests: deploy real Amplify backends, verify behavior per feature          |
-| `packages/test-infra`              | (private)                           | CDK app: Cognito user pool (pre-confirmed users), S3 + SES receipt rules     |
+| Package                            | npm name                           | Purpose                                                                  |
+| ---------------------------------- | ---------------------------------- | ------------------------------------------------------------------------ |
+| `packages/amplify-overtone`        | `@nxsflow/amplify-overtone`        | Backend: schema builder, CDK constructs, resolvers                       |
+| `packages/amplify-overtone-client` | `@nxsflow/amplify-overtone-client` | Frontend: sync engine, IndexedDB storage, collaborative session API      |
+| `packages/integration-tests`       | (private)                          | E2E tests: deploy real Amplify backends, verify behavior per feature     |
+| `packages/test-infra`              | (private)                          | CDK app: Cognito user pool (pre-confirmed users), S3 + SES receipt rules |
 
 ## Root Scripts
 
@@ -17,47 +17,53 @@ Open-source AWS Amplify Gen 2 extensions for collaborative data, auth inheritanc
 
 ### Global
 
-| Script | Description |
-| --- | --- |
-| `pnpm build` | Build all packages |
-| `pnpm test` | Run all unit/construct tests (vitest) |
-| `pnpm typecheck` | Typecheck all packages |
-| `pnpm lint` | Lint all files (Biome) |
-| `pnpm format` | Auto-format all files (Biome) |
+| Script           | Description                                 |
+| ---------------- | ------------------------------------------- |
+| `pnpm build`     | Build all packages                          |
+| `pnpm test`      | Run all unit/construct tests (vitest)       |
+| `pnpm typecheck` | Typecheck all packages                      |
+| `pnpm lint`      | Lint all files (Biome)                      |
+| `pnpm format`    | Auto-format all files (Biome)               |
 | `pnpm aws:login` | AWS SSO login (reads AWS_PROFILE from .env) |
 
 ### Backend (`@nxsflow/amplify-overtone`)
 
-| Script | Description |
-| --- | --- |
-| `pnpm overtone:build` | Build backend package |
-| `pnpm overtone:test` | Run backend unit + construct tests |
-| `pnpm overtone:typecheck` | Typecheck backend package |
+| Script                    | Description                        |
+| ------------------------- | ---------------------------------- |
+| `pnpm overtone:build`     | Build backend package              |
+| `pnpm overtone:test`      | Run backend unit + construct tests |
+| `pnpm overtone:typecheck` | Typecheck backend package          |
 
 ### Client (`@nxsflow/amplify-overtone-client`)
 
-| Script | Description |
-| --- | --- |
-| `pnpm client:build` | Build client package |
-| `pnpm client:test` | Run client tests |
+| Script                  | Description              |
+| ----------------------- | ------------------------ |
+| `pnpm client:build`     | Build client package     |
+| `pnpm client:test`      | Run client tests         |
 | `pnpm client:typecheck` | Typecheck client package |
 
 ### Test Infrastructure (`@nxsflow/test-infra`)
 
-| Script | Description |
-| --- | --- |
-| `pnpm test-infra:build` | Typecheck test-infra (tsc --noEmit) |
-| `pnpm test-infra:typecheck` | Typecheck test-infra |
-| `pnpm test-infra:bootstrap` | CDK bootstrap for test infrastructure |
-| `pnpm test-infra:deploy` | Deploy test infra + write `overtone_test_infra.json` |
-| `pnpm test-infra:destroy` | Tear down test infrastructure |
+| Script                      | Description                                          |
+| --------------------------- | ---------------------------------------------------- |
+| `pnpm test-infra:build`     | Typecheck test-infra (tsc --noEmit)                  |
+| `pnpm test-infra:typecheck` | Typecheck test-infra                                 |
+| `pnpm test-infra:bootstrap` | CDK bootstrap for test infrastructure                |
+| `pnpm test-infra:deploy`    | Deploy test infra + write `overtone_test_infra.json` |
+| `pnpm test-infra:destroy`   | Tear down test infrastructure                        |
 
 ### Integration Tests (`@nxsflow/integration-tests`)
 
-| Script | Description |
-| --- | --- |
-| `pnpm e2e:typecheck` | Typecheck integration tests |
-| `pnpm e2e:test` | Run e2e tests (requires deployed test-infra + .env) |
+| Script               | Description                                         |
+| -------------------- | --------------------------------------------------- |
+| `pnpm e2e:typecheck` | Typecheck integration tests                         |
+| `pnpm e2e:test`      | Run e2e tests (requires deployed test-infra + .env) |
+
+### Release
+
+| Script               | Description                                                          |
+| -------------------- | -------------------------------------------------------------------- |
+| `pnpm release:setup` | One-time setup: set NPM_TOKEN secret + create production environment |
 
 ### Quick Start
 

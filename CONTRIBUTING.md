@@ -142,6 +142,23 @@ Pre-releases allow testing unreleased versions before they reach `latest`:
 
 **Alpha** is for early iteration (breaking changes expected). **Beta** is feature-complete and fully validated. **Stable** requires manual approval.
 
+## Release Setup (one-time)
+
+Before the CI/CD pipeline can publish to npm, run the setup script:
+
+1. Create an npm account at [npmjs.com](https://www.npmjs.com/) if you don't have one
+2. Generate an **Automation** token at npmjs.com → Access Tokens → Generate
+3. Add the token to `.env` as `NPM_TOKEN=npm_...`
+4. Run the setup script:
+
+```bash
+pnpm release:setup
+```
+
+This configures:
+- **`NPM_TOKEN`** as a GitHub repository secret (for npm publishing in CI)
+- **`production`** GitHub environment with required reviewer (for stable release approval)
+
 ## Release Process
 
 ### Stable Releases
