@@ -11,7 +11,7 @@
         "build": "pnpm -r build",
         "test": "pnpm -r test",
         "typecheck": "pnpm -r typecheck",
-        "lint": "biome check .",
+        "lint": "biome check --error-on-warnings .",
         "format": "biome format --write .",
         "aws:login": "./scripts/aws-login.sh",
         "overtone:build": "pnpm --filter @nxsflow/amplify-overtone build",

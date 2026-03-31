@@ -4,38 +4,36 @@ export const inviteTemplate: TemplateDefinition = {
     subject: "You've been invited to collaborate",
 
     renderHtml(data: Record<string, string>, _brandName: string): string {
-        if (!data["inviterName"]) {
+        if (!data.inviterName) {
             throw new Error('Template "invite" requires data.inviterName');
         }
-        if (!data["inviteLink"]) {
+        if (!data.inviteLink) {
             throw new Error('Template "invite" requires data.inviteLink');
         }
 
-        const resourceText = data["resourceName"]
-            ? ` on <strong>${data["resourceName"]}</strong>`
-            : "";
+        const resourceText = data.resourceName ? ` on <strong>${data.resourceName}</strong>` : "";
 
-        return `<p style="margin:0 0 16px;font-size:16px;color:#333;"><strong>${data["inviterName"]}</strong> invited you to collaborate${resourceText}.</p>
+        return `<p style="margin:0 0 16px;font-size:16px;color:#333;"><strong>${data.inviterName}</strong> invited you to collaborate${resourceText}.</p>
 <p style="margin:0 0 24px;font-size:16px;color:#333;">Click the button below to accept the invitation and get started.</p>
 <div style="margin:24px 0;">
-    <a href="${data["inviteLink"]}" style="display:inline-block;padding:12px 24px;background:#e8734a;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;">Accept Invitation</a>
+    <a href="${data.inviteLink}" style="display:inline-block;padding:12px 24px;background:#e8734a;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;">Accept Invitation</a>
 </div>`;
     },
 
     renderText(data: Record<string, string>, _brandName: string): string {
-        if (!data["inviterName"]) {
+        if (!data.inviterName) {
             throw new Error('Template "invite" requires data.inviterName');
         }
-        if (!data["inviteLink"]) {
+        if (!data.inviteLink) {
             throw new Error('Template "invite" requires data.inviteLink');
         }
 
-        const resourceText = data["resourceName"] ? ` on ${data["resourceName"]}` : "";
+        const resourceText = data.resourceName ? ` on ${data.resourceName}` : "";
 
         const parts = [
-            `${data["inviterName"]} invited you to collaborate${resourceText}.`,
+            `${data.inviterName} invited you to collaborate${resourceText}.`,
             "Accept Invitation:",
-            data["inviteLink"],
+            data.inviteLink,
         ];
 
         return parts.join("\n");

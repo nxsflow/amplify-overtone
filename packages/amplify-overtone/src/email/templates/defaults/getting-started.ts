@@ -4,15 +4,15 @@ export const gettingStartedTemplate: TemplateDefinition = {
     subject: "Welcome — get started",
 
     renderHtml(data: Record<string, string>, brandName: string): string {
-        const greeting = data["userName"]
-            ? `<p style="margin:0 0 8px;font-size:18px;color:#1a1a2e;font-weight:600;">Hi ${data["userName"]},</p>`
+        const greeting = data.userName
+            ? `<p style="margin:0 0 8px;font-size:18px;color:#1a1a2e;font-weight:600;">Hi ${data.userName},</p>`
             : "";
 
         const brand = brandName || "the app";
 
-        const ctaHtml = data["dashboardLink"]
+        const ctaHtml = data.dashboardLink
             ? `<div style="margin:24px 0;">
-    <a href="${data["dashboardLink"]}" style="display:inline-block;padding:12px 24px;background:#e8734a;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;">Go to Dashboard</a>
+    <a href="${data.dashboardLink}" style="display:inline-block;padding:12px 24px;background:#e8734a;color:#fff;text-decoration:none;border-radius:6px;font-weight:600;">Go to Dashboard</a>
 </div>`
             : "";
 
@@ -26,17 +26,17 @@ ${ctaHtml}`;
         const brand = brandName || "the app";
         const parts: string[] = [];
 
-        if (data["userName"]) {
-            parts.push(`Hi ${data["userName"]},`);
+        if (data.userName) {
+            parts.push(`Hi ${data.userName},`);
             parts.push("");
         }
 
         parts.push(`Welcome to ${brand}! We're excited to have you on board.`);
         parts.push("You're all set and ready to get started.");
 
-        if (data["dashboardLink"]) {
+        if (data.dashboardLink) {
             parts.push("");
-            parts.push(`Go to Dashboard: ${data["dashboardLink"]}`);
+            parts.push(`Go to Dashboard: ${data.dashboardLink}`);
         }
 
         return parts.join("\n");
