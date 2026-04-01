@@ -31,10 +31,8 @@ jobs:
       - name: Run lint (beta only)
         if: startsWith(github.ref, 'refs/heads/beta/')
         run: pnpm lint
-      # Determine dist-tag from branch prefix
+      # Publish: changeset pre mode handles the dist-tag automatically
       - name: Publish pre-release
-        run: |
-          TAG=$(echo "${{ github.ref_name }}" | cut -d'/' -f1)
-          pnpm changeset publish --tag "$TAG"
+        run: pnpm changeset publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
