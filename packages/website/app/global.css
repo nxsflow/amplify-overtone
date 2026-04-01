@@ -42,3 +42,13 @@ code,
 pre {
     font-family: var(--font-mono);
 }
+
+/* Dark mode only — hide theme toggle */
+[data-theme-toggle] {
+    display: none !important;
+}
+
+/* Hide sidebar footer (GitHub link + theme toggle already in nav) */
+#nd-sidebar > :last-child {
+    display: none !important;
+}
