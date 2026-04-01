@@ -8,8 +8,8 @@
  *   packages/docs/getting-started/index.md → public/docs/getting-started.md
  */
 
-import { copyFile, mkdir, readdir, stat } from "node:fs/promises";
-import { join, relative, dirname, basename } from "node:path";
+import { copyFile, mkdir, readdir } from "node:fs/promises";
+import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -41,7 +41,11 @@ async function main() {
         if (parts.length >= 2 && parts[parts.length - 1] === "index.md") {
             // packages/docs/email/index.md → public/docs/email.md
             const dirParts = parts.slice(0, -1);
-            dest = join(publicDocsDir, ...dirParts.slice(0, -1), `${dirParts[dirParts.length - 1]}.md`);
+            dest = join(
+                publicDocsDir,
+                ...dirParts.slice(0, -1),
+                `${dirParts[dirParts.length - 1]}.md`,
+            );
         } else {
             // packages/docs/email/define-email.md → public/docs/email/define-email.md
             dest = join(publicDocsDir, ...parts);

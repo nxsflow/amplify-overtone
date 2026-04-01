@@ -1,10 +1,10 @@
-import { source } from "@/lib/source";
 import { DocsBody, DocsDescription, DocsPage, DocsTitle } from "fumadocs-ui/layouts/docs/page";
-import { notFound } from "next/navigation";
-import { getMDXComponents } from "@/components/mdx";
 import { createRelativeLink } from "fumadocs-ui/mdx";
-import { CopyMdButton } from "@/components/copy-md-button";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { CopyMdButton } from "@/components/copy-md-button";
+import { getMDXComponents } from "@/components/mdx";
+import { source } from "@/lib/source";
 
 interface PageProps {
     params: Promise<{ slug?: string[] }>;
@@ -18,7 +18,7 @@ export default async function Page(props: PageProps) {
     const MDX = page.data.body;
 
     return (
-        <DocsPage toc={page.data.toc} full={page.data.full}>
+        <DocsPage toc={page.data.toc} full={page.data.full ?? false}>
             <div
                 style={{
                     display: "flex",
