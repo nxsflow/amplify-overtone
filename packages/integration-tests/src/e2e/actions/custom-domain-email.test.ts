@@ -10,6 +10,7 @@ import {
     assertEmailOutputsExist,
 } from "../../utilities/amplify_outputs_validator.js";
 import { S3Mailbox } from "../../utilities/s3_mailbox.js";
+import { waitForSesVerification } from "../../utilities/ses_identity_waiter.js";
 import { loadTestInfraConfig } from "../../utilities/test_infra_config.js";
 
 const senderDomain = process.env.TEST_SENDER_DOMAIN!;
@@ -91,7 +92,11 @@ describe("custom-domain-email integration test", { concurrency: false }, () => {
         assert.ok(mxRecords.length >= 1, "MX record should exist");
     });
 
-    it("SES domain identity is verified", async () => {
+    it("SES domain identity is verified", { timeout: 360_000 }, async () => {
+        // DKIM verification can take 1-5 minutes after DNS records are created.
+        // Poll until verified — subsequent tests depend on this.
+        await waitForSesVerification(senderDomain, 300_000);
+
         const identity = await ses.send(
             new GetEmailIdentityCommand({ EmailIdentity: senderDomain }),
         );
