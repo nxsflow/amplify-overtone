@@ -46,6 +46,7 @@ if [ -z "${NPM_TOKEN:-}" ]; then
     echo "  2. Click 'Generate New Token' → 'Granular Access Token'"
     echo "  3. Settings:"
     echo "     - Token name: amplify-overtone-ci"
+    echo "     - Bypass 2FA: checked (required for automated CI/CD publishing)"
     echo "     - Packages & scopes: Read and write → Only select: @nxsflow"
     echo "     - Organizations: No access"
     echo "     - Expiration: 90 days (maximum for write tokens)"

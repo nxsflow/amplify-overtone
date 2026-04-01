@@ -122,11 +122,11 @@ Push your branch and open a pull request against `main`. CI runs build, typechec
 
 Amplify Overtone uses [Changesets](https://github.com/changesets/changesets) for version management across both published packages (`@nxsflow/amplify-overtone` and `@nxsflow/amplify-overtone-client`). Versions follow [Semantic Versioning](https://semver.org/):
 
-| Bump    | When                                                             | Example                               |
-| ------- | ---------------------------------------------------------------- | ------------------------------------- |
-| `patch` | Bug fix, docs, internal refactor, new optional prop with default | Fix auth propagation Lambda timeout   |
-| `minor` | New optional prop, new export, new utility                       | Add `n.pushNotification()` action     |
-| `major` | Rename prop, change resource shape, remove export                | Rename schema builder API             |
+| Bump    | When                                                             | Example                             |
+| ------- | ---------------------------------------------------------------- | ----------------------------------- |
+| `patch` | Bug fix, docs, internal refactor, new optional prop with default | Fix auth propagation Lambda timeout |
+| `minor` | New optional prop, new export, new utility                       | Add `n.pushNotification()` action   |
+| `major` | Rename prop, change resource shape, remove export                | Rename schema builder API           |
 
 A single changeset can bump both packages if a change affects both.
 
@@ -134,11 +134,11 @@ A single changeset can bump both packages if a change affects both.
 
 Pre-releases allow testing unreleased versions before they reach `latest`:
 
-| Channel | Version format  | Install command                              |
-| ------- | --------------- | -------------------------------------------- |
-| Alpha   | `0.2.0-alpha.0` | `pnpm add @nxsflow/amplify-overtone@alpha`   |
-| Beta    | `0.2.0-beta.0`  | `pnpm add @nxsflow/amplify-overtone@beta`    |
-| Stable  | `0.2.0`         | `pnpm add @nxsflow/amplify-overtone`          |
+| Channel | Version format  | Install command                            |
+| ------- | --------------- | ------------------------------------------ |
+| Alpha   | `0.2.0-alpha.0` | `pnpm add @nxsflow/amplify-overtone@alpha` |
+| Beta    | `0.2.0-beta.0`  | `pnpm add @nxsflow/amplify-overtone@beta`  |
+| Stable  | `0.2.0`         | `pnpm add @nxsflow/amplify-overtone`       |
 
 **Alpha** is for early iteration (breaking changes expected). **Beta** is feature-complete and fully validated. **Stable** requires manual approval.
 
@@ -149,6 +149,7 @@ Before the CI/CD pipeline can publish to npm, run the setup script:
 1. Create an npm account at [npmjs.com](https://www.npmjs.com/) if you don't have one
 2. Generate a **Granular Access Token** at npmjs.com → Access Tokens → Generate:
    - **Token name:** `amplify-overtone-ci`
+   - **Bypass 2FA:** checked (required for automated CI/CD publishing)
    - **Packages & scopes:** Read and write → Only select: `@nxsflow`
    - **Organizations:** No access
    - **Expiration:** 90 days (maximum for write tokens)
@@ -160,6 +161,7 @@ pnpm release:setup
 ```
 
 This configures:
+
 - **`NPM_TOKEN`** as a GitHub repository secret (for npm publishing in CI)
 - **`production`** GitHub environment with required reviewer (for stable release approval)
 

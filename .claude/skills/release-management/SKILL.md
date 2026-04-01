@@ -171,10 +171,10 @@ jobs:
 
 ### Repository Secrets
 
-| Secret         | Purpose               | Where to get it                                        |
-| -------------- | --------------------- | ------------------------------------------------------ |
-| `NPM_TOKEN`    | Publish to npm        | npmjs.com → Granular Access Token (Read and write, @nxsflow scope, 90 days) |
-| `GITHUB_TOKEN` | Create PRs, push tags | Provided automatically by GitHub Actions               |
+| Secret         | Purpose               | Where to get it                                                                         |
+| -------------- | --------------------- | --------------------------------------------------------------------------------------- |
+| `NPM_TOKEN`    | Publish to npm        | npmjs.com → Granular Access Token (Read and write, @nxsflow scope, 90 days, bypass 2FA) |
+| `GITHUB_TOKEN` | Create PRs, push tags | Provided automatically by GitHub Actions                                                |
 
 Both secrets and the production environment can be configured automatically via `pnpm release:setup` (reads `NPM_TOKEN` from `.env`).
 
