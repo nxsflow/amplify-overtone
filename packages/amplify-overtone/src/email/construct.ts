@@ -1,3 +1,4 @@
+import { existsSync, readFileSync } from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Annotations, CfnOutput, Duration, Fn, Stack } from "aws-cdk-lib";
@@ -28,17 +29,26 @@ import {
 import { Construct } from "constructs";
 import type { EmailProps, EmailResources, SenderWithEmail, SenderWithPrefix } from "./types.js";
 
-// At runtime, import.meta.url points to dist/email/construct.js.
-// Go up two levels (dist/email → package root) then into src/email/functions/send.
-const HANDLER_DIR = path.resolve(
-    path.dirname(fileURLToPath(import.meta.url)),
-    "..",
-    "..",
-    "src",
-    "email",
-    "functions",
-    "send",
-);
+// Find the package root by walking up from this file's directory until we find package.json.
+// Works regardless of whether we're loaded from src/ (tsx) or dist/ (compiled),
+// and regardless of symlinks (pnpm workspace, file: deps).
+function findPackageRoot(startDir: string): string {
+    let dir = startDir;
+    while (dir !== path.dirname(dir)) {
+        const pkgPath = path.join(dir, "package.json");
+        if (existsSync(pkgPath)) {
+            const pkg = JSON.parse(readFileSync(pkgPath, "utf-8"));
+            if (pkg.name === "@nxsflow/amplify-overtone") {
+                return dir;
+            }
+        }
+        dir = path.dirname(dir);
+    }
+    throw new Error("Could not find @nxsflow/amplify-overtone package root");
+}
+
+const PACKAGE_ROOT = findPackageRoot(path.dirname(fileURLToPath(import.meta.url)));
+const HANDLER_DIR = path.join(PACKAGE_ROOT, "src", "email", "functions", "send");
 
 /**
  * Internal sender representation passed to the Lambda as SENDERS_CONFIG.
