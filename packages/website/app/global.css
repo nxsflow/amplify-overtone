@@ -1,0 +1,44 @@
+@import "tailwindcss";
+@import "fumadocs-ui/css/neutral.css";
+@import "fumadocs-ui/css/preset.css";
+
+:root {
+    --font-heading: "Merriweather", Georgia, serif;
+    --font-body: "Merriweather Sans", system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+    --color-fd-background: 222.2 47.4% 11.2%;
+    --color-fd-foreground: 210 40% 98%;
+    --color-fd-card: 240 10% 13.7%;
+    --color-fd-card-foreground: 210 40% 98%;
+    --color-fd-popover: 217.2 32.6% 17.5%;
+    --color-fd-popover-foreground: 210 40% 98%;
+    --color-fd-primary: 187.2 85.7% 53.3%;
+    --color-fd-primary-foreground: 222.2 47.4% 11.2%;
+    --color-fd-secondary: 217.2 32.6% 17.5%;
+    --color-fd-secondary-foreground: 210 40% 98%;
+    --color-fd-muted: 217.2 32.6% 17.5%;
+    --color-fd-muted-foreground: 215 20.2% 65.1%;
+    --color-fd-accent: 263.4 70% 50.4%;
+    --color-fd-accent-foreground: 210 40% 98%;
+    --color-fd-border: 217.2 32.6% 25%;
+    --color-fd-ring: 187.2 85.7% 53.3%;
+}
+
+body {
+    font-family: var(--font-body);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: var(--font-heading);
+}
+
+code,
+pre {
+    font-family: var(--font-mono);
+}
