@@ -2,6 +2,7 @@ import {
     CfnOutput,
     CustomResource,
     Duration,
+    Fn,
     RemovalPolicy,
     Stack,
     type StackProps,
@@ -11,9 +12,15 @@ import { Effect, PolicyStatement, ServicePrincipal } from "aws-cdk-lib/aws-iam";
 import { Runtime } from "aws-cdk-lib/aws-lambda";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { RetentionDays } from "aws-cdk-lib/aws-logs";
-import { HostedZone, MxRecord } from "aws-cdk-lib/aws-route53";
+import { CnameRecord, HostedZone, MxRecord } from "aws-cdk-lib/aws-route53";
 import { BlockPublicAccess, Bucket, BucketEncryption } from "aws-cdk-lib/aws-s3";
-import { CfnReceiptRule, CfnReceiptRuleSet } from "aws-cdk-lib/aws-ses";
+import {
+    CfnReceiptRule,
+    CfnReceiptRuleSet,
+    DkimIdentity,
+    EmailIdentity,
+    Identity,
+} from "aws-cdk-lib/aws-ses";
 import {
     AwsCustomResource,
     AwsCustomResourcePolicy,
@@ -35,6 +42,11 @@ export class OvertoneTestInfraStack extends Stack {
         const { recipientDomain, hostedZoneId, hostedZoneDomain } = props;
         const region = Stack.of(this).region;
         const account = Stack.of(this).account;
+
+        const hostedZone = HostedZone.fromHostedZoneAttributes(this, "HostedZone", {
+            hostedZoneId,
+            zoneName: hostedZoneDomain,
+        });
 
         // ── Email Receipt Infrastructure ──────────────────────────────────
 
@@ -64,6 +76,38 @@ export class OvertoneTestInfraStack extends Stack {
                 },
             }),
         );
+
+        // SES requires the recipient domain to be a verified identity for inbound email.
+        // DKIM records in Route 53 complete the domain verification automatically.
+        const recipientIdentity = new EmailIdentity(this, "RecipientDomainIdentity", {
+            identity: Identity.domain(recipientDomain),
+            dkimIdentity: DkimIdentity.easyDkim(),
+        });
+
+        const mailSubdomain = recipientDomain.replace(`.${hostedZoneDomain}`, "");
+        const dkimTokens = [
+            {
+                name: recipientIdentity.dkimDnsTokenName1,
+                value: recipientIdentity.dkimDnsTokenValue1,
+            },
+            {
+                name: recipientIdentity.dkimDnsTokenName2,
+                value: recipientIdentity.dkimDnsTokenValue2,
+            },
+            {
+                name: recipientIdentity.dkimDnsTokenName3,
+                value: recipientIdentity.dkimDnsTokenValue3,
+            },
+        ];
+
+        for (const [i, { name, value }] of dkimTokens.entries()) {
+            const tokenHash = Fn.select(0, Fn.split(".", name));
+            new CnameRecord(this, `RecipientDkimCname${i + 1}`, {
+                zone: hostedZone,
+                recordName: Fn.join(".", [tokenHash, "_domainkey", mailSubdomain]),
+                domainName: value,
+            });
+        }
 
         const ruleSet = new CfnReceiptRuleSet(this, "ReceiptRuleSet", {
             ruleSetName: `overtone-test-infra-${recipientDomain.replace(/\./g, "-")}`,
@@ -115,11 +159,6 @@ export class OvertoneTestInfraStack extends Stack {
                 }),
             ]),
             logRetention: RetentionDays.ONE_WEEK,
-        });
-
-        const hostedZone = HostedZone.fromHostedZoneAttributes(this, "HostedZone", {
-            hostedZoneId,
-            zoneName: hostedZoneDomain,
         });
 
         new MxRecord(this, "RecipientMxRecord", {
