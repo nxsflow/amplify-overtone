@@ -1,13 +1,9 @@
 import { source } from "@/lib/source";
-import {
-    DocsBody,
-    DocsDescription,
-    DocsPage,
-    DocsTitle,
-} from "fumadocs-ui/layouts/docs/page";
+import { DocsBody, DocsDescription, DocsPage, DocsTitle } from "fumadocs-ui/layouts/docs/page";
 import { notFound } from "next/navigation";
 import { getMDXComponents } from "@/components/mdx";
 import { createRelativeLink } from "fumadocs-ui/mdx";
+import { CopyMdButton } from "@/components/copy-md-button";
 import type { Metadata } from "next";
 
 interface PageProps {
@@ -33,7 +29,7 @@ export default async function Page(props: PageProps) {
                 }}
             >
                 <DocsTitle>{page.data.title}</DocsTitle>
-                <CopyMdButton slug={params.slug} />
+                <CopyMdButton mdPath={`/docs/${(params.slug ?? []).join("/")}.md`} />
             </div>
             <DocsDescription>{page.data.description}</DocsDescription>
             <DocsBody>
@@ -44,30 +40,6 @@ export default async function Page(props: PageProps) {
                 />
             </DocsBody>
         </DocsPage>
-    );
-}
-
-function CopyMdButton({ slug }: { slug?: string[] }) {
-    const mdPath = `/docs/${(slug ?? []).join("/")}.md`;
-    return (
-        <button
-            type="button"
-            data-copy-md={mdPath}
-            style={{
-                padding: "4px 12px",
-                fontSize: "13px",
-                fontFamily: "var(--font-mono)",
-                background: "hsl(var(--color-fd-secondary))",
-                border: "1px solid hsl(var(--color-fd-border))",
-                borderRadius: "6px",
-                color: "hsl(var(--color-fd-muted-foreground))",
-                cursor: "pointer",
-                whiteSpace: "nowrap",
-            }}
-            onClick={undefined}
-        >
-            Copy .md link
-        </button>
     );
 }
 
