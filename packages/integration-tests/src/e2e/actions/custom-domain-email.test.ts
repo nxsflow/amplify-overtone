@@ -101,7 +101,7 @@ describe("custom-domain-email integration test", { concurrency: false }, () => {
     // -- Email delivery --
 
     it("email delivery works end-to-end", { timeout: 120_000 }, async () => {
-        await mailbox.clearMailbox("reader/");
+        await mailbox.clearMailbox("editor/");
 
         const outputs = await testProject.getAmplifyOutputs();
         const emailOutputs = assertEmailOutputsExist(outputs);
@@ -113,7 +113,7 @@ describe("custom-domain-email integration test", { concurrency: false }, () => {
                 Payload: new TextEncoder().encode(
                     JSON.stringify({
                         template: "invite",
-                        to: "reader@amp-recv.nxsflowmail.com",
+                        to: "editor@amp-recv.nxsflowmail.com",
                         data: {
                             inviterName: "E2E Test",
                             inviteLink: "https://example.com/invite/test",
@@ -126,7 +126,7 @@ describe("custom-domain-email integration test", { concurrency: false }, () => {
         assert.strictEqual(result.StatusCode, 200);
         assert.ok(!result.FunctionError, `Lambda error: ${result.FunctionError}`);
 
-        const email = await mailbox.waitForEmail("reader/you-ve-been-invited", 60_000);
+        const email = await mailbox.waitForEmail("editor/you-ve-been-invited", 60_000);
         assert.ok(email, "Email should be delivered to S3");
         assert.ok(email.subject?.toLowerCase().includes("invited"), `Subject: ${email.subject}`);
     });
@@ -134,7 +134,7 @@ describe("custom-domain-email integration test", { concurrency: false }, () => {
     // -- All 4 templates --
 
     it("confirmation-code template delivers correctly", { timeout: 120_000 }, async () => {
-        await mailbox.clearMailbox("reader/your-confirmation-code");
+        await mailbox.clearMailbox("editor/your-confirmation-code");
 
         const outputs = await testProject.getAmplifyOutputs();
         const emailOutputs = assertEmailOutputsExist(outputs);
@@ -146,20 +146,20 @@ describe("custom-domain-email integration test", { concurrency: false }, () => {
                 Payload: new TextEncoder().encode(
                     JSON.stringify({
                         template: "confirmation-code",
-                        to: "reader@amp-recv.nxsflowmail.com",
+                        to: "editor@amp-recv.nxsflowmail.com",
                         data: { code: "999888" },
                     }),
                 ),
             }),
         );
 
-        const email = await mailbox.waitForEmail("reader/your-confirmation-code", 60_000);
+        const email = await mailbox.waitForEmail("editor/your-confirmation-code", 60_000);
         assert.ok(email, "Email should arrive");
         assert.ok(email.subject?.includes("Your confirmation code"), `Subject: ${email.subject}`);
     });
 
     it("password-reset template delivers correctly", { timeout: 120_000 }, async () => {
-        await mailbox.clearMailbox("reader/reset-your-password");
+        await mailbox.clearMailbox("editor/reset-your-password");
 
         const outputs = await testProject.getAmplifyOutputs();
         const emailOutputs = assertEmailOutputsExist(outputs);
@@ -171,20 +171,20 @@ describe("custom-domain-email integration test", { concurrency: false }, () => {
                 Payload: new TextEncoder().encode(
                     JSON.stringify({
                         template: "password-reset",
-                        to: "reader@amp-recv.nxsflowmail.com",
+                        to: "editor@amp-recv.nxsflowmail.com",
                         data: { resetLink: "https://example.com/reset" },
                     }),
                 ),
             }),
         );
 
-        const email = await mailbox.waitForEmail("reader/reset-your-password", 60_000);
+        const email = await mailbox.waitForEmail("editor/reset-your-password", 60_000);
         assert.ok(email, "Email should arrive");
         assert.ok(email.subject?.includes("Reset your password"), `Subject: ${email.subject}`);
     });
 
     it("getting-started template delivers correctly", { timeout: 120_000 }, async () => {
-        await mailbox.clearMailbox("reader/welcome");
+        await mailbox.clearMailbox("editor/welcome");
 
         const outputs = await testProject.getAmplifyOutputs();
         const emailOutputs = assertEmailOutputsExist(outputs);
@@ -196,14 +196,14 @@ describe("custom-domain-email integration test", { concurrency: false }, () => {
                 Payload: new TextEncoder().encode(
                     JSON.stringify({
                         template: "getting-started",
-                        to: "reader@amp-recv.nxsflowmail.com",
+                        to: "editor@amp-recv.nxsflowmail.com",
                         data: { userName: "Tester" },
                     }),
                 ),
             }),
         );
 
-        const email = await mailbox.waitForEmail("reader/welcome", 60_000);
+        const email = await mailbox.waitForEmail("editor/welcome", 60_000);
         assert.ok(email, "Email should arrive");
         assert.ok(email.subject?.toLowerCase().includes("welcome"), `Subject: ${email.subject}`);
     });

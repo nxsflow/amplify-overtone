@@ -21,5 +21,5 @@ export const email = defineEmail({
         support: { senderPrefix: "support", displayName: "Overtone Support" },
     },
     defaultSender: "noreply",
-    sandboxRecipients: ["reader@amp-recv.nxsflowmail.com"],
+    sandboxRecipients: ["editor@amp-recv.nxsflowmail.com"],
 });
