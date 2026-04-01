@@ -2,6 +2,7 @@ import "./global.css";
 import { RootProvider } from "fumadocs-ui/provider/next";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import StaticSearchDialog from "@/components/search-dialog";
 
 export const metadata: Metadata = {
     title: {
@@ -22,7 +23,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 />
             </head>
             <body>
-                <RootProvider theme={{ defaultTheme: "dark", forcedTheme: "dark" }}>
+                <RootProvider
+                    theme={{ defaultTheme: "dark", forcedTheme: "dark" }}
+                    search={{ SearchDialog: StaticSearchDialog }}
+                >
                     {children}
                 </RootProvider>
             </body>
