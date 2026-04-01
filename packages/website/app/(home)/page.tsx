@@ -137,7 +137,16 @@ export default async function HomePage() {
                     }}
                     className="prose"
                 >
-                    <Markdown components={defaultMdxComponents}>{readme}</Markdown>
+                    <Markdown
+                        components={{
+                            ...defaultMdxComponents,
+                            // Use plain <img> for README images (badges etc.) since
+                            // next/image requires width/height which markdown doesn't provide
+                            img: (props) => <img alt="" {...props} />,
+                        }}
+                    >
+                        {readme}
+                    </Markdown>
                 </section>
             )}
         </main>
