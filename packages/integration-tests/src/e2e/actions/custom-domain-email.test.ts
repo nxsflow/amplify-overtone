@@ -101,7 +101,8 @@ describe("custom-domain-email integration test", { concurrency: false }, () => {
     // -- Email delivery --
 
     it("email delivery works end-to-end", { timeout: 120_000 }, async () => {
-        await mailbox.clearMailbox("editor/");
+        // mailbox.clearMailbox removed — 7-day lifecycle handles cleanup
+        // await mailbox.clearMailbox("editor/");
 
         const outputs = await testProject.getAmplifyOutputs();
         const emailOutputs = assertEmailOutputsExist(outputs);
@@ -134,7 +135,8 @@ describe("custom-domain-email integration test", { concurrency: false }, () => {
     // -- All 4 templates --
 
     it("confirmation-code template delivers correctly", { timeout: 120_000 }, async () => {
-        await mailbox.clearMailbox("editor/your-confirmation-code");
+        // mailbox.clearMailbox removed — 7-day lifecycle handles cleanup
+        // await mailbox.clearMailbox("editor/your-confirmation-code");
 
         const outputs = await testProject.getAmplifyOutputs();
         const emailOutputs = assertEmailOutputsExist(outputs);
@@ -159,7 +161,8 @@ describe("custom-domain-email integration test", { concurrency: false }, () => {
     });
 
     it("password-reset template delivers correctly", { timeout: 120_000 }, async () => {
-        await mailbox.clearMailbox("editor/reset-your-password");
+        // mailbox.clearMailbox removed — 7-day lifecycle handles cleanup
+        // await mailbox.clearMailbox("editor/reset-your-password");
 
         const outputs = await testProject.getAmplifyOutputs();
         const emailOutputs = assertEmailOutputsExist(outputs);
@@ -184,7 +187,8 @@ describe("custom-domain-email integration test", { concurrency: false }, () => {
     });
 
     it("getting-started template delivers correctly", { timeout: 120_000 }, async () => {
-        await mailbox.clearMailbox("editor/welcome");
+        // mailbox.clearMailbox removed — 7-day lifecycle handles cleanup
+        // await mailbox.clearMailbox("editor/welcome");
 
         const outputs = await testProject.getAmplifyOutputs();
         const emailOutputs = assertEmailOutputsExist(outputs);

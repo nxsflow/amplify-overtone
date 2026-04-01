@@ -40,8 +40,6 @@ describe("default-email integration test", { concurrency: false }, () => {
     it("send-email Lambda sends confirmation-code and email arrives in S3", {
         timeout: 120_000,
     }, async () => {
-        await mailbox.clearMailbox("reader/");
-
         const outputs = await testProject.getAmplifyOutputs();
         const emailOutputs = assertEmailOutputsExist(outputs);
 

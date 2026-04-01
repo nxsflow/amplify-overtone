@@ -25,6 +25,30 @@ function parseHeaders(raw: string): { to: string | undefined; subject: string | 
 }
 
 /**
+ * Decodes MIME encoded-word subjects (RFC 2047).
+ * e.g., "=?UTF-8?Q?Amazon_Web_Services_=E2=80=93_Email?=" → "Amazon Web Services – Email"
+ */
+function decodeMimeSubject(raw: string): string {
+    return raw.replace(
+        /=\?([^?]+)\?([BbQq])\?([^?]*)\?=/g,
+        (_match, _charset, encoding, encoded) => {
+            if (encoding.toUpperCase() === "Q") {
+                // Q-encoding: underscores are spaces, =XX is hex
+                return encoded
+                    .replace(/_/g, " ")
+                    .replace(/=([0-9A-Fa-f]{2})/g, (_: string, hex: string) =>
+                        String.fromCharCode(Number.parseInt(hex, 16)),
+                    );
+            }
+            if (encoding.toUpperCase() === "B") {
+                return Buffer.from(encoded, "base64").toString("utf-8");
+            }
+            return encoded;
+        },
+    );
+}
+
+/**
  * Converts a string to a URL-safe slug.
  * e.g., "Your confirmation code" → "your-confirmation-code"
  */
@@ -82,7 +106,8 @@ export const handler = async (event: {
         // Use the first destination address (from SES event) as fallback for To header
         const toAddress = to ?? destination[0] ?? "unknown";
         const toPrefix = extractPrefix(toAddress);
-        const subjectSlug = subject ? slugify(subject) : "no-subject";
+        const decodedSubject = subject ? decodeMimeSubject(subject) : undefined;
+        const subjectSlug = decodedSubject ? slugify(decodedSubject) : "no-subject";
         const ts = Math.floor(new Date(timestamp).getTime() / 1000);
 
         const targetKey = `emails/${toPrefix}/${subjectSlug}-${ts}`;
