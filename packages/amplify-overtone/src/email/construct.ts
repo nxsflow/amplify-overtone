@@ -209,6 +209,11 @@ export class AmplifyEmail extends Construct {
                 });
             }
 
+            // Extract unique domains from sender emails for IAM grants.
+            // SES may resolve to the domain identity rather than the email identity,
+            // so we need permissions on both.
+            const senderDomains = [...new Set(senderEmails.map((email) => email.split("@")[1]!))];
+
             sendFn.addToRolePolicy(
                 new PolicyStatement({
                     effect: Effect.ALLOW,
@@ -216,6 +221,9 @@ export class AmplifyEmail extends Construct {
                     resources: [
                         ...senderEmails.map(
                             (email) => `arn:aws:ses:${region}:${account}:identity/${email}`,
+                        ),
+                        ...senderDomains.map(
+                            (domain) => `arn:aws:ses:${region}:${account}:identity/${domain}`,
                         ),
                         ...sandboxRecipients.map(
                             (email) => `arn:aws:ses:${region}:${account}:identity/${email}`,
