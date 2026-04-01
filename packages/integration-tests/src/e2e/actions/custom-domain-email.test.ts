@@ -12,7 +12,6 @@ import {
 import { S3Mailbox } from "../../utilities/s3_mailbox.js";
 import { loadTestInfraConfig } from "../../utilities/test_infra_config.js";
 
-// Sender domain comes from .env (input for Amplify deploy)
 const senderDomain = process.env.TEST_SENDER_DOMAIN!;
 const senderHostedZoneId = process.env.TEST_SENDER_HOSTED_ZONE_ID!;
 
@@ -27,7 +26,6 @@ for (const [name, value] of Object.entries({
 
 describe("custom-domain-email integration test", { concurrency: false }, () => {
     let testProject: TestProjectBase;
-    let recipientDomain: string;
     let mailbox: S3Mailbox;
     const e2eProjectDir = "./e2e-tests";
     const ses = new SESv2Client({});
@@ -37,7 +35,6 @@ describe("custom-domain-email integration test", { concurrency: false }, () => {
     before(
         async () => {
             const infra = await loadTestInfraConfig();
-            recipientDomain = infra.recipientDomain;
             mailbox = new S3Mailbox(infra.receiptS3Bucket);
 
             testProject = await customDomainEmailTestProjectCreator.createProject(e2eProjectDir);
@@ -53,18 +50,18 @@ describe("custom-domain-email integration test", { concurrency: false }, () => {
         { timeout: 300_000 },
     );
 
-    it("amplify_outputs.json contains full email config", async () => {
+    // -- Infrastructure verification --
+
+    it("amplify_outputs.json contains email config with domain", async () => {
         await testProject.assertPostDeployment();
         const outputs = await testProject.getAmplifyOutputs();
         assertEmailOutputsExist(outputs);
         assertEmailDomainOutput(outputs, senderDomain);
     });
 
-    it("DNS records are created", async () => {
+    it("DNS records are created (DKIM, SPF, DMARC, MX)", async () => {
         const result = await route53.send(
-            new ListResourceRecordSetsCommand({
-                HostedZoneId: senderHostedZoneId,
-            }),
+            new ListResourceRecordSetsCommand({ HostedZoneId: senderHostedZoneId }),
         );
 
         const records = result.ResourceRecordSets ?? [];
@@ -72,7 +69,7 @@ describe("custom-domain-email integration test", { concurrency: false }, () => {
         const dkimRecords = records.filter(
             (r) => r.Type === "CNAME" && r.Name?.includes("_domainkey"),
         );
-        assert.ok(dkimRecords.length >= 3, `Expected 3 DKIM CNAMEs, found ${dkimRecords.length}`);
+        assert.ok(dkimRecords.length >= 3, `Expected 3+ DKIM CNAMEs, found ${dkimRecords.length}`);
 
         const spfRecords = records.filter(
             (r) =>
@@ -94,18 +91,50 @@ describe("custom-domain-email integration test", { concurrency: false }, () => {
         assert.ok(mxRecords.length >= 1, "MX record should exist");
     });
 
-    it("SES identity is verified", async () => {
+    it("SES domain identity is verified", async () => {
         const identity = await ses.send(
             new GetEmailIdentityCommand({ EmailIdentity: senderDomain }),
         );
-
         assert.ok(identity.VerifiedForSendingStatus, "SES identity should be verified for sending");
     });
 
-    it("email delivery works end-to-end", { timeout: 120_000 }, async () => {
-        const testRecipient = `test@${recipientDomain}`;
+    // -- Email delivery --
 
-        await mailbox.clearMailbox();
+    it("email delivery works end-to-end", { timeout: 120_000 }, async () => {
+        await mailbox.clearMailbox("reader/");
+
+        const outputs = await testProject.getAmplifyOutputs();
+        const emailOutputs = assertEmailOutputsExist(outputs);
+
+        const result = await lambda.send(
+            new InvokeCommand({
+                FunctionName: emailOutputs.sendFunctionName,
+                InvocationType: "RequestResponse",
+                Payload: new TextEncoder().encode(
+                    JSON.stringify({
+                        template: "invite",
+                        to: "reader@amp-recv.nxsflowmail.com",
+                        data: {
+                            inviterName: "E2E Test",
+                            inviteLink: "https://example.com/invite/test",
+                        },
+                    }),
+                ),
+            }),
+        );
+
+        assert.strictEqual(result.StatusCode, 200);
+        assert.ok(!result.FunctionError, `Lambda error: ${result.FunctionError}`);
+
+        const email = await mailbox.waitForEmail("reader/you-ve-been-invited", 60_000);
+        assert.ok(email, "Email should be delivered to S3");
+        assert.ok(email.subject?.toLowerCase().includes("invited"), `Subject: ${email.subject}`);
+    });
+
+    // -- All 4 templates --
+
+    it("confirmation-code template delivers correctly", { timeout: 120_000 }, async () => {
+        await mailbox.clearMailbox("reader/your-confirmation-code");
 
         const outputs = await testProject.getAmplifyOutputs();
         const emailOutputs = assertEmailOutputsExist(outputs);
@@ -116,19 +145,66 @@ describe("custom-domain-email integration test", { concurrency: false }, () => {
                 InvocationType: "RequestResponse",
                 Payload: new TextEncoder().encode(
                     JSON.stringify({
-                        template: "invite",
-                        to: testRecipient,
-                        data: {
-                            inviterName: "E2E Test",
-                            inviteLink: "https://example.com/invite/test",
-                        },
+                        template: "confirmation-code",
+                        to: "reader@amp-recv.nxsflowmail.com",
+                        data: { code: "999888" },
                     }),
                 ),
             }),
         );
 
-        const email = await mailbox.waitForEmail("", 60_000);
+        const email = await mailbox.waitForEmail("reader/your-confirmation-code", 60_000);
+        assert.ok(email, "Email should arrive");
+        assert.ok(email.subject?.includes("Your confirmation code"), `Subject: ${email.subject}`);
+    });
 
-        assert.ok(email, "Email should be delivered to S3");
+    it("password-reset template delivers correctly", { timeout: 120_000 }, async () => {
+        await mailbox.clearMailbox("reader/reset-your-password");
+
+        const outputs = await testProject.getAmplifyOutputs();
+        const emailOutputs = assertEmailOutputsExist(outputs);
+
+        await lambda.send(
+            new InvokeCommand({
+                FunctionName: emailOutputs.sendFunctionName,
+                InvocationType: "RequestResponse",
+                Payload: new TextEncoder().encode(
+                    JSON.stringify({
+                        template: "password-reset",
+                        to: "reader@amp-recv.nxsflowmail.com",
+                        data: { resetLink: "https://example.com/reset" },
+                    }),
+                ),
+            }),
+        );
+
+        const email = await mailbox.waitForEmail("reader/reset-your-password", 60_000);
+        assert.ok(email, "Email should arrive");
+        assert.ok(email.subject?.includes("Reset your password"), `Subject: ${email.subject}`);
+    });
+
+    it("getting-started template delivers correctly", { timeout: 120_000 }, async () => {
+        await mailbox.clearMailbox("reader/welcome");
+
+        const outputs = await testProject.getAmplifyOutputs();
+        const emailOutputs = assertEmailOutputsExist(outputs);
+
+        await lambda.send(
+            new InvokeCommand({
+                FunctionName: emailOutputs.sendFunctionName,
+                InvocationType: "RequestResponse",
+                Payload: new TextEncoder().encode(
+                    JSON.stringify({
+                        template: "getting-started",
+                        to: "reader@amp-recv.nxsflowmail.com",
+                        data: { userName: "Tester" },
+                    }),
+                ),
+            }),
+        );
+
+        const email = await mailbox.waitForEmail("reader/welcome", 60_000);
+        assert.ok(email, "Email should arrive");
+        assert.ok(email.subject?.toLowerCase().includes("welcome"), `Subject: ${email.subject}`);
     });
 });

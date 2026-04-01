@@ -3,7 +3,6 @@ import { defineEmail } from "@nxsflow/amplify-overtone";
 const domain = process.env.TEST_SENDER_DOMAIN!;
 const hostedZoneId = process.env.TEST_SENDER_HOSTED_ZONE_ID!;
 const hostedZoneDomain = process.env.TEST_SENDER_HOSTED_ZONE_DOMAIN!;
-const recipientDomain = process.env.TEST_RECIPIENT_DOMAIN!;
 
 if (!domain || !hostedZoneId || !hostedZoneDomain) {
     throw new Error(
@@ -11,6 +10,8 @@ if (!domain || !hostedZoneId || !hostedZoneDomain) {
     );
 }
 
+// Mode 3: custom domain + Route 53 — uses SenderWithPrefix
+// sandboxRecipients uses a test user on the recipient domain (verified by test-infra)
 export const email = defineEmail({
     domain,
     hostedZoneId,
@@ -20,5 +21,5 @@ export const email = defineEmail({
         support: { senderPrefix: "support", displayName: "Overtone Support" },
     },
     defaultSender: "noreply",
-    sandboxRecipients: recipientDomain ? [`test@${recipientDomain}`] : [],
+    sandboxRecipients: ["reader@amp-recv.nxsflowmail.com"],
 });
