@@ -9,6 +9,7 @@
   },
   "changesets": [
     "add-define-email",
-    "add-package-readme"
+    "add-package-readme",
+    "fix-readme-in-tarball"
   ]
 }

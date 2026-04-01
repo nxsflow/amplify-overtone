@@ -1,5 +1,11 @@
 # @nxsflow/amplify-overtone
 
+## 0.2.0-alpha.2
+
+### Patch Changes
+
+- Include README.md in published package tarball
+
 ## 0.2.0-alpha.1
 
 ### Patch Changes
