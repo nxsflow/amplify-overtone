@@ -113,6 +113,28 @@ export class OvertoneTestInfraStack extends Stack {
             ruleSetName: `overtone-test-infra-${recipientDomain.replace(/\./g, "-")}`,
         });
 
+        // Lambda that reads raw emails from S3 and copies them to structured paths:
+        //   raw/{messageId} → emails/{to-prefix}/{subject-slug}-{timestamp}
+        const emailRouter = new NodejsFunction(this, "EmailRouter", {
+            entry: new URL("./email-router.ts", import.meta.url).pathname,
+            handler: "handler",
+            runtime: Runtime.NODEJS_22_X,
+            timeout: Duration.seconds(30),
+            logRetention: RetentionDays.ONE_WEEK,
+            environment: {
+                BUCKET_NAME: emailBucket.bucketName,
+            },
+        });
+
+        emailBucket.grantRead(emailRouter);
+        emailBucket.grantPut(emailRouter);
+
+        // Allow SES to invoke the email router Lambda
+        emailRouter.addPermission("AllowSES", {
+            principal: new ServicePrincipal("ses.amazonaws.com"),
+            sourceAccount: account,
+        });
+
         const receiptRule = new CfnReceiptRule(this, "ReceiptRule", {
             ruleSetName: ruleSet.ruleSetName!,
             rule: {
@@ -121,9 +143,17 @@ export class OvertoneTestInfraStack extends Stack {
                 recipients: [recipientDomain],
                 actions: [
                     {
+                        // First: store raw email in S3
                         s3Action: {
                             bucketName: emailBucket.bucketName,
-                            objectKeyPrefix: "emails/",
+                            objectKeyPrefix: "raw/",
+                        },
+                    },
+                    {
+                        // Then: route to structured path
+                        lambdaAction: {
+                            functionArn: emailRouter.functionArn,
+                            invocationType: "Event",
                         },
                     },
                 ],
