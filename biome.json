@@ -3,7 +3,7 @@
     "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
     "files": {
         "ignoreUnknown": true,
-        "includes": ["**", "!dist", "!node_modules", "!*.d.ts", "!.changeset", ".claude/**"]
+        "includes": ["**", "!dist", "!node_modules", "!*.d.ts", "!.changeset", ".claude/**", "!.next", "!.source"]
     },
     "formatter": {
         "enabled": true,

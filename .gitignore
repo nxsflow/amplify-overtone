@@ -41,5 +41,8 @@ packages/test-infra/cdk.out/
 .playwright-mcp
 
 # Next.js
-.next
+.next/
 packages/website/public/docs/
+
+# Fumadocs generated
+.source/
