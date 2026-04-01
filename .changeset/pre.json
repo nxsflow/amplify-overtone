@@ -8,6 +8,7 @@
     "@nxsflow/test-infra": "0.0.0"
   },
   "changesets": [
-    "add-define-email"
+    "add-define-email",
+    "add-package-readme"
   ]
 }
