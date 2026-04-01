@@ -21,7 +21,7 @@
     --color-fd-muted-foreground: 215 20.2% 65.1%;
     --color-fd-accent: 263.4 70% 50.4%;
     --color-fd-accent-foreground: 210 40% 98%;
-    --color-fd-border: 217.2 32.6% 25%;
+    --color-fd-border: 217.2 32.6% 18%;
     --color-fd-ring: 187.2 85.7% 53.3%;
 }
 
@@ -43,12 +43,15 @@ pre {
     font-family: var(--font-mono);
 }
 
-/* Dark mode only — hide theme toggle */
-[data-theme-toggle] {
-    display: none !important;
+:not(pre) > code {
+    border-color: transparent;
+    background: hsl(217.2 32.6% 15%);
 }
 
-/* Hide sidebar footer (GitHub link + theme toggle already in nav) */
+[data-theme-toggle] {
+    display: none;
+}
+
 #nd-sidebar > :last-child {
-    display: none !important;
+    display: none;
 }
