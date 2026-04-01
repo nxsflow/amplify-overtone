@@ -397,6 +397,12 @@ export class AmplifyEmail extends Construct {
         });
 
         // --- IAM: scoped SES send permission ---
+        // Include recipient domains alongside individual addresses — SES may
+        // resolve to the domain identity rather than the email identity.
+        const recipientDomains = [
+            ...new Set(sandboxRecipients.map((email) => email.split("@")[1]!)),
+        ];
+
         sendFn.addToRolePolicy(
             new PolicyStatement({
                 effect: Effect.ALLOW,
@@ -405,6 +411,9 @@ export class AmplifyEmail extends Construct {
                     `arn:aws:ses:${region}:${account}:identity/${domain}`,
                     ...sandboxRecipients.map(
                         (email) => `arn:aws:ses:${region}:${account}:identity/${email}`,
+                    ),
+                    ...recipientDomains.map(
+                        (d) => `arn:aws:ses:${region}:${account}:identity/${d}`,
                     ),
                     `arn:aws:ses:${region}:${account}:configuration-set/${configurationSet.configurationSetName}`,
                 ],
@@ -475,6 +484,10 @@ export class AmplifyEmail extends Construct {
         );
 
         // --- IAM: scoped SES send permission ---
+        const recipientDomains = [
+            ...new Set(sandboxRecipients.map((email) => email.split("@")[1]!)),
+        ];
+
         sendFn.addToRolePolicy(
             new PolicyStatement({
                 effect: Effect.ALLOW,
@@ -483,6 +496,9 @@ export class AmplifyEmail extends Construct {
                     `arn:aws:ses:${region}:${account}:identity/${domain}`,
                     ...sandboxRecipients.map(
                         (email) => `arn:aws:ses:${region}:${account}:identity/${email}`,
+                    ),
+                    ...recipientDomains.map(
+                        (d) => `arn:aws:ses:${region}:${account}:identity/${d}`,
                     ),
                     `arn:aws:ses:${region}:${account}:configuration-set/${configurationSet.configurationSetName}`,
                 ],
