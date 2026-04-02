@@ -66,6 +66,7 @@ async function getReadmeContent(): Promise<ReadmeSections | null> {
 
 const mdxComponents = {
     ...defaultMdxComponents,
+    // biome-ignore lint/performance/noImgElement: README badge images lack width/height required by next/image
     img: (props: React.ComponentProps<"img">) => <img alt="" {...props} />,
 };
 
