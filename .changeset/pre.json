@@ -1,0 +1,15 @@
+{
+  "mode": "pre",
+  "tag": "alpha",
+  "initialVersions": {
+    "@nxsflow/amplify-overtone": "0.1.0",
+    "@nxsflow/amplify-overtone-client": "0.1.0",
+    "@nxsflow/integration-tests": "0.0.0",
+    "@nxsflow/test-infra": "0.0.0"
+  },
+  "changesets": [
+    "add-define-email",
+    "add-package-readme",
+    "fix-readme-in-tarball"
+  ]
+}

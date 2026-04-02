@@ -1,4 +1,4 @@
-# Contributing to @nxsflow/amplify-overtone
+# Contributing to Amplify Overtone
 
 ## Getting Started
 
@@ -12,18 +12,20 @@ pnpm install
 
 ```bash
 pnpm install          # install all workspace deps
-pnpm -r build         # build all packages
-pnpm -r test          # run all unit tests
+pnpm build            # build all packages
+pnpm test             # run all unit tests
 pnpm lint             # biome check
 pnpm format           # biome format --write
 ```
 
-To work on a single package:
+To work on a single package, use the root convenience scripts:
 
 ```bash
-pnpm --filter @nxsflow/amplify-overtone build
-pnpm --filter @nxsflow/amplify-overtone test
-pnpm --filter @nxsflow/amplify-overtone typecheck
+pnpm overtone:build      # build backend package
+pnpm overtone:test       # test backend package
+pnpm overtone:typecheck  # typecheck backend package
+pnpm client:build        # build client package
+pnpm client:test         # test client package
 ```
 
 ## Project Structure
@@ -58,7 +60,7 @@ packages/
 Run all unit tests across the monorepo:
 
 ```bash
-pnpm -r test
+pnpm test
 ```
 
 #### When to Write Which Test
@@ -76,7 +78,7 @@ cp .env.example .env                    # fill in real AWS values (incl. AWS_PRO
 pnpm test-infra:deploy                  # deploy test infrastructure
 
 # Run e2e tests
-pnpm test:e2e
+pnpm e2e:test
 
 # Tear down test infrastructure
 pnpm test-infra:destroy
@@ -118,13 +120,13 @@ Push your branch and open a pull request against `main`. CI runs build, typechec
 
 ## Versioning
 
-This project uses [Changesets](https://github.com/changesets/changesets) for version management across both published packages (`@nxsflow/amplify-overtone` and `@nxsflow/amplify-overtone-client`). Versions follow [Semantic Versioning](https://semver.org/):
+Amplify Overtone uses [Changesets](https://github.com/changesets/changesets) for version management across both published packages (`@nxsflow/amplify-overtone` and `@nxsflow/amplify-overtone-client`). Versions follow [Semantic Versioning](https://semver.org/):
 
-| Bump    | When                                                             | Example                               |
-| ------- | ---------------------------------------------------------------- | ------------------------------------- |
-| `patch` | Bug fix, docs, internal refactor, new optional prop with default | Fix auth propagation Lambda timeout   |
-| `minor` | New optional prop, new export, new utility                       | Add `n.pushNotification()` action     |
-| `major` | Rename prop, change resource shape, remove export                | Rename schema builder API             |
+| Bump    | When                                                             | Example                             |
+| ------- | ---------------------------------------------------------------- | ----------------------------------- |
+| `patch` | Bug fix, docs, internal refactor, new optional prop with default | Fix auth propagation Lambda timeout |
+| `minor` | New optional prop, new export, new utility                       | Add `n.pushNotification()` action   |
+| `major` | Rename prop, change resource shape, remove export                | Rename schema builder API           |
 
 A single changeset can bump both packages if a change affects both.
 
@@ -132,13 +134,22 @@ A single changeset can bump both packages if a change affects both.
 
 Pre-releases allow testing unreleased versions before they reach `latest`:
 
-| Channel | Version format  | Install command                              |
-| ------- | --------------- | -------------------------------------------- |
-| Alpha   | `0.2.0-alpha.0` | `pnpm add @nxsflow/amplify-overtone@alpha`   |
-| Beta    | `0.2.0-beta.0`  | `pnpm add @nxsflow/amplify-overtone@beta`    |
-| Stable  | `0.2.0`         | `pnpm add @nxsflow/amplify-overtone`          |
+| Channel | Version format  | Install command                            |
+| ------- | --------------- | ------------------------------------------ |
+| Alpha   | `0.2.0-alpha.0` | `pnpm add @nxsflow/amplify-overtone@alpha` |
+| Beta    | `0.2.0-beta.0`  | `pnpm add @nxsflow/amplify-overtone@beta`  |
+| Stable  | `0.2.0`         | `pnpm add @nxsflow/amplify-overtone`       |
 
 **Alpha** is for early iteration (breaking changes expected). **Beta** is feature-complete and fully validated. **Stable** requires manual approval.
+
+## Release Setup (one-time)
+
+Publishing uses **npm Trusted Publishing (OIDC)** — no npm tokens needed. GitHub Actions authenticates directly with npm via short-lived tokens.
+
+To enable stable release approval, create a `production` GitHub environment:
+
+1. Go to repo Settings → Environments → New environment → "production"
+2. Add required reviewers (at least one maintainer)
 
 ## Release Process
 

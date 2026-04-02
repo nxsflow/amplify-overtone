@@ -1,2 +1,11 @@
-// @nxsflow/amplify-overtone — backend package
-// Schema builder, CDK constructs, and resolvers for Amplify Gen 2 extensions
+export type {
+    EmailProps,
+    EmailResources,
+    EmailTemplateName,
+    SendEmailPayload,
+    SendEmailResult,
+    SenderConfig,
+    SenderWithEmail,
+    SenderWithPrefix,
+} from "./email/index.js";
+export { defineEmail } from "./email/index.js";

@@ -1,9 +1,9 @@
 ---
 name: cdk-testing
-description: Testing patterns for @nxsflow/amplify-overtone — test organization, CDK assertions API, concrete assertion recipes for Lambda/IAM/custom resources, and test helpers. Use when writing tests, adding coverage, or debugging test failures.
+description: Testing patterns for Amplify Overtone — test organization, CDK assertions API, concrete assertion recipes for Lambda/IAM/custom resources, and test helpers. Use when writing tests, adding coverage, or debugging test failures.
 ---
 
-# CDK Testing for @nxsflow/amplify-overtone
+# CDK Testing for Amplify Overtone
 
 Comprehensive guide for testing CDK constructs and factory logic in this library.
 

@@ -1,26 +1,71 @@
-# @nxsflow/amplify-overtone
+# Amplify Overtone
 
 Extends AWS Amplify Gen 2 with email, collaboration, and local-first support. Monorepo with two published packages and integration test infrastructure.
 
 ## Packages
 
-| Package                            | npm name                            | Purpose                                                                       |
-| ---------------------------------- | ----------------------------------- | ----------------------------------------------------------------------------- |
-| `packages/amplify-overtone`        | `@nxsflow/amplify-overtone`        | Backend: schema builder, CDK constructs, resolvers                            |
-| `packages/amplify-overtone-client` | `@nxsflow/amplify-overtone-client` | Frontend: sync engine, IndexedDB storage, collaborative session API           |
-| `packages/integration-tests`       | (private)                           | E2E tests: deploy real Amplify backends, verify behavior per feature          |
-| `packages/test-infra`              | (private)                           | CDK app: Cognito user pool (pre-confirmed users), S3 + SES receipt rules     |
+| Package                            | npm name                           | Purpose                                                                  |
+| ---------------------------------- | ---------------------------------- | ------------------------------------------------------------------------ |
+| `packages/amplify-overtone`        | `@nxsflow/amplify-overtone`        | Backend: schema builder, CDK constructs, resolvers                       |
+| `packages/amplify-overtone-client` | `@nxsflow/amplify-overtone-client` | Frontend: sync engine, IndexedDB storage, collaborative session API      |
+| `packages/integration-tests`       | (private)                          | E2E tests: deploy real Amplify backends, verify behavior per feature     |
+| `packages/test-infra`              | (private)                          | CDK app: Cognito user pool (pre-confirmed users), S3 + SES receipt rules |
 
-## Development Commands
+## Root Scripts
+
+**Always use root scripts instead of `pnpm --filter`** — they are shorter, permission-allowlisted, and consistent.
+
+### Global
+
+| Script           | Description                                 |
+| ---------------- | ------------------------------------------- |
+| `pnpm build`     | Build all packages                          |
+| `pnpm test`      | Run all unit/construct tests (vitest)       |
+| `pnpm typecheck` | Typecheck all packages                      |
+| `pnpm lint`      | Lint all files (Biome)                      |
+| `pnpm format`    | Auto-format all files (Biome)               |
+| `pnpm aws:login` | AWS SSO login (reads AWS_PROFILE from .env) |
+
+### Backend (`@nxsflow/amplify-overtone`)
+
+| Script                    | Description                        |
+| ------------------------- | ---------------------------------- |
+| `pnpm overtone:build`     | Build backend package              |
+| `pnpm overtone:test`      | Run backend unit + construct tests |
+| `pnpm overtone:typecheck` | Typecheck backend package          |
+
+### Client (`@nxsflow/amplify-overtone-client`)
+
+| Script                  | Description              |
+| ----------------------- | ------------------------ |
+| `pnpm client:build`     | Build client package     |
+| `pnpm client:test`      | Run client tests         |
+| `pnpm client:typecheck` | Typecheck client package |
+
+### Test Infrastructure (`@nxsflow/test-infra`)
+
+| Script                      | Description                                          |
+| --------------------------- | ---------------------------------------------------- |
+| `pnpm test-infra:build`     | Typecheck test-infra (tsc --noEmit)                  |
+| `pnpm test-infra:typecheck` | Typecheck test-infra                                 |
+| `pnpm test-infra:bootstrap` | CDK bootstrap for test infrastructure                |
+| `pnpm test-infra:deploy`    | Deploy test infra + write `overtone_test_infra.json` |
+| `pnpm test-infra:destroy`   | Tear down test infrastructure                        |
+
+### Integration Tests (`@nxsflow/integration-tests`)
+
+| Script               | Description                                         |
+| -------------------- | --------------------------------------------------- |
+| `pnpm e2e:typecheck` | Typecheck integration tests                         |
+| `pnpm e2e:test`      | Run e2e tests (requires deployed test-infra + .env) |
+
+### Quick Start
 
 ```bash
 pnpm install                                         # install all workspace deps
-pnpm -r build                                        # build all packages
-pnpm -r test                                         # run all unit tests
-pnpm --filter @nxsflow/amplify-overtone test         # test one package
-pnpm --filter @nxsflow/amplify-overtone typecheck    # typecheck one package
-pnpm lint                                            # biome check (root)
-pnpm format                                          # biome format --write (root)
+pnpm build                                           # build all packages
+pnpm test                                            # run all unit tests
+pnpm lint                                            # check for lint errors
 ```
 
 ### Integration Tests
@@ -28,7 +73,7 @@ pnpm format                                          # biome format --write (roo
 ```bash
 cp .env.example .env                                 # fill in real values (incl. AWS_PROFILE)
 pnpm test-infra:deploy                               # deploy test infra (once)
-pnpm test:e2e                                        # run e2e tests
+pnpm e2e:test                                        # run e2e tests
 ```
 
 ## Conventions

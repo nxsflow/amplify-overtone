@@ -1,6 +1,6 @@
 ---
 name: commit
-description: Create commit messages following conventions for amplify-overtone. Use when committing code changes, writing commit messages, or formatting git history. Follows conventional commits with issue references.
+description: Create commit messages following conventions for Amplify Overtone. Use when committing code changes, writing commit messages, or formatting git history. Follows conventional commits with issue references.
 ---
 
 # Commit Messages

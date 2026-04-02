@@ -1,0 +1,61 @@
+name: Publish
+
+on:
+  push:
+    branches:
+      - main
+      - "alpha/**"
+      - "beta/**"
+
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    # production environment required for stable releases (manual approval)
+    # pre-releases skip this since the environment only applies to main
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || '' }}
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write # Required for npm Trusted Publishing (OIDC)
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm typecheck
+
+      # Full validation for main and beta branches
+      - name: Run tests
+        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/beta/')
+        run: pnpm test
+
+      - name: Run lint
+        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/beta/')
+        run: pnpm lint
+
+      # Stable releases: changesets/action creates Version PR or publishes
+      - name: Create Release PR or Publish (stable)
+        if: github.ref == 'refs/heads/main'
+        uses: changesets/action@v1
+        with:
+          publish: pnpm changeset publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
+
+      # Pre-releases: publish directly with changeset pre mode
+      - name: Publish pre-release
+        if: github.ref != 'refs/heads/main'
+        run: pnpm changeset publish
+        env:
+          NPM_CONFIG_PROVENANCE: true

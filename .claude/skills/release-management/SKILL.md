@@ -3,7 +3,7 @@ name: release-management
 description: CI/CD pipeline and publishing workflow for @nxsflow/amplify-overtone and @nxsflow/amplify-overtone-client — GitHub Actions workflows, tiered quality gates (alpha/beta/stable), npm dist-tags, manual fallback, and rollback. Use when publishing to npm, setting up CI/CD, or managing releases.
 ---
 
-# Release Management: @nxsflow/amplify-overtone Monorepo
+# Release Management: Amplify Overtone Monorepo
 
 CI/CD pipeline and publishing workflow. How code gets from main to npm.
 
@@ -61,9 +61,9 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v5
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: pnpm
@@ -74,32 +74,42 @@ jobs:
       - run: pnpm lint
 ```
 
-### `release.yml` — stable release
+### `publish.yml` — stable + pre-release publishing
 
-Runs on push to main. Creates a "Version Packages" PR when changesets are pending, or publishes when that PR is merged.
+Single workflow for all publishing. Uses npm Trusted Publishing (OIDC) — no npm token required.
+
+- **main**: full validation + changesets/action (creates Version PR or publishes with `latest` tag)
+- **beta/\*\***: full validation + `changeset publish` (pre-release with `beta` tag)
+- **alpha/\*\***: build + typecheck only + `changeset publish` (pre-release with `alpha` tag)
+
+Stable releases require manual approval via the `production` GitHub environment.
 
 ```yaml
-name: Release
+name: Publish
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - "alpha/**"
+      - "beta/**"
 
 concurrency:
-  group: release
+  group: publish-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
-  release:
+  publish:
     runs-on: ubuntu-latest
-    environment: production
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || '' }}
     permissions:
       contents: write
       pull-requests: write
+      id-token: write # Required for npm Trusted Publishing (OIDC)
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v5
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: pnpm
@@ -107,74 +117,44 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
       - run: pnpm typecheck
-      - run: pnpm test
-      - run: pnpm lint
-      - name: Create Release PR or Publish
+      - name: Run tests
+        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/beta/')
+        run: pnpm test
+      - name: Run lint
+        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/beta/')
+        run: pnpm lint
+      - name: Create Release PR or Publish (stable)
+        if: github.ref == 'refs/heads/main'
         uses: changesets/action@v1
         with:
           publish: pnpm changeset publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-```
-
-### `prerelease.yml` — alpha/beta release
-
-Runs on push to `alpha/*` or `beta/*` branches. Alpha gets build+typecheck only; beta gets all four gates.
-
-```yaml
-name: Pre-release
-
-on:
-  push:
-    branches:
-      - "alpha/**"
-      - "beta/**"
-
-concurrency:
-  group: prerelease-${{ github.ref }}
-  cancel-in-progress: true
-
-jobs:
-  prerelease:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-          registry-url: https://registry.npmjs.org
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm build
-      - run: pnpm typecheck
-      # Beta branches get full validation
-      - name: Run tests (beta only)
-        if: startsWith(github.ref, 'refs/heads/beta/')
-        run: pnpm test
-      - name: Run lint (beta only)
-        if: startsWith(github.ref, 'refs/heads/beta/')
-        run: pnpm lint
-      # Determine dist-tag from branch prefix
       - name: Publish pre-release
-        run: |
-          TAG=$(echo "${{ github.ref_name }}" | cut -d'/' -f1)
-          pnpm changeset publish --tag "$TAG"
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        if: github.ref != 'refs/heads/main'
+        run: pnpm changeset publish
 ```
 
 ---
 
 ## npm Setup
 
+### Trusted Publishing (OIDC)
+
+Publishing uses npm Trusted Publishing via GitHub Actions OIDC — no npm token required. Each package must be configured on npmjs.com:
+
+1. Go to npmjs.com → package settings → "Trusted Publisher"
+2. Select "GitHub Actions"
+3. Set: Organization = `nxsflow`, Repository = `amplify-overtone`, Workflow = `publish.yml`
+4. Leave Environment empty (the workflow handles environment selection internally)
+
 ### Repository Secrets
 
-| Secret         | Purpose               | Where to get it                                        |
-| -------------- | --------------------- | ------------------------------------------------------ |
-| `NPM_TOKEN`    | Publish to npm        | npmjs.com → Access Tokens → Generate (Automation type) |
-| `GITHUB_TOKEN` | Create PRs, push tags | Provided automatically by GitHub Actions               |
+| Secret         | Purpose               | Where to get it                          |
+| -------------- | --------------------- | ---------------------------------------- |
+| `GITHUB_TOKEN` | Create PRs, push tags | Provided automatically by GitHub Actions |
+
+**Do NOT use `NPM_TOKEN`.** Publishing uses npm Trusted Publishing (OIDC) — GitHub Actions authenticates directly with npm via short-lived tokens. Long-lived npm tokens are a security risk and should not be stored as secrets.
 
 ### GitHub Environment
 
@@ -205,7 +185,7 @@ Each package publishes only its `dist/` directory (controlled by `"files": ["dis
 packages/amplify-overtone/dist/        packages/amplify-overtone-client/dist/
 ├── index.js      ← ESM entry          ├── index.js      ← ESM entry
 ├── index.cjs     ← CJS entry          ├── index.cjs     ← CJS entry
-├── index.d.ts    ← TypeScript          ├── index.d.ts    ← TypeScript
+├── index.d.ts    ← TypeScript         ├── index.d.ts    ← TypeScript
 └── *.js.map      ← source maps        └── *.js.map      ← source maps
 ```
 

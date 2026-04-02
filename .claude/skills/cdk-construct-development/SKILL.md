@@ -1,9 +1,9 @@
 ---
 name: cdk-construct-development
-description: Patterns for developing and testing CDK constructs inside the @nxsflow/amplify-overtone library. Use when writing or extending OvertoneConstruct, working with the ConstructFactory pattern, or testing CDK constructs with aws-cdk-lib/assertions.
+description: Patterns for developing and testing CDK constructs inside the Amplify Overtone library. Use when writing or extending OvertoneConstruct, working with the ConstructFactory pattern, or testing CDK constructs with aws-cdk-lib/assertions.
 ---
 
-# CDK Construct Development for @nxsflow/amplify-overtone
+# CDK Construct Development for Amplify Overtone
 
 This skill covers how to write, extend, and test CDK constructs in this library.
 

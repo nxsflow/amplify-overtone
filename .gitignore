@@ -38,7 +38,7 @@ overtone_test_infra.json
 packages/test-infra/cdk.out/
 
 # Playwright
-.playwright-mcp
+.playwright-mcp/
 
 # Next.js
 .next/
