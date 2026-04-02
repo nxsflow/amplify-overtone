@@ -99,13 +99,91 @@ export interface SenderWithEmail {
 export type SenderConfig = SenderWithPrefix | SenderWithEmail;
 
 // ---------------------------------------------------------------------------
-// EmailProps — discriminated union
+// EmailProps
 // ---------------------------------------------------------------------------
 
 /**
- * Shared properties available in all `defineEmail()` configurations.
+ * Props for `defineEmail()`.
+ *
+ * Three configuration modes:
+ *
+ * 1. **No domain** — omit `domain`; senders provide full `senderEmail`, each verified as SES identity.
+ * 2. **Domain only** — set `domain`; senders use `senderPrefix` + domain, DNS records output for manual creation.
+ * 3. **Domain + Route 53** — set `domain`, `hostedZoneId`, and `hostedZoneDomain`; DNS records created automatically.
  */
-interface EmailPropsBase {
+export interface EmailProps {
+    /**
+     * Custom mail domain for sending (e.g., `"mail.nxsflow.com"`).
+     *
+     * When set, the construct creates an SES domain identity with EasyDKIM.
+     * Senders use `senderPrefix` which is combined with this domain to form
+     * the full email address (e.g., `noreply` + `mail.nxsflow.com` → `noreply@mail.nxsflow.com`).
+     *
+     * When omitted, senders must provide a full `senderEmail` address and
+     * each address is individually verified as an SES identity.
+     *
+     * @example "mail.nxsflow.com"
+     */
+    domain?: string;
+
+    /**
+     * Route 53 hosted zone ID for automatic DNS record creation.
+     *
+     * When provided together with `hostedZoneDomain`, the construct automatically
+     * creates all required DNS records (3 DKIM CNAMEs, SPF TXT, DMARC TXT, MX)
+     * in the specified Route 53 hosted zone.
+     *
+     * The hosted zone must be in the same AWS account as the deployment.
+     * Requires `domain` to be set.
+     *
+     * When omitted, DNS records are output as CloudFormation outputs for
+     * manual creation at your DNS provider (Cloudflare, Namecheap, etc.).
+     *
+     * @example "Z0123456789ABCDEFGHIJ"
+     */
+    hostedZoneId?: string;
+
+    /**
+     * Root domain of the Route 53 hosted zone (e.g., `"nxsflow.com"`).
+     *
+     * Used to compute relative DNS record names. For example, if `domain` is
+     * `"mail.nxsflow.com"` and `hostedZoneDomain` is `"nxsflow.com"`,
+     * DKIM records are created under `_domainkey.mail` within the zone.
+     *
+     * Must be provided together with `hostedZoneId`. Requires `domain` to be set.
+     *
+     * @example "nxsflow.com"
+     */
+    hostedZoneDomain?: string;
+
+    /**
+     * Named email senders.
+     *
+     * - **With `domain`**: each sender uses {@link SenderWithPrefix} — `senderPrefix`
+     *   is combined with the domain to form the full address.
+     * - **Without `domain`**: each sender uses {@link SenderWithEmail} — `senderEmail`
+     *   is a full email address, verified as an SES identity.
+     *
+     * When omitted with a domain, a single `"noreply"` sender is created.
+     * When omitted without a domain, you must verify sender addresses manually in the SES console.
+     *
+     * @example With domain
+     * ```ts
+     * senders: {
+     *   noreply: { senderPrefix: "noreply", displayName: "NexusFlow" },
+     *   support: { senderPrefix: "support", displayName: "NexusFlow Support" },
+     * }
+     * ```
+     *
+     * @example Without domain
+     * ```ts
+     * senders: {
+     *   noreply: { senderEmail: "noreply@gmail.com", displayName: "MyApp" },
+     * }
+     * ```
+     */
+    senders?: Record<string, SenderConfig>;
+
     /**
      * Key from the `senders` map to use when no sender is explicitly specified.
      *
@@ -136,161 +214,6 @@ interface EmailPropsBase {
      */
     timeoutSeconds?: number;
 }
-
-/**
- * Configuration without a custom domain.
- *
- * SES requires each sender address to be individually verified. Senders must
- * provide a full email address via `senderEmail`. The construct creates an
- * SES identity for each sender and sends a verification email.
- *
- * @example
- * ```ts
- * const email = defineEmail({
- *   senders: {
- *     noreply: { senderEmail: "noreply@gmail.com", displayName: "MyApp" },
- *   },
- * });
- * ```
- */
-interface EmailPropsNoDomain extends EmailPropsBase {
-    /** Custom mail domain for sending — omit to use individual sender verification instead. */
-    domain?: undefined;
-    /** Route 53 hosted zone ID — only applicable when `domain` is set. */
-    hostedZoneId?: undefined;
-    /** Root domain of the hosted zone — only applicable when `domain` is set. */
-    hostedZoneDomain?: undefined;
-
-    /**
-     * Named email senders with full email addresses.
-     *
-     * Each sender requires `senderEmail` (a full email address) since there is
-     * no custom domain. The construct verifies each address as an SES identity.
-     *
-     * When omitted, you must verify sender addresses manually in the SES console.
-     *
-     * @example
-     * ```ts
-     * senders: {
-     *   noreply: { senderEmail: "noreply@gmail.com", displayName: "MyApp" },
-     * }
-     * ```
-     */
-    senders?: Record<string, SenderWithEmail>;
-}
-
-/**
- * Configuration with a custom domain but no Route 53 hosted zone.
- *
- * The construct creates the SES domain identity and generates DKIM tokens,
- * but does NOT create DNS records. The required DNS records (DKIM, SPF,
- * DMARC, MX) are output as CloudFormation outputs for manual creation
- * at your DNS provider (Cloudflare, Namecheap, etc.).
- *
- * @example
- * ```ts
- * const email = defineEmail({
- *   domain: "mail.example.com",
- *   senders: { noreply: { senderPrefix: "noreply", displayName: "MyApp" } },
- * });
- * // → Check stack outputs for DNS records to add at your DNS provider
- * ```
- */
-interface EmailPropsDomainOnly extends EmailPropsBase {
-    /** Custom mail domain for sending (e.g., `"mail.nxsflow.com"`). */
-    domain: string;
-    /** Route 53 hosted zone ID — omit to manage DNS records manually at your DNS provider. */
-    hostedZoneId?: undefined;
-    /** Root domain of the hosted zone — omit to manage DNS records manually. */
-    hostedZoneDomain?: undefined;
-
-    /**
-     * Named email senders with prefix-based addresses.
-     *
-     * Each sender uses `senderPrefix` which is combined with the custom `domain`
-     * to form the full email address (e.g., `noreply` → `noreply@mail.nxsflow.com`).
-     *
-     * When omitted, a single `"noreply"` sender is created with an empty display name.
-     *
-     * @example
-     * ```ts
-     * senders: {
-     *   noreply: { senderPrefix: "noreply", displayName: "NexusFlow" },
-     *   support: { senderPrefix: "support", displayName: "NexusFlow Support" },
-     * }
-     * ```
-     */
-    senders?: Record<string, SenderWithPrefix>;
-}
-
-/**
- * Configuration with a custom domain and Route 53 hosted zone.
- *
- * The construct creates the SES domain identity AND automatically provisions
- * all required DNS records (3 DKIM CNAMEs, SPF TXT, DMARC TXT, MX) in the
- * specified Route 53 hosted zone.
- *
- * The hosted zone must be in the same AWS account. For cross-account hosted
- * zones or external DNS providers, omit `hostedZoneId` and `hostedZoneDomain`
- * and create the DNS records manually from the stack outputs.
- *
- * @example
- * ```ts
- * const email = defineEmail({
- *   domain: "mail.nxsflow.com",
- *   hostedZoneId: "Z0123456789ABCDEFGHIJ",
- *   hostedZoneDomain: "nxsflow.com",
- *   senders: { noreply: { senderPrefix: "noreply", displayName: "NexusFlow" } },
- * });
- * ```
- */
-interface EmailPropsDomainWithRoute53 extends EmailPropsBase {
-    /** Custom mail domain for sending (e.g., "mail.nxsflow.com"). */
-    domain: string;
-    /**
-     * Route 53 hosted zone ID for automatic DNS record creation.
-     *
-     * Must be provided together with `hostedZoneDomain`. The hosted zone
-     * must be in the same AWS account as the deployment.
-     */
-    hostedZoneId: string;
-    /**
-     * Root domain of the hosted zone (e.g., "nxsflow.com").
-     *
-     * Used to compute relative record names. For example, if `domain` is
-     * `"mail.nxsflow.com"` and `hostedZoneDomain` is `"nxsflow.com"`,
-     * DKIM records are created under `_domainkey.mail` within the zone.
-     */
-    hostedZoneDomain: string;
-
-    /**
-     * Named email senders with prefix-based addresses.
-     *
-     * Each sender uses `senderPrefix` which is combined with the custom `domain`
-     * to form the full email address (e.g., `noreply` → `noreply@mail.nxsflow.com`).
-     *
-     * When omitted, a single `"noreply"` sender is created with an empty display name.
-     *
-     * @example
-     * ```ts
-     * senders: {
-     *   noreply: { senderPrefix: "noreply", displayName: "NexusFlow" },
-     *   support: { senderPrefix: "support", displayName: "NexusFlow Support" },
-     * }
-     * ```
-     */
-    senders?: Record<string, SenderWithPrefix>;
-}
-
-/**
- * Props for `defineEmail()`.
- *
- * Three configuration modes:
- * 1. **No domain** — senders provide full `senderEmail`, each verified as SES identity
- * 2. **Domain only** — senders use `senderPrefix` + domain, DNS records output for manual creation
- * 3. **Domain + Route 53** — senders use `senderPrefix` + domain, DNS records created automatically
- */
-export type EmailProps = EmailPropsNoDomain | EmailPropsDomainOnly | EmailPropsDomainWithRoute53;
 
 // ---------------------------------------------------------------------------
 // Lambda payload types (shared across packages)

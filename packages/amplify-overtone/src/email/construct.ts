@@ -27,7 +27,7 @@ import {
     PhysicalResourceId,
 } from "aws-cdk-lib/custom-resources";
 import { Construct } from "constructs";
-import type { EmailProps, EmailResources, SenderWithEmail, SenderWithPrefix } from "./types.js";
+import type { EmailProps, EmailResources, SenderConfig, SenderWithEmail, SenderWithPrefix } from "./types.js";
 
 // Find the package root by walking up from this file's directory until we find package.json.
 // Works regardless of whether we're loaded from src/ (tsx) or dist/ (compiled),
@@ -102,9 +102,9 @@ export class AmplifyEmail extends Construct {
 
         if (domain) {
             // Mode 2 or 3: senders use senderPrefix + domain
-            const senders: Record<string, SenderWithPrefix> = props.senders ?? {
+            const senders = (props.senders ?? {
                 noreply: { senderPrefix: "noreply", displayName: "" },
-            };
+            }) as Record<string, SenderWithPrefix>;
             for (const [key, sender] of Object.entries(senders)) {
                 normalizedSenders[key] = {
                     email: `${sender.senderPrefix}@${domain}`,
