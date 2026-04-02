@@ -23,7 +23,6 @@ export function baseOptions(): BaseLayoutProps {
                 </span>
             ),
         },
-        themeSwitch: false,
         links: [{ text: "Docs", url: "/docs", active: "nested-url" }],
         githubUrl: "https://github.com/nxsflow/amplify-overtone",
     };
