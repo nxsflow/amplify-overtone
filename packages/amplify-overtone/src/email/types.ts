@@ -1,7 +1,4 @@
-import type {
-    ConstructFactory,
-    ResourceProvider,
-} from "@aws-amplify/plugin-types";
+import type { ConstructFactory, ResourceProvider } from "@aws-amplify/plugin-types";
 import type { IFunction } from "aws-cdk-lib/aws-lambda";
 
 // ---------------------------------------------------------------------------
@@ -301,6 +298,4 @@ export interface EmailResources {
  * This type is opaque — consumers do not need `@aws-amplify/plugin-types`
  * installed to use it.
  */
-export type EmailDefinition = ConstructFactory<
-    ResourceProvider<EmailResources>
->;
+export type EmailDefinition = ConstructFactory<ResourceProvider<EmailResources>>;

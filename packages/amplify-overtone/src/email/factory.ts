@@ -107,6 +107,4 @@ export class EmailFactory implements ConstructFactory<ResourceProvider<EmailReso
  * });
  * ```
  */
-export const defineEmail = (
-    props: EmailProps = {},
-): EmailDefinition => new EmailFactory(props);
+export const defineEmail = (props: EmailProps = {}): EmailDefinition => new EmailFactory(props);

@@ -27,7 +27,7 @@ import {
     PhysicalResourceId,
 } from "aws-cdk-lib/custom-resources";
 import { Construct } from "constructs";
-import type { EmailProps, EmailResources, SenderConfig, SenderWithEmail, SenderWithPrefix } from "./types.js";
+import type { EmailProps, EmailResources, SenderWithEmail, SenderWithPrefix } from "./types.js";
 
 // Find the package root by walking up from this file's directory until we find package.json.
 // Works regardless of whether we're loaded from src/ (tsx) or dist/ (compiled),
