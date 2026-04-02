@@ -154,7 +154,7 @@ Publishing uses npm Trusted Publishing via GitHub Actions OIDC — no npm token 
 | -------------- | --------------------- | ---------------------------------------- |
 | `GITHUB_TOKEN` | Create PRs, push tags | Provided automatically by GitHub Actions |
 
-**Do NOT use `NPM_TOKEN`.** Publishing uses npm Trusted Publishing (OIDC) — GitHub Actions authenticates directly with npm via short-lived tokens. Long-lived npm tokens are a security risk and should not be stored as secrets. The `production` GitHub environment (for stable release approval) can be configured via `pnpm release:setup`.
+**Do NOT use `NPM_TOKEN`.** Publishing uses npm Trusted Publishing (OIDC) — GitHub Actions authenticates directly with npm via short-lived tokens. Long-lived npm tokens are a security risk and should not be stored as secrets.
 
 ### GitHub Environment
 

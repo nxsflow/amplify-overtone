@@ -144,26 +144,12 @@ Pre-releases allow testing unreleased versions before they reach `latest`:
 
 ## Release Setup (one-time)
 
-Before the CI/CD pipeline can publish to npm, run the setup script:
+Publishing uses **npm Trusted Publishing (OIDC)** — no npm tokens needed. GitHub Actions authenticates directly with npm via short-lived tokens.
 
-1. Create an npm account at [npmjs.com](https://www.npmjs.com/) if you don't have one
-2. Generate a **Granular Access Token** at npmjs.com → Access Tokens → Generate:
-   - **Token name:** `amplify-overtone-ci`
-   - **Bypass 2FA:** checked (required for automated CI/CD publishing)
-   - **Packages & scopes:** Read and write → Only select: `@nxsflow`
-   - **Organizations:** No access
-   - **Expiration:** 90 days (maximum for write tokens)
-3. Add the token to `.env` as `NPM_TOKEN=npm_...`
-4. Run the setup script:
+To enable stable release approval, create a `production` GitHub environment:
 
-```bash
-pnpm release:setup
-```
-
-This configures:
-
-- **`NPM_TOKEN`** as a GitHub repository secret (for npm publishing in CI)
-- **`production`** GitHub environment with required reviewer (for stable release approval)
+1. Go to repo Settings → Environments → New environment → "production"
+2. Add required reviewers (at least one maintainer)
 
 ## Release Process
 

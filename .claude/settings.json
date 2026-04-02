@@ -26,7 +26,6 @@
             "Bash(pnpm lint)",
             "Bash(pnpm list:*)",
             "Bash(pnpm overtone:build)",
-            "Bash(pnpm release:setup)",
             "Bash(pnpm overtone:test)",
             "Bash(pnpm overtone:typecheck)",
             "Bash(pnpm test)",

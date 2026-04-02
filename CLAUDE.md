@@ -59,12 +59,6 @@ Extends AWS Amplify Gen 2 with email, collaboration, and local-first support. Mo
 | `pnpm e2e:typecheck` | Typecheck integration tests                         |
 | `pnpm e2e:test`      | Run e2e tests (requires deployed test-infra + .env) |
 
-### Release
-
-| Script               | Description                                                          |
-| -------------------- | -------------------------------------------------------------------- |
-| `pnpm release:setup` | One-time setup: set NPM_TOKEN secret + create production environment |
-
 ### Quick Start
 
 ```bash
