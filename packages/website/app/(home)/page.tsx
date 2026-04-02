@@ -83,11 +83,12 @@ function CategoryCards({ items }: { items: ReadmeSections["categories"] }) {
         <section style={{ padding: "60px 24px", maxWidth: "1100px", margin: "0 auto" }}>
             <h2
                 style={{
-                    fontFamily: "Merriweather, Georgia, serif",
-                    fontSize: "32px",
-                    fontWeight: 700,
+                    fontFamily: "var(--font-heading)",
+                    fontSize: "var(--nxs-text-2xl)",
+                    fontWeight: 900,
                     textAlign: "center",
                     marginBottom: "12px",
+                    color: "var(--nxs-graphite)",
                 }}
             >
                 Roadmap
@@ -95,9 +96,9 @@ function CategoryCards({ items }: { items: ReadmeSections["categories"] }) {
             <p
                 style={{
                     textAlign: "center",
-                    color: "hsl(var(--color-fd-muted-foreground))",
+                    color: "var(--nxs-gray)",
                     marginBottom: "48px",
-                    fontSize: "17px",
+                    fontSize: "var(--nxs-text-base)",
                 }}
             >
                 Five categories every production app needs — built the Amplify way.
@@ -140,8 +141,8 @@ function CategoryCard({ name, icon, status, body }: ReadmeSections["categories"]
             href={`/docs/${name.toLowerCase()}`}
             style={{
                 display: "block",
-                background: "hsl(var(--color-fd-card))",
-                border: "1px solid hsl(var(--color-fd-border))",
+                background: "var(--nxs-white)",
+                border: "1.5px solid var(--nxs-border)",
                 borderRadius: "12px",
                 padding: "28px",
                 textDecoration: "none",
@@ -159,25 +160,26 @@ function CategoryCard({ name, icon, status, body }: ReadmeSections["categories"]
                     justifyContent: "center",
                     fontSize: "20px",
                     marginBottom: "16px",
-                    background: "rgba(6, 182, 212, 0.1)",
+                    background: "rgba(167, 139, 250, 0.1)",
                 }}
             >
                 {icon}
             </div>
             <h3
                 style={{
-                    fontFamily: "Merriweather, Georgia, serif",
-                    fontSize: "18px",
+                    fontFamily: "var(--font-heading)",
+                    fontSize: "var(--nxs-text-lg)",
                     fontWeight: 700,
                     marginBottom: "8px",
+                    color: "var(--nxs-graphite)",
                 }}
             >
                 {name}
             </h3>
             <p
                 style={{
-                    color: "hsl(var(--color-fd-muted-foreground))",
-                    fontSize: "14px",
+                    color: "var(--nxs-gray)",
+                    fontSize: "var(--nxs-text-sm)",
                     lineHeight: 1.6,
                 }}
             >
@@ -189,13 +191,13 @@ function CategoryCard({ name, icon, status, body }: ReadmeSections["categories"]
                     marginTop: "12px",
                     padding: "3px 10px",
                     borderRadius: "20px",
-                    fontSize: "12px",
+                    fontSize: "var(--nxs-text-xs)",
                     fontWeight: 600,
                     background:
                         status === "In Progress"
-                            ? "rgba(6, 182, 212, 0.15)"
-                            : "rgba(139, 92, 246, 0.15)",
-                    color: status === "In Progress" ? "#06b6d4" : "#8b5cf6",
+                            ? "rgba(167, 139, 250, 0.15)"
+                            : "rgba(244, 114, 182, 0.15)",
+                    color: status === "In Progress" ? "#A78BFA" : "#F472B6",
                 }}
             >
                 {status}
@@ -227,23 +229,24 @@ export default async function HomePage() {
                         width: "800px",
                         height: "800px",
                         background:
-                            "radial-gradient(circle, rgba(6,182,212,0.08) 0%, rgba(139,92,246,0.04) 40%, transparent 70%)",
+                            "radial-gradient(circle, rgba(167,139,250,0.08) 0%, rgba(244,114,182,0.04) 40%, transparent 70%)",
                         pointerEvents: "none",
                     }}
                 />
                 <h1
                     style={{
-                        fontFamily: "Merriweather, Georgia, serif",
-                        fontSize: "52px",
-                        fontWeight: 700,
+                        fontFamily: "var(--font-heading)",
+                        fontSize: "var(--nxs-text-3xl)",
+                        fontWeight: 900,
                         marginBottom: "24px",
                         position: "relative",
+                        color: "var(--nxs-graphite)",
                     }}
                 >
                     Amplify{" "}
                     <span
                         style={{
-                            background: "linear-gradient(90deg, #06b6d4, #8b5cf6)",
+                            background: "linear-gradient(135deg, #A78BFA, #F472B6)",
                             WebkitBackgroundClip: "text",
                             WebkitTextFillColor: "transparent",
                         }}
@@ -253,8 +256,8 @@ export default async function HomePage() {
                 </h1>
                 <p
                     style={{
-                        color: "hsl(var(--color-fd-muted-foreground))",
-                        fontSize: "20px",
+                        color: "var(--nxs-gray)",
+                        fontSize: "var(--nxs-text-lg)",
                         maxWidth: "640px",
                         margin: "0 auto 40px",
                         lineHeight: 1.6,
@@ -269,10 +272,10 @@ export default async function HomePage() {
                         style={{
                             display: "inline-flex",
                             padding: "12px 28px",
-                            background: "linear-gradient(135deg, #06b6d4, #8b5cf6)",
+                            background: "linear-gradient(135deg, #A78BFA, #F472B6)",
                             color: "white",
-                            fontWeight: 600,
-                            fontSize: "15px",
+                            fontWeight: 700,
+                            fontSize: "var(--nxs-text-sm)",
                             borderRadius: "8px",
                             textDecoration: "none",
                         }}
@@ -285,10 +288,10 @@ export default async function HomePage() {
                             display: "inline-flex",
                             padding: "12px 28px",
                             background: "transparent",
-                            color: "hsl(var(--color-fd-foreground))",
-                            fontWeight: 600,
-                            fontSize: "15px",
-                            border: "1px solid hsl(var(--color-fd-border))",
+                            color: "var(--nxs-graphite)",
+                            fontWeight: 700,
+                            fontSize: "var(--nxs-text-sm)",
+                            border: "1.5px solid var(--nxs-border)",
                             borderRadius: "8px",
                             textDecoration: "none",
                         }}
@@ -305,15 +308,15 @@ export default async function HomePage() {
                         margin: "32px auto 0",
                         padding: "14px 24px",
                         maxWidth: "480px",
-                        background: "hsl(var(--color-fd-secondary))",
-                        border: "1px solid hsl(var(--color-fd-border))",
+                        background: "hsl(260 40% 97%)",
+                        border: "1.5px solid var(--nxs-border)",
                         borderRadius: "10px",
                         fontFamily: "var(--font-mono)",
-                        fontSize: "14px",
+                        fontSize: "var(--nxs-text-sm)",
                     }}
                 >
                     <span style={{ opacity: 0.5 }}>$</span>
-                    <code style={{ color: "#06b6d4" }}>pnpm add @nxsflow/amplify-overtone</code>
+                    <code style={{ color: "var(--nxs-overtone-accent)" }}>pnpm add @nxsflow/amplify-overtone</code>
                 </div>
             </section>
 

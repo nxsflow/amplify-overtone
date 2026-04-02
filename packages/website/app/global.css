@@ -3,26 +3,46 @@
 @import "fumadocs-ui/css/preset.css";
 
 :root {
+    /* Brand tokens */
+    --nxs-graphite: #1C1C1C;
+    --nxs-gray: #6B6B6B;
+    --nxs-border: #E5E5E0;
+    --nxs-white: #FFFFFF;
+    --nxs-overtone-accent: #A78BFA;
+    --nxs-overtone-accent-secondary: #F472B6;
+    --nxs-overtone-bg: #FFFFFF;
+
+    /* Typography */
     --font-heading: "Merriweather", Georgia, serif;
     --font-body: "Merriweather Sans", system-ui, sans-serif;
     --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
-    --color-fd-background: 222.2 47.4% 11.2%;
-    --color-fd-foreground: 210 40% 98%;
-    --color-fd-card: 240 10% 13.7%;
-    --color-fd-card-foreground: 210 40% 98%;
-    --color-fd-popover: 217.2 32.6% 17.5%;
-    --color-fd-popover-foreground: 210 40% 98%;
-    --color-fd-primary: 187.2 85.7% 53.3%;
-    --color-fd-primary-foreground: 222.2 47.4% 11.2%;
-    --color-fd-secondary: 217.2 32.6% 17.5%;
-    --color-fd-secondary-foreground: 210 40% 98%;
-    --color-fd-muted: 217.2 32.6% 17.5%;
-    --color-fd-muted-foreground: 215 20.2% 65.1%;
-    --color-fd-accent: 263.4 70% 50.4%;
-    --color-fd-accent-foreground: 210 40% 98%;
-    --color-fd-border: 217.2 32.6% 18%;
-    --color-fd-ring: 187.2 85.7% 53.3%;
+    /* Type scale (1.4 ratio) */
+    --nxs-text-xs: 12px;
+    --nxs-text-sm: 14px;
+    --nxs-text-base: 16px;
+    --nxs-text-lg: 22px;
+    --nxs-text-xl: 31px;
+    --nxs-text-2xl: 44px;
+    --nxs-text-3xl: 61px;
+
+    /* Fumadocs theme — light, mapped to brand neutrals */
+    --color-fd-background: 0 0% 100%;
+    --color-fd-foreground: 0 0% 11%;
+    --color-fd-card: 0 0% 98%;
+    --color-fd-card-foreground: 0 0% 11%;
+    --color-fd-popover: 0 0% 100%;
+    --color-fd-popover-foreground: 0 0% 11%;
+    --color-fd-primary: 263 86% 76%;
+    --color-fd-primary-foreground: 0 0% 100%;
+    --color-fd-secondary: 60 5% 96%;
+    --color-fd-secondary-foreground: 0 0% 11%;
+    --color-fd-muted: 60 5% 96%;
+    --color-fd-muted-foreground: 0 0% 42%;
+    --color-fd-accent: 330 86% 70%;
+    --color-fd-accent-foreground: 0 0% 100%;
+    --color-fd-border: 50 4% 88%;
+    --color-fd-ring: 263 86% 76%;
 }
 
 body {
@@ -45,7 +65,29 @@ pre {
 
 :not(pre) > code {
     border-color: transparent;
-    background: hsl(217.2 32.6% 15%);
+    background: hsl(260 40% 95%);
+}
+
+/* Code blocks — subtle lavender tint like hero install box */
+figure:has(pre) {
+    background: hsl(260 40% 97%) !important;
+    border-color: var(--nxs-border) !important;
+    box-shadow: none !important;
+}
+
+figure:has(pre) pre {
+    background: transparent !important;
+    border: none !important;
+    padding-inline: 1.25rem !important;
+}
+
+figure:has(pre) span.line {
+    padding-inline: 0 !important;
+}
+
+/* Prev/next navigation footer links */
+.border {
+    border-color: var(--nxs-border);
 }
 
 [data-theme-toggle] {

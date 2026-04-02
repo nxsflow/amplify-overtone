@@ -15,16 +15,16 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
     return (
-        <html lang="en" className="dark" suppressHydrationWarning>
+        <html lang="en" suppressHydrationWarning>
             <head>
                 <link
-                    href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Merriweather+Sans:wght@400;600&family=JetBrains+Mono:wght@400;500&display=swap"
+                    href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700;900&family=Merriweather+Sans:wght@300;400;700&family=JetBrains+Mono:wght@400;700&display=swap"
                     rel="stylesheet"
                 />
             </head>
             <body>
                 <RootProvider
-                    theme={{ defaultTheme: "dark", forcedTheme: "dark" }}
+                    theme={{ defaultTheme: "light", forcedTheme: "light" }}
                     search={{ SearchDialog: StaticSearchDialog }}
                 >
                     {children}
