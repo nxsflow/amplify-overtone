@@ -316,7 +316,9 @@ export default async function HomePage() {
                     }}
                 >
                     <span style={{ opacity: 0.5 }}>$</span>
-                    <code style={{ color: "var(--nxs-overtone-accent)" }}>pnpm add @nxsflow/amplify-overtone</code>
+                    <code style={{ color: "var(--nxs-overtone-accent)" }}>
+                        pnpm add @nxsflow/amplify-overtone
+                    </code>
                 </div>
             </section>
 

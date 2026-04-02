@@ -4,13 +4,13 @@
 
 :root {
     /* Brand tokens */
-    --nxs-graphite: #1C1C1C;
-    --nxs-gray: #6B6B6B;
-    --nxs-border: #E5E5E0;
-    --nxs-white: #FFFFFF;
-    --nxs-overtone-accent: #A78BFA;
-    --nxs-overtone-accent-secondary: #F472B6;
-    --nxs-overtone-bg: #FFFFFF;
+    --nxs-graphite: #1c1c1c;
+    --nxs-gray: #6b6b6b;
+    --nxs-border: #e5e5e0;
+    --nxs-white: #ffffff;
+    --nxs-overtone-accent: #a78bfa;
+    --nxs-overtone-accent-secondary: #f472b6;
+    --nxs-overtone-bg: #ffffff;
 
     /* Typography */
     --font-heading: "Merriweather", Georgia, serif;
@@ -70,19 +70,20 @@ pre {
 
 /* Code blocks — subtle lavender tint like hero install box */
 figure:has(pre) {
-    background: hsl(260 40% 97%) !important;
-    border-color: var(--nxs-border) !important;
-    box-shadow: none !important;
+    background: hsl(260 40% 97%);
+    border-color: var(--nxs-border);
+    box-shadow: none;
 }
 
 figure:has(pre) pre {
-    background: transparent !important;
-    border: none !important;
-    padding-inline: 1.25rem !important;
+    background: transparent;
+    border: none;
+    padding-inline: 1.25rem;
 }
 
 figure:has(pre) span.line {
-    padding-inline: 0 !important;
+    --padding-left: 0;
+    --padding-right: 0;
 }
 
 /* Prev/next navigation footer links */

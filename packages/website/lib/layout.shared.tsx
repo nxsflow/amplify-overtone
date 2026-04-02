@@ -21,16 +21,55 @@ function TuningForkIcon() {
                 </clipPath>
             </defs>
             <g transform="translate(130, 130)">
-                <path clipPath="url(#nav-rb1)" d="M-27,12 C-27,24 -22,38 -6,42 C6,45 22,40 28,26 C30,18 28,12 28,12" stroke="#A78BFA" strokeWidth="28" fill="none" strokeLinecap="round"/>
-                <path clipPath="url(#nav-rb2)" d="M-27,12 C-27,24 -22,38 -6,42 C6,45 22,40 28,26 C30,18 28,12 28,12" stroke="#A78BFA" strokeWidth="28" fill="none" strokeLinecap="round"/>
-                <path clipPath="url(#nav-rb3)" d="M-27,12 C-27,24 -22,38 -6,42 C6,45 22,40 28,26 C30,18 28,12 28,12" stroke="#A78BFA" strokeWidth="28" fill="none" strokeLinecap="round"/>
+                <path
+                    clipPath="url(#nav-rb1)"
+                    d="M-27,12 C-27,24 -22,38 -6,42 C6,45 22,40 28,26 C30,18 28,12 28,12"
+                    stroke="#A78BFA"
+                    strokeWidth="28"
+                    fill="none"
+                    strokeLinecap="round"
+                />
+                <path
+                    clipPath="url(#nav-rb2)"
+                    d="M-27,12 C-27,24 -22,38 -6,42 C6,45 22,40 28,26 C30,18 28,12 28,12"
+                    stroke="#A78BFA"
+                    strokeWidth="28"
+                    fill="none"
+                    strokeLinecap="round"
+                />
+                <path
+                    clipPath="url(#nav-rb3)"
+                    d="M-27,12 C-27,24 -22,38 -6,42 C6,45 22,40 28,26 C30,18 28,12 28,12"
+                    stroke="#A78BFA"
+                    strokeWidth="28"
+                    fill="none"
+                    strokeLinecap="round"
+                />
             </g>
             <g transform="translate(131, 130)">
-                <path d="M27,-90 C28,-72 27,-50 28,-28 C29,-12 28,3 28,12" stroke="#A78BFA" strokeWidth="28" strokeLinecap="round" fill="none"/>
+                <path
+                    d="M27,-90 C28,-72 27,-50 28,-28 C29,-12 28,3 28,12"
+                    stroke="#A78BFA"
+                    strokeWidth="28"
+                    strokeLinecap="round"
+                    fill="none"
+                />
             </g>
             <g transform="translate(130, 130)">
-                <path d="M-27,-91 C-28,-70 -29,-48 -27,-28 C-26,-14 -27,2 -27,12" stroke="#A78BFA" strokeWidth="28" strokeLinecap="round" fill="none"/>
-                <path d="M0,43 C1,60 -1,74 0,82 C1,90 0,100 0,102" stroke="#A78BFA" strokeWidth="28" strokeLinecap="round" fill="none"/>
+                <path
+                    d="M-27,-91 C-28,-70 -29,-48 -27,-28 C-26,-14 -27,2 -27,12"
+                    stroke="#A78BFA"
+                    strokeWidth="28"
+                    strokeLinecap="round"
+                    fill="none"
+                />
+                <path
+                    d="M0,43 C1,60 -1,74 0,82 C1,90 0,100 0,102"
+                    stroke="#A78BFA"
+                    strokeWidth="28"
+                    strokeLinecap="round"
+                    fill="none"
+                />
             </g>
         </svg>
     );
