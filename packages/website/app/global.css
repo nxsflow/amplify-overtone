@@ -1,0 +1,100 @@
+@import "tailwindcss";
+@import "fumadocs-ui/css/neutral.css";
+@import "fumadocs-ui/css/preset.css";
+
+:root {
+    /* Brand tokens */
+    --nxs-graphite: #1c1c1c;
+    --nxs-gray: #6b6b6b;
+    --nxs-border: #e5e5e0;
+    --nxs-white: #ffffff;
+    --nxs-overtone-accent: #a78bfa;
+    --nxs-overtone-accent-secondary: #f472b6;
+    --nxs-overtone-bg: #ffffff;
+
+    /* Typography */
+    --font-heading: "Merriweather", Georgia, serif;
+    --font-body: "Merriweather Sans", system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+    /* Type scale (1.4 ratio) */
+    --nxs-text-xs: 12px;
+    --nxs-text-sm: 14px;
+    --nxs-text-base: 16px;
+    --nxs-text-lg: 22px;
+    --nxs-text-xl: 31px;
+    --nxs-text-2xl: 44px;
+    --nxs-text-3xl: 61px;
+
+    /* Fumadocs theme — light, mapped to brand neutrals */
+    --color-fd-background: 0 0% 100%;
+    --color-fd-foreground: 0 0% 11%;
+    --color-fd-card: 0 0% 98%;
+    --color-fd-card-foreground: 0 0% 11%;
+    --color-fd-popover: 0 0% 100%;
+    --color-fd-popover-foreground: 0 0% 11%;
+    --color-fd-primary: 263 86% 76%;
+    --color-fd-primary-foreground: 0 0% 100%;
+    --color-fd-secondary: 60 5% 96%;
+    --color-fd-secondary-foreground: 0 0% 11%;
+    --color-fd-muted: 60 5% 96%;
+    --color-fd-muted-foreground: 0 0% 42%;
+    --color-fd-accent: 330 86% 70%;
+    --color-fd-accent-foreground: 0 0% 100%;
+    --color-fd-border: 50 4% 88%;
+    --color-fd-ring: 263 86% 76%;
+}
+
+body {
+    font-family: var(--font-body);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: var(--font-heading);
+}
+
+code,
+pre {
+    font-family: var(--font-mono);
+}
+
+:not(pre) > code {
+    border-color: transparent;
+    background: hsl(260 40% 95%);
+}
+
+/* Code blocks — subtle lavender tint like hero install box */
+figure:has(pre) {
+    background: hsl(260 40% 97%);
+    border-color: var(--nxs-border);
+    box-shadow: none;
+}
+
+figure:has(pre) pre {
+    background: transparent;
+    border: none;
+    padding-inline: 1.25rem;
+}
+
+figure:has(pre) span.line {
+    --padding-left: 0;
+    --padding-right: 0;
+}
+
+/* Prev/next navigation footer links */
+.border {
+    border-color: var(--nxs-border);
+}
+
+[data-theme-toggle] {
+    display: none;
+}
+
+#nd-sidebar > :last-child {
+    display: none;
+}

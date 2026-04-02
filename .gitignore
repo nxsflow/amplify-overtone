@@ -20,6 +20,7 @@ coverage/
 
 # superpowers specs and plans
 docs/superpowers
+.superpowers
 
 # E2E test output
 e2e-tests/
@@ -38,3 +39,11 @@ packages/test-infra/cdk.out/
 
 # Playwright
 .playwright-mcp/
+
+# Next.js
+.next/
+packages/website/public/docs/
+packages/website/out/
+
+# Fumadocs generated
+.source/

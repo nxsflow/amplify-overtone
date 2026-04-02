@@ -35,7 +35,7 @@
             "Bash(pnpm test-infra:deploy)",
             "Bash(pnpm test-infra:destroy)",
             "Bash(pnpm test-infra:typecheck)",
-            "Bash(pnpm typecheck)",
+            "Bash(pnpm typecheck:*)",
             "Fetch",
             "mcp__aws-knowledge-mcp-server__*",
             "mcp__awslabs_aws-documentation-mcp-server__*",

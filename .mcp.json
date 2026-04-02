@@ -22,6 +22,9 @@
                 "FASTMCP_LOG_LEVEL": "ERROR"
             }
         },
-        "playwright": { "command": "npx", "args": ["@playwright/mcp@latest"] }
+        "playwright": {
+            "command": "npx",
+            "args": ["@playwright/mcp@latest"]
+        }
     }
 }
