@@ -43,6 +43,7 @@ packages/test-infra/cdk.out/
 # Next.js
 .next/
 packages/website/public/docs/
+packages/website/out/
 
 # Fumadocs generated
 .source/
