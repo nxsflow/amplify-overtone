@@ -1,6 +1,6 @@
 # @nxsflow/amplify-overtone
 
-Open-source AWS Amplify Gen 2 extensions for collaborative data, auth inheritance, local-first storage, and schema-defined actions. Monorepo with two published packages and integration test infrastructure.
+Extends AWS Amplify Gen 2 with email, collaboration, and local-first support. Monorepo with two published packages and integration test infrastructure.
 
 ## Packages
 

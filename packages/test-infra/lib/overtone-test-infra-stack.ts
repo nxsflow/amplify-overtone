@@ -14,7 +14,12 @@ import { RetentionDays } from "aws-cdk-lib/aws-logs";
 import { HostedZone, MxRecord } from "aws-cdk-lib/aws-route53";
 import { BlockPublicAccess, Bucket, BucketEncryption } from "aws-cdk-lib/aws-s3";
 import { CfnReceiptRule, CfnReceiptRuleSet } from "aws-cdk-lib/aws-ses";
-import { AwsCustomResource, AwsCustomResourcePolicy, PhysicalResourceId, Provider } from "aws-cdk-lib/custom-resources";
+import {
+    AwsCustomResource,
+    AwsCustomResourcePolicy,
+    PhysicalResourceId,
+    Provider,
+} from "aws-cdk-lib/custom-resources";
 import type { Construct } from "constructs";
 
 export interface OvertoneTestInfraStackProps extends StackProps {

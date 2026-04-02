@@ -1,0 +1,19 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - nvm use 22
+        - corepack enable
+        - corepack prepare pnpm@latest --activate
+        - pnpm install --frozen-lockfile
+    build:
+      commands:
+        - pnpm website:build
+  artifacts:
+    baseDirectory: packages/website/out
+    files:
+      - "**/*"
+  cache:
+    paths:
+      - $(pnpm store path)

@@ -18,7 +18,10 @@
         "test:e2e": "pnpm --filter @nxsflow/integration-tests run test:e2e",
         "test-infra:deploy": "pnpm --filter @nxsflow/test-infra run deploy",
         "test-infra:destroy": "pnpm --filter @nxsflow/test-infra run destroy",
-        "test-infra:typecheck": "pnpm --filter @nxsflow/test-infra run typecheck"
+        "test-infra:typecheck": "pnpm --filter @nxsflow/test-infra run typecheck",
+        "website:dev": "pnpm --filter @nxsflow/website dev",
+        "website:build": "pnpm --filter @nxsflow/website build",
+        "website:typecheck": "pnpm --filter @nxsflow/website typecheck"
     },
     "pnpm": {
         "onlyBuiltDependencies": [

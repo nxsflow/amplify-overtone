@@ -21,6 +21,10 @@
                 "AWS_DOCUMENTATION_PARTITION": "aws",
                 "FASTMCP_LOG_LEVEL": "ERROR"
             }
+        },
+        "playwright": {
+            "command": "npx",
+            "args": ["@playwright/mcp@latest"]
         }
     }
 }
