@@ -1,5 +1,6 @@
 export { defineEmail } from "./factory.js";
 export type {
+    EmailDefinition,
     EmailProps,
     EmailResources,
     EmailTemplateName,

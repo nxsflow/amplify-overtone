@@ -1,3 +1,7 @@
+import type {
+    ConstructFactory,
+    ResourceProvider,
+} from "@aws-amplify/plugin-types";
 import type { IFunction } from "aws-cdk-lib/aws-lambda";
 
 // ---------------------------------------------------------------------------
@@ -150,8 +154,11 @@ interface EmailPropsBase {
  * ```
  */
 interface EmailPropsNoDomain extends EmailPropsBase {
+    /** Custom mail domain for sending — omit to use individual sender verification instead. */
     domain?: undefined;
+    /** Route 53 hosted zone ID — only applicable when `domain` is set. */
     hostedZoneId?: undefined;
+    /** Root domain of the hosted zone — only applicable when `domain` is set. */
     hostedZoneDomain?: undefined;
 
     /**
@@ -190,9 +197,11 @@ interface EmailPropsNoDomain extends EmailPropsBase {
  * ```
  */
 interface EmailPropsDomainOnly extends EmailPropsBase {
-    /** Custom mail domain for sending (e.g., "mail.nxsflow.com"). */
+    /** Custom mail domain for sending (e.g., `"mail.nxsflow.com"`). */
     domain: string;
+    /** Route 53 hosted zone ID — omit to manage DNS records manually at your DNS provider. */
     hostedZoneId?: undefined;
+    /** Root domain of the hosted zone — omit to manage DNS records manually. */
     hostedZoneDomain?: undefined;
 
     /**
@@ -361,3 +370,14 @@ export interface EmailResources {
     /** Send-email Lambda function name — used in Amplify outputs for client discovery. */
     lambdaFunctionName: string;
 }
+
+/**
+ * Return type of {@link defineEmail}.
+ *
+ * Pass this to `defineBackend()` to include email in your Amplify backend.
+ * This type is opaque — consumers do not need `@aws-amplify/plugin-types`
+ * installed to use it.
+ */
+export type EmailDefinition = ConstructFactory<
+    ResourceProvider<EmailResources>
+>;

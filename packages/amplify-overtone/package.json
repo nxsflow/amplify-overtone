@@ -27,6 +27,7 @@
     "files": [
         "dist",
         "src/email/functions",
+        "src/email/templates",
         "README.md"
     ],
     "scripts": {

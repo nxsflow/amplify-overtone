@@ -4,7 +4,7 @@ import type {
     ResourceProvider,
 } from "@aws-amplify/plugin-types";
 import { AmplifyEmail } from "./construct.js";
-import type { EmailProps, EmailResources } from "./types.js";
+import type { EmailDefinition, EmailProps, EmailResources } from "./types.js";
 
 /**
  * Singleton factory for AmplifyEmail constructs.
@@ -109,4 +109,4 @@ export class EmailFactory implements ConstructFactory<ResourceProvider<EmailReso
  */
 export const defineEmail = (
     props: EmailProps = {},
-): ConstructFactory<ResourceProvider<EmailResources>> => new EmailFactory(props);
+): EmailDefinition => new EmailFactory(props);
