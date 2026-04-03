@@ -9,11 +9,11 @@ import type { EmailSubject } from "./types.js";
  * - `function` → called with a Proxy that records property accesses as `{{propName}}`
  */
 export function compileSubject(subject: EmailSubject | undefined): string {
-	if (subject === undefined) return "";
-	if (typeof subject === "string") return subject;
+    if (subject === undefined) return "";
+    if (typeof subject === "string") return subject;
 
-	const proxy = new Proxy({} as Record<string, string>, {
-		get: (_, prop) => `{{${String(prop)}}}`,
-	});
-	return subject(proxy);
+    const proxy = new Proxy({} as Record<string, string>, {
+        get: (_, prop) => `{{${String(prop)}}}`,
+    });
+    return subject(proxy);
 }
