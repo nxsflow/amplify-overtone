@@ -15,7 +15,7 @@ interface SendEmailPayload {
 
 const lambda = new LambdaClient({});
 
-const RECIPIENT = "carsten.koch@hey.com";
+const RECIPIENT = "carsten.koch+overtone@hey.com";
 
 const templateData: Record<EmailTemplateName, Record<string, string>> = {
     "confirmation-code": {

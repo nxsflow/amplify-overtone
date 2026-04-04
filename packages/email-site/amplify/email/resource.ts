@@ -7,5 +7,5 @@ export const email = defineEmail({
             displayName: "Overtone Templates",
         },
     },
-    sandboxRecipients: ["carsten.koch@hey.com"],
+    sandboxRecipients: ["carsten.koch+overtone@hey.com"],
 });

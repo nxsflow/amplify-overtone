@@ -68,7 +68,7 @@ export default function Home() {
                     Email Templates
                 </h1>
                 <p className="text-center mb-8" style={{ color: "#6B6B6B" }}>
-                    Send a test email to carsten.koch@hey.com
+                    Send a test email to carsten.koch+overtone@hey.com
                 </p>
 
                 <div className="grid gap-4">
