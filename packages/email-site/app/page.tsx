@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { sendTemplateEmail } from "./actions.js";
+import { sendTemplateEmail } from "./actions";
 
 type EmailTemplateName = "confirmation-code" | "password-reset" | "invite" | "getting-started";
 
