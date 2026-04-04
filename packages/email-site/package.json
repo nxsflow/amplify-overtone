@@ -12,9 +12,9 @@
     "dependencies": {
         "@aws-sdk/client-lambda": "^3.840.0",
         "@nxsflow/amplify-overtone": "workspace:*",
-        "next": "^15.3.3",
-        "react": "^19.2.0",
-        "react-dom": "^19.2.0"
+        "next": "^16.2.2",
+        "react": "^19.2.4",
+        "react-dom": "^19.2.4"
     },
     "devDependencies": {
         "@aws-amplify/backend": "^1.18.1",
