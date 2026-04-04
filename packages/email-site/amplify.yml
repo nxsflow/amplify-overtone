@@ -1,0 +1,23 @@
+version: 1
+backend:
+  phases:
+    build:
+      commands:
+        - nvm use 22
+        - corepack enable
+        - corepack prepare pnpm@latest --activate
+        - pnpm install --frozen-lockfile
+        - pnpm overtone:build
+        - npx ampx generate outputs --app-id $AWS_APP_ID --branch $AWS_BRANCH
+frontend:
+  phases:
+    build:
+      commands:
+        - pnpm email-site:build
+  artifacts:
+    baseDirectory: packages/email-site/.next
+    files:
+      - "**/*"
+  cache:
+    paths:
+      - $(pnpm store path)

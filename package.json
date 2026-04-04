@@ -32,6 +32,7 @@
         "website:typecheck": "pnpm --filter @nxsflow/website typecheck",
         "email-site:dev": "pnpm --filter @nxsflow/email-site dev",
         "email-site:build": "pnpm --filter @nxsflow/email-site build",
+        "email-site:start": "pnpm --filter @nxsflow/email-site start",
         "email-site:typecheck": "pnpm --filter @nxsflow/email-site typecheck"
     },
     "pnpm": {
