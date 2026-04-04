@@ -1,4 +1,5 @@
 version: 1
+appRoot: packages/email-site
 backend:
   phases:
     preBuild:
@@ -7,6 +8,7 @@ backend:
         - corepack enable
         - corepack prepare pnpm@latest --activate
         - pnpm install --frozen-lockfile
+        - pwd
         - pnpm overtone:build
     build:
       commands:
@@ -15,12 +17,14 @@ frontend:
   phases:
     build:
       commands:
+        - pwd
         - pnpm email-site:build
+        - ls packages/email-site/.next
   artifacts:
-    baseDirectory: packages/email-site/.next
+    baseDirectory: .next
     files:
       - "**/*"
   cache:
     paths:
       - $(pnpm store path)
-      - packages/email-site/.next/cache/**/*
+      - .next/cache/**/*
