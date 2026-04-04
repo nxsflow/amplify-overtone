@@ -1,13 +1,14 @@
 version: 1
 backend:
   phases:
-    build:
+    preBuild:
       commands:
         - nvm use 22
         - corepack enable
         - corepack prepare pnpm@latest --activate
         - pnpm install --frozen-lockfile
-        - pnpm overtone:build
+    build:
+      commands:
         - npx ampx generate outputs --app-id $AWS_APP_ID --branch $AWS_BRANCH
 frontend:
   phases:
