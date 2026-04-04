@@ -5,10 +5,12 @@ applications:
             phases:
                 build:
                     commands:
-                         - corepack enable
-                         - pnpm install --frozen-lockfile
-                         - cd ../.. && pnpm overtone:build
-                         - pnpm exec ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
+                        - corepack enable
+                        - cd ../..
+                        - pnpm install --frozen-lockfile
+                        - pnpm overtone:build
+                        - cd packages/email-site
+                        - pnpm exec ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
         frontend:
             phases:
                 build:
