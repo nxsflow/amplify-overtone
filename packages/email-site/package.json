@@ -1,0 +1,29 @@
+{
+    "name": "@nxsflow/email-site",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "next dev --turbopack",
+        "build": "next build",
+        "start": "next start",
+        "typecheck": "tsc --noEmit"
+    },
+    "dependencies": {
+        "@aws-sdk/client-lambda": "^3.840.0",
+        "@nxsflow/amplify-overtone": "workspace:*",
+        "next": "^15.3.3",
+        "react": "^19.2.0",
+        "react-dom": "^19.2.0"
+    },
+    "devDependencies": {
+        "@aws-amplify/backend": "^1.18.1",
+        "@aws-amplify/backend-cli": "^1.4.17",
+        "@tailwindcss/postcss": "^4.0.0",
+        "@types/node": "^22.0.0",
+        "@types/react": "^19.0.0",
+        "@types/react-dom": "^19.0.0",
+        "tailwindcss": "^4.0.0",
+        "typescript": "^5.8.3"
+    }
+}

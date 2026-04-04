@@ -29,7 +29,10 @@
         "e2e:test": "pnpm --filter @nxsflow/integration-tests run test:e2e",
         "website:dev": "pnpm --filter @nxsflow/website dev",
         "website:build": "pnpm --filter @nxsflow/website build",
-        "website:typecheck": "pnpm --filter @nxsflow/website typecheck"
+        "website:typecheck": "pnpm --filter @nxsflow/website typecheck",
+        "email-site:dev": "pnpm --filter @nxsflow/email-site dev",
+        "email-site:build": "pnpm --filter @nxsflow/email-site build",
+        "email-site:typecheck": "pnpm --filter @nxsflow/email-site typecheck"
     },
     "pnpm": {
         "onlyBuiltDependencies": [
