@@ -1,28 +1,26 @@
 version: 1
-applications:
-    -
-        backend:
-            phases:
-                build:
-                    commands:
-                        - corepack enable
-                        - cd ../..
-                        - pnpm install --frozen-lockfile
-                        - pnpm overtone:build
-                        - cd packages/email-site
-                        - pnpm exec ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
-        frontend:
-            phases:
-                build:
-                    commands:
-                        - next build
-            artifacts:
-                baseDirectory: .next
-                files:
-                    - '**/*'
-            cache:
-                paths:
-                    - '.next/cache/**/*'
-                    - '$(pnpm store path)'
-            buildPath: packages/email-site
-        appRoot: packages/email-site
+backend:
+  phases:
+    preBuild:
+      commands:
+        - nvm use 22
+        - corepack enable
+        - corepack prepare pnpm@latest --activate
+        - pnpm install --frozen-lockfile
+        - pnpm overtone:build
+    build:
+      commands:
+        - pnpm email-site:deploy
+frontend:
+  phases:
+    build:
+      commands:
+        - pnpm email-site:build
+  artifacts:
+    baseDirectory: packages/email-site/.next
+    files:
+      - "**/*"
+  cache:
+    paths:
+      - $(pnpm store path)
+      - packages/email-site/.next/cache/**/*
