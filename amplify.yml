@@ -14,7 +14,8 @@ applications:
         frontend:
             phases:
                 build:
-                    commands: ['next build']
+                    commands:
+                        - next build
             artifacts:
                 baseDirectory: .next
                 files:
