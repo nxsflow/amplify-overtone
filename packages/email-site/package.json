@@ -7,6 +7,7 @@
         "dev": "next dev --turbopack",
         "build": "next build",
         "start": "next start",
+        "deploy": "ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID",
         "typecheck": "tsc --noEmit"
     },
     "dependencies": {
