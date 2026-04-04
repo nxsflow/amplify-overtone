@@ -22,10 +22,10 @@ frontend:
         - pnpm email-site:build
         - ls packages/email-site/.next
   artifacts:
-    baseDirectory: .next
+    baseDirectory: packages/email-site/.next
     files:
       - "**/*"
   cache:
     paths:
       - $(pnpm store path)
-      - .next/cache/**/*
+      - packages/email-site/.next/cache/**/*
