@@ -6,7 +6,7 @@ backend:
       commands:
         - nvm use 22
         - corepack enable
-        - corepack prepare pnpm@latest --activateactivate
+        - corepack prepare pnpm@latest --activate
         - cd ../..
         - pnpm install --frozen-lockfile
         - pwd
