@@ -67,12 +67,15 @@ importers:
 
   packages/email-site:
     dependencies:
-      '@aws-sdk/client-lambda':
-        specifier: ^3.840.0
-        version: 3.1019.0
+      '@aws-amplify/adapter-nextjs':
+        specifier: ^1.7.2
+        version: 1.7.2(aws-amplify@6.16.3)(next@16.2.2(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))
       '@nxsflow/amplify-overtone':
         specifier: workspace:*
         version: link:../amplify-overtone
+      aws-amplify:
+        specifier: ^6.16.3
+        version: 6.16.3
       next:
         specifier: ^16.2.2
         version: 16.2.2(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -89,9 +92,15 @@ importers:
       '@aws-amplify/backend-cli':
         specifier: ^1.4.17
         version: 1.8.2(@aws-cdk/cli-plugin-contract@2.182.1)(@aws-sdk/types@3.973.6)(@types/node@22.19.15)(aws-cdk-lib@2.245.0(constructs@10.6.0))(constructs@10.6.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3)
+      '@aws-sdk/client-lambda':
+        specifier: ^3.1019.0
+        version: 3.1019.0
       '@tailwindcss/postcss':
         specifier: ^4.0.0
         version: 4.2.2
+      '@types/aws-lambda':
+        specifier: ^8.10.161
+        version: 8.10.161
       '@types/node':
         specifier: ^22.0.0
         version: 22.19.15
@@ -273,6 +282,12 @@ packages:
     resolution: {integrity: sha512-ite4+xng5McO8MflWCi0un0YmnorTujsDnfPfhzYzAgoJ+jkI1pZj6jtmTl8Jptyi1H+Pa0zlatJIsxDD++ETA==}
     peerDependencies:
       graphql: '*'
+
+  '@aws-amplify/adapter-nextjs@1.7.2':
+    resolution: {integrity: sha512-qzj0s0tdN6XsFJrtHAcUMBmITctLxAFCZ0K4/toquuHAcNDMrchKAF94smMnJCOw7hdWTSR6yE9sO82vwj5yIw==}
+    peerDependencies:
+      aws-amplify: ^6.16.1
+      next: '>=13.5.0 <17.0.0'
 
   '@aws-amplify/analytics@7.0.93':
     resolution: {integrity: sha512-3WoB0VzATJyupTNQ+ZnzE0pLYnpZPtqNN4deZ8gadG5uzGhhvkt9uZtgVnn/QFGb35DnP8qNDTRiM0rL3vjyZQ==}
@@ -3922,6 +3937,10 @@ packages:
     engines: {node: '>= 18.0.0'}
     hasBin: true
 
+  aws-jwt-verify@4.0.1:
+    resolution: {integrity: sha512-kzvi71eD3w/mCpYRUY7cz6DX4bfYihGdI2yV3FYQ2JuZZenqAqDPz0gWj0ew6vlAtdEVBNb7p+Dm2TAIxpVYMA==}
+    engines: {node: '>=14.0.0'}
+
   b4a@1.8.0:
     resolution: {integrity: sha512-qRuSmNSkGQaHwNbM7J78Wwy+ghLEYF1zNrSeMxj4Kgw6y33O3mXcQ6Ie9fRvfU/YnxWkOchPXbaLb73TkIsfdg==}
     peerDependencies:
@@ -7252,6 +7271,12 @@ snapshots:
       graphql: 15.8.0
       immutable: 5.1.5
       invariant: 2.2.4
+
+  '@aws-amplify/adapter-nextjs@1.7.2(aws-amplify@6.16.3)(next@16.2.2(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))':
+    dependencies:
+      aws-amplify: 6.16.3
+      aws-jwt-verify: 4.0.1
+      next: 16.2.2(@babel/core@7.29.0)(@opentelemetry/api@1.9.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
 
   '@aws-amplify/analytics@7.0.93(@aws-amplify/core@6.16.1)':
     dependencies:
@@ -12486,6 +12511,8 @@ snapshots:
       constructs: 10.6.0
 
   aws-cdk@2.1114.1: {}
+
+  aws-jwt-verify@4.0.1: {}
 
   b4a@1.8.0: {}
 
