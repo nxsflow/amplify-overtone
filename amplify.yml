@@ -17,7 +17,7 @@ frontend:
       commands:
         - pnpm email-site:build
   artifacts:
-    baseDirectory: packages/email-site/.next
+    baseDirectory: packages/email-site
     files:
       - "**/*"
   cache:
