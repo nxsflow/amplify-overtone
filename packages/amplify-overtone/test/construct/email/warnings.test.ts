@@ -28,18 +28,19 @@ describe("Sandbox recipients", () => {
         sandboxRecipients: ["dev@example.com", "qa@example.com"],
     });
 
-    it("creates EmailIdentity for each sandbox recipient", () => {
-        template.hasResourceProperties("AWS::SES::EmailIdentity", {
-            EmailIdentity: "dev@example.com",
+    it("creates idempotent identity for each sandbox recipient", () => {
+        template.hasResourceProperties("Custom::SesEmailIdentity", {
+            Create: Match.stringLikeRegexp("dev@example.com"),
         });
-        template.hasResourceProperties("AWS::SES::EmailIdentity", {
-            EmailIdentity: "qa@example.com",
+        template.hasResourceProperties("Custom::SesEmailIdentity", {
+            Create: Match.stringLikeRegexp("qa@example.com"),
         });
     });
 
     it("creates sender identity + 2 sandbox recipient identities", () => {
-        // 1 sender (noreply@example.com) + 2 sandbox recipients = 3
-        template.resourceCountIs("AWS::SES::EmailIdentity", 3);
+        // 1 sender + 2 sandbox recipients = 3 custom resources, 0 L2 identities
+        template.resourceCountIs("Custom::SesEmailIdentity", 3);
+        template.resourceCountIs("AWS::SES::EmailIdentity", 0);
     });
 });
 
@@ -50,10 +51,10 @@ describe("No domain — Mode 1", () => {
         annotations.hasWarning("*", Match.stringLikeRegexp("No custom domain configured"));
     });
 
-    it("creates EmailIdentity for each sender address", () => {
+    it("creates idempotent identity for each sender address", () => {
         const template = createNoDomainTemplate();
-        template.hasResourceProperties("AWS::SES::EmailIdentity", {
-            EmailIdentity: "noreply@example.com",
+        template.hasResourceProperties("Custom::SesEmailIdentity", {
+            Create: Match.stringLikeRegexp("noreply@example.com"),
         });
     });
 
@@ -64,11 +65,11 @@ describe("No domain — Mode 1", () => {
                 support: { senderEmail: "support@example.com", displayName: "Support" },
             },
         } as EmailProps);
-        template.hasResourceProperties("AWS::SES::EmailIdentity", {
-            EmailIdentity: "noreply@example.com",
+        template.hasResourceProperties("Custom::SesEmailIdentity", {
+            Create: Match.stringLikeRegexp("noreply@example.com"),
         });
-        template.hasResourceProperties("AWS::SES::EmailIdentity", {
-            EmailIdentity: "support@example.com",
+        template.hasResourceProperties("Custom::SesEmailIdentity", {
+            Create: Match.stringLikeRegexp("support@example.com"),
         });
     });
 });
@@ -78,8 +79,10 @@ describe("Sandbox recipients — with domain", () => {
         sandboxRecipients: ["dev@example.com"],
     });
 
-    it("creates domain identity + sandbox recipient identity", () => {
-        // 1 domain + 1 sandbox recipient = 2
-        template.resourceCountIs("AWS::SES::EmailIdentity", 2);
+    it("creates domain identity (L2) + sandbox recipient (idempotent)", () => {
+        // Domain identity uses L2 construct (DKIM tokens needed)
+        template.resourceCountIs("AWS::SES::EmailIdentity", 1);
+        // Sandbox recipient uses idempotent custom resource
+        template.resourceCountIs("Custom::SesEmailIdentity", 1);
     });
 });
