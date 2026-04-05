@@ -53,20 +53,20 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
 
-      # Pre-releases: publish directly with changeset pre mode
-      # --tag ensures the correct npm dist-tag is updated (alpha or beta)
-      - name: Determine pre-release dist-tag
-        if: github.ref != 'refs/heads/main'
-        id: dist-tag
-        run: |
-          if [[ "${{ github.ref }}" == refs/heads/alpha/* ]]; then
-            echo "tag=alpha" >> "$GITHUB_OUTPUT"
-          elif [[ "${{ github.ref }}" == refs/heads/beta/* ]]; then
-            echo "tag=beta" >> "$GITHUB_OUTPUT"
-          fi
-
+      # Pre-releases: changeset pre mode (pre.json) handles the dist-tag
+      # automatically. Only pass --tag as a fallback when pre mode is not active.
       - name: Publish pre-release
         if: github.ref != 'refs/heads/main'
-        run: pnpm changeset publish --tag ${{ steps.dist-tag.outputs.tag }}
+        run: |
+          if [ -f .changeset/pre.json ]; then
+            pnpm changeset publish
+          else
+            if [[ "${{ github.ref }}" == refs/heads/alpha/* ]]; then
+              TAG=alpha
+            elif [[ "${{ github.ref }}" == refs/heads/beta/* ]]; then
+              TAG=beta
+            fi
+            pnpm changeset publish --tag "$TAG"
+          fi
         env:
           NPM_CONFIG_PROVENANCE: true
