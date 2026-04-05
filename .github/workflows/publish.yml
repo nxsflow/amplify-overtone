@@ -54,8 +54,19 @@ jobs:
           NPM_CONFIG_PROVENANCE: true
 
       # Pre-releases: publish directly with changeset pre mode
+      # --tag ensures the correct npm dist-tag is updated (alpha or beta)
+      - name: Determine pre-release dist-tag
+        if: github.ref != 'refs/heads/main'
+        id: dist-tag
+        run: |
+          if [[ "${{ github.ref }}" == refs/heads/alpha/* ]]; then
+            echo "tag=alpha" >> "$GITHUB_OUTPUT"
+          elif [[ "${{ github.ref }}" == refs/heads/beta/* ]]; then
+            echo "tag=beta" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Publish pre-release
         if: github.ref != 'refs/heads/main'
-        run: pnpm changeset publish
+        run: pnpm changeset publish --tag ${{ steps.dist-tag.outputs.tag }}
         env:
           NPM_CONFIG_PROVENANCE: true
