@@ -43,6 +43,21 @@ jobs:
         if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/beta/')
         run: pnpm lint
 
+      # Guard: pre.json must NOT exist on main, MUST exist on pre-release branches
+      - name: Validate pre-release mode
+        run: |
+          if [[ "${{ github.ref }}" == refs/heads/main ]]; then
+            if [ -f .changeset/pre.json ]; then
+              echo "::error::pre.json must not exist on main — exit pre-release mode before merging"
+              exit 1
+            fi
+          else
+            if [ ! -f .changeset/pre.json ]; then
+              echo "::error::pre.json is missing — run 'changeset pre enter alpha|beta' before publishing"
+              exit 1
+            fi
+          fi
+
       # Stable releases: changesets/action creates Version PR or publishes
       - name: Create Release PR or Publish (stable)
         if: github.ref == 'refs/heads/main'
@@ -54,19 +69,8 @@ jobs:
           NPM_CONFIG_PROVENANCE: true
 
       # Pre-releases: changeset pre mode (pre.json) handles the dist-tag
-      # automatically. Only pass --tag as a fallback when pre mode is not active.
       - name: Publish pre-release
         if: github.ref != 'refs/heads/main'
-        run: |
-          if [ -f .changeset/pre.json ]; then
-            pnpm changeset publish
-          else
-            if [[ "${{ github.ref }}" == refs/heads/alpha/* ]]; then
-              TAG=alpha
-            elif [[ "${{ github.ref }}" == refs/heads/beta/* ]]; then
-              TAG=beta
-            fi
-            pnpm changeset publish --tag "$TAG"
-          fi
+        run: pnpm changeset publish
         env:
           NPM_CONFIG_PROVENANCE: true
