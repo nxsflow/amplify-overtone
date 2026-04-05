@@ -8,29 +8,10 @@ export interface EmailOutputs {
 }
 
 function getEmailOutputs(outputs: Record<string, unknown>): EmailOutputs {
-    // Amplify serializes custom outputs as a JSON string under a numeric key.
-    // The structure is: { "0": "{\"custom\":{\"email\":{...}}}", ... }
-    // We need to find and parse that JSON string.
     let custom: Record<string, unknown> | undefined;
 
-    // First, check if 'custom' exists at the top level (direct structure)
     if (outputs.custom && typeof outputs.custom === "object") {
         custom = outputs.custom as Record<string, unknown>;
-    } else {
-        // Search numeric keys for a JSON string containing custom outputs
-        for (const value of Object.values(outputs)) {
-            if (typeof value === "string") {
-                try {
-                    const parsed = JSON.parse(value) as Record<string, unknown>;
-                    if (parsed.custom && typeof parsed.custom === "object") {
-                        custom = parsed.custom as Record<string, unknown>;
-                        break;
-                    }
-                } catch {
-                    // Not valid JSON, skip
-                }
-            }
-        }
     }
 
     assert.ok(custom, "amplify_outputs.json should contain custom email outputs");
