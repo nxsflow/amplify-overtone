@@ -78,28 +78,34 @@ This triggers `pnpm changeset publish` via CI, which:
 
 ## Pre-release Channels
 
-Three tiers with escalating quality gates:
+Three tiers with escalating quality gates.
+
+**Key difference from stable:** On pre-release branches, versioning happens **locally** before pushing. CI only runs `changeset publish`. On main, `changesets/action` handles versioning via a "Version Packages" PR.
 
 ### Alpha — early iteration, breaking changes expected
 
 ```bash
-# Create a branch for the pre-release work
+# 1. Create a branch (must match alpha/**)
 git checkout -b alpha/my-feature
 
-# Enter alpha pre-release mode
+# 2. Enter alpha pre-release mode (creates .changeset/pre.json)
 pnpm changeset pre enter alpha
 
-# Create changesets as normal
+# 3. Create changesets as normal
 pnpm changeset
 
-# Bump to pre-release version (e.g., 0.2.0-alpha.0)
+# 4. Version locally — bumps package.json (e.g., 0.2.0-alpha.0)
 pnpm changeset version
 
-# Publish with the alpha dist-tag
-pnpm changeset publish --tag alpha
+# 5. Commit everything (pre.json, changeset, version bump, changelog)
+git add .changeset/ packages/
+git commit -m "chore(release): enter alpha, version 0.2.0-alpha.0"
+
+# 6. Push — CI runs `changeset publish` (dist-tag handled by pre mode)
+git push -u origin alpha/my-feature
 ```
 
-Subsequent changes on this branch increment the pre-release number: `0.2.0-alpha.1`, `0.2.0-alpha.2`, etc.
+Subsequent changes on this branch: add a changeset, run `changeset version` locally (increments to `alpha.1`, `alpha.2`, etc.), commit, and push. CI publishes automatically.
 
 ### Beta — feature-complete, needs validation
 
@@ -109,7 +115,10 @@ git checkout -b beta/my-feature
 pnpm changeset pre enter beta
 pnpm changeset
 pnpm changeset version    # 0.2.0-beta.0
-pnpm changeset publish --tag beta
+
+git add .changeset/ packages/
+git commit -m "chore(release): enter beta, version 0.2.0-beta.0"
+git push -u origin beta/my-feature
 ```
 
 ### RC (optional) — release candidate, final validation
@@ -118,7 +127,10 @@ pnpm changeset publish --tag beta
 pnpm changeset pre enter rc
 pnpm changeset
 pnpm changeset version    # 0.2.0-rc.0
-pnpm changeset publish --tag beta  # still uses beta tag, or create an rc tag
+
+git add .changeset/ packages/
+git commit -m "chore(release): enter rc, version 0.2.0-rc.0"
+git push -u origin beta/my-feature  # still uses beta/** branch
 ```
 
 ### Exiting Pre-release Mode
@@ -139,7 +151,11 @@ git commit -m "chore(release): exit pre-release, bump to 0.2.0"
 
 Merging to main triggers the stable release via CI.
 
-**Rule:** Pre-release mode (`changeset pre enter`) is only used on feature branches, never on main.
+**Rules:**
+- Pre-release mode (`changeset pre enter`) is only used on feature branches, never on main.
+- `pre.json` **must** exist on `alpha/**` and `beta/**` branches — the publish workflow validates this.
+- `pre.json` **must not** exist on `main` — the publish workflow rejects it.
+- Never pass `--tag` to `changeset publish` when in pre mode — pre mode handles dist-tags automatically.
 
 ---
 
@@ -153,7 +169,7 @@ Merging to main triggers the stable release via CI.
 
 Both `@nxsflow/amplify-overtone` and `@nxsflow/amplify-overtone-client` use the same dist-tag scheme.
 
-**Critical:** Always publish pre-releases with an explicit `--tag` flag. Default `npm publish` / `pnpm changeset publish` sets the `latest` tag, which pushes a pre-release to all users.
+**Critical:** Pre-releases must be published from branches with changeset pre mode active (`.changeset/pre.json`). Pre mode automatically sets the correct dist-tag. Never pass `--tag` manually when in pre mode — it causes an error. The publish workflow validates that `pre.json` exists on `alpha/**` and `beta/**` branches.
 
 ### Verify Dist-tags
 
