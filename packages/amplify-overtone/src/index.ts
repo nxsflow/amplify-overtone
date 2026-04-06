@@ -9,7 +9,6 @@ export type {
     SenderWithPrefix,
 } from "./email/index.js";
 export { defineEmail } from "./email/index.js";
-export { n, OvertoneSchema } from "./schema/index.js";
 export type {
     ArgumentsDef,
     AuthorizationAllow,
@@ -21,3 +20,4 @@ export type {
     FieldDef,
     ReturnTypeDef,
 } from "./schema/index.js";
+export { n, OvertoneSchema } from "./schema/index.js";
