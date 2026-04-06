@@ -250,6 +250,8 @@ export interface SendEmailPayload {
     to: string;
     /** Key from the senders map. Defaults to the `defaultSender` configured on `defineEmail()`. */
     sender?: string;
+    /** Override the template's default subject line. Set by email action resolvers. */
+    subject?: string;
     /** Template-specific data values. All values are HTML-escaped before rendering. */
     data: Record<string, string>;
 }

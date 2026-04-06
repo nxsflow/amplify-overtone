@@ -31,7 +31,12 @@ export const handler = async (event: SendEmailPayload): Promise<SendEmailResult>
     const fromAddress = displayName ? `"${displayName}" <${senderEmail}>` : senderEmail;
 
     // Render template
-    const { subject, html, text } = renderTemplate(event.template, event.data, displayName);
+    const {
+        subject: templateSubject,
+        html,
+        text,
+    } = renderTemplate(event.template, event.data, displayName);
+    const subject = event.subject || templateSubject;
 
     // Call SES
     const result = await ses.send(
