@@ -94,7 +94,7 @@ describe("OvertoneSchema", () => {
                 },
             },
             email: {
-                resources: { lambda: {} },
+                resources: { lambda: {}, senderKeys: ["noreply"] },
             },
         };
 
@@ -114,6 +114,34 @@ describe("OvertoneSchema", () => {
         expect(resolver.props).toHaveProperty("typeName", "Mutation");
         expect(resolver.props).toHaveProperty("fieldName", "inviteEmail");
         expect(resolver.props).toHaveProperty("dataSource");
+    });
+
+    it("addToBackend throws when an action references an undefined sender", () => {
+        const schema = new OvertoneSchema([sampleAction]); // sampleAction uses sender "noreply"
+
+        const mockBackend = {
+            data: {
+                resources: {
+                    cfnResources: {
+                        cfnGraphqlSchema: { definition: "" },
+                    },
+                },
+                addLambdaDataSource(_id: string, _fn: unknown) {
+                    return {};
+                },
+                addResolver(_id: string, _props: unknown) {},
+            },
+            email: {
+                resources: { lambda: {}, senderKeys: ["support"] }, // "noreply" is not in this list
+            },
+        };
+
+        expect(() =>
+            // biome-ignore lint/suspicious/noExplicitAny: mock backend
+            schema.addToBackend(mockBackend as any),
+        ).toThrow(
+            'Email action "inviteEmail" references sender "noreply" which is not defined in defineEmail(). Available senders: support',
+        );
     });
 
     it("addToBackend creates one resolver per action with shared data source", () => {
@@ -159,7 +187,7 @@ describe("OvertoneSchema", () => {
                 },
             },
             email: {
-                resources: { lambda: {} },
+                resources: { lambda: {}, senderKeys: ["noreply"] },
             },
         };
 

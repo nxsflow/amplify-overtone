@@ -308,11 +308,17 @@ export class AmplifyEmail extends Construct {
         // Expose resources
         // -----------------------------------------------------------------
 
+        const senderKeys =
+            Object.keys(normalizedSenders).length > 0
+                ? Object.keys(normalizedSenders)
+                : ["noreply"];
+
         this.resources = {
             lambda: sendFn,
             emailDomain: domain,
             sesIdentityArn,
             lambdaFunctionName: sendFn.functionName,
+            senderKeys,
         };
     }
 

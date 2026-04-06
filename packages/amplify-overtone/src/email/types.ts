@@ -291,6 +291,9 @@ export interface EmailResources {
 
     /** Send-email Lambda function name — used in Amplify outputs for client discovery. */
     lambdaFunctionName: string;
+
+    /** Configured sender keys (e.g., ["noreply", "support"]). Used by addToBackend() for validation. */
+    senderKeys: string[];
 }
 
 /**

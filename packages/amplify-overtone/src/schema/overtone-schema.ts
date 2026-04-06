@@ -36,9 +36,20 @@ export class OvertoneSchema {
             addResolver(id: string, props: unknown): unknown;
         };
         email: {
-            resources: { lambda: IFunction };
+            resources: { lambda: IFunction; senderKeys: string[] };
         };
     }): void {
+        // Validate sender keys
+        const validSenders = backend.email.resources.senderKeys;
+        for (const action of this.emailActions) {
+            if (!validSenders.includes(action.config.sender)) {
+                throw new Error(
+                    `Email action "${action.name}" references sender "${action.config.sender}" ` +
+                        `which is not defined in defineEmail(). Available senders: ${validSenders.join(", ")}`,
+                );
+            }
+        }
+
         const schema = backend.data.resources.cfnResources.cfnGraphqlSchema;
         schema.definition = `${schema.definition}\n\n${this.graphqlSchema}`;
 
