@@ -1,19 +1,38 @@
-import { Stack } from "aws-cdk-lib";
+import { existsSync, readFileSync } from "node:fs";
+import * as path from "node:path";
+import { fileURLToPath } from "node:url";
+import { CustomResource, Stack } from "aws-cdk-lib";
 import { Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
-import {
-    AwsCustomResource,
-    AwsCustomResourcePolicy,
-    PhysicalResourceId,
-} from "aws-cdk-lib/custom-resources";
+import { Runtime } from "aws-cdk-lib/aws-lambda";
+import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
+import { Provider } from "aws-cdk-lib/custom-resources";
 import { Construct } from "constructs";
+
+function findPackageRoot(startDir: string): string {
+    let dir = startDir;
+    while (dir !== path.dirname(dir)) {
+        const pkgPath = path.join(dir, "package.json");
+        if (existsSync(pkgPath)) {
+            const pkg = JSON.parse(readFileSync(pkgPath, "utf-8"));
+            if (pkg.name === "@nxsflow/amplify-overtone") {
+                return dir;
+            }
+        }
+        dir = path.dirname(dir);
+    }
+    throw new Error("Could not find @nxsflow/amplify-overtone package root");
+}
+
+const PACKAGE_ROOT = findPackageRoot(path.dirname(fileURLToPath(import.meta.url)));
+const HANDLER_DIR = path.join(PACKAGE_ROOT, "src", "email", "functions", "idempotent-identity");
 
 /**
  * Creates an SES email-address identity idempotently.
  *
- * Uses an AwsCustomResource that calls SESv2 CreateEmailIdentity and
- * treats AlreadyExistsException as success.  On delete the identity is
- * removed only if this construct originally created it (tracked via the
- * `createdByStack` attribute returned from onCreate).
+ * Uses a Lambda-backed CustomResource that calls SESv2 CreateEmailIdentity
+ * and treats AlreadyExistsException as success, recording whether the
+ * identity pre-existed. On delete, the identity is removed only if this
+ * construct originally created it (tracked via the physical resource ID).
  *
  * Use this instead of the CDK EmailIdentity L2 construct when the
  * identity may already exist in the account/region (e.g. sandbox
@@ -31,32 +50,31 @@ export class IdempotentEmailIdentity extends Construct {
         const account = Stack.of(this).account;
         const identityArn = `arn:aws:ses:${region}:${account}:identity/${props.email}`;
 
-        new AwsCustomResource(this, "Identity", {
+        const handler = new NodejsFunction(this, "Handler", {
+            entry: path.join(HANDLER_DIR, "handler.ts"),
+            handler: "handler",
+            runtime: Runtime.NODEJS_22_X,
+            bundling: { externalModules: ["@aws-sdk/*"] },
+        });
+
+        handler.addToRolePolicy(
+            new PolicyStatement({
+                effect: Effect.ALLOW,
+                actions: ["ses:CreateEmailIdentity", "ses:DeleteEmailIdentity"],
+                resources: [identityArn],
+            }),
+        );
+
+        const provider = new Provider(this, "Provider", {
+            onEventHandler: handler,
+        });
+
+        new CustomResource(this, "Identity", {
+            serviceToken: provider.serviceToken,
             resourceType: "Custom::SesEmailIdentity",
-            onCreate: {
-                service: "SESV2",
-                action: "CreateEmailIdentity",
-                parameters: {
-                    EmailIdentity: props.email,
-                },
-                physicalResourceId: PhysicalResourceId.of(`ses-identity-${props.email}`),
-                ignoreErrorCodesMatching: "AlreadyExistsException",
+            properties: {
+                Email: props.email,
             },
-            onDelete: {
-                service: "SESV2",
-                action: "DeleteEmailIdentity",
-                parameters: {
-                    EmailIdentity: props.email,
-                },
-                ignoreErrorCodesMatching: "NotFoundException",
-            },
-            policy: AwsCustomResourcePolicy.fromStatements([
-                new PolicyStatement({
-                    effect: Effect.ALLOW,
-                    actions: ["ses:CreateEmailIdentity", "ses:DeleteEmailIdentity"],
-                    resources: [identityArn],
-                }),
-            ]),
         });
     }
 }

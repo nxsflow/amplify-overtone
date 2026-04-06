@@ -30,10 +30,10 @@ describe("Sandbox recipients", () => {
 
     it("creates idempotent identity for each sandbox recipient", () => {
         template.hasResourceProperties("Custom::SesEmailIdentity", {
-            Create: Match.stringLikeRegexp("dev@example.com"),
+            Email: "dev@example.com",
         });
         template.hasResourceProperties("Custom::SesEmailIdentity", {
-            Create: Match.stringLikeRegexp("qa@example.com"),
+            Email: "qa@example.com",
         });
     });
 
@@ -54,7 +54,7 @@ describe("No domain — Mode 1", () => {
     it("creates idempotent identity for each sender address", () => {
         const template = createNoDomainTemplate();
         template.hasResourceProperties("Custom::SesEmailIdentity", {
-            Create: Match.stringLikeRegexp("noreply@example.com"),
+            Email: "noreply@example.com",
         });
     });
 
@@ -66,10 +66,10 @@ describe("No domain — Mode 1", () => {
             },
         } as EmailProps);
         template.hasResourceProperties("Custom::SesEmailIdentity", {
-            Create: Match.stringLikeRegexp("noreply@example.com"),
+            Email: "noreply@example.com",
         });
         template.hasResourceProperties("Custom::SesEmailIdentity", {
-            Create: Match.stringLikeRegexp("support@example.com"),
+            Email: "support@example.com",
         });
     });
 });

@@ -1,4 +1,3 @@
-import { Match } from "aws-cdk-lib/assertions";
 import { describe, it } from "vitest";
 import { createEmailTemplate, createNoDomainTemplate } from "./helpers.js";
 
@@ -29,7 +28,7 @@ describe("SES — Mode 1 (no domain)", () => {
 
     it("creates an idempotent identity for the sender address", () => {
         template.hasResourceProperties("Custom::SesEmailIdentity", {
-            Create: Match.stringLikeRegexp("noreply@example.com"),
+            Email: "noreply@example.com",
         });
         // No L2 EmailIdentity — only the domain modes use those
         template.resourceCountIs("AWS::SES::EmailIdentity", 0);
