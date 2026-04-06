@@ -34,7 +34,7 @@ describe("emailAction", () => {
         const compiled = action._compile("inviteEmail");
         expect(compiled.subjectTemplate).toBe("{{inviter}} has invited you");
         expect(compiled.arguments).toHaveProperty("recipientEmail");
-        expect(compiled.arguments.recipientEmail.required).toBe(true);
+        expect(compiled.arguments.recipientEmail?.required).toBe(true);
         expect(compiled.returnType).toHaveProperty("status");
     });
 

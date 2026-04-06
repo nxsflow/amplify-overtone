@@ -18,8 +18,8 @@ describe("schema", () => {
         });
 
         expect(s.emailActions).toHaveLength(1);
-        expect(s.emailActions[0].name).toBe("inviteEmail");
-        expect(s.emailActions[0].config.sender).toBe("noreply");
+        expect(s.emailActions[0]?.name).toBe("inviteEmail");
+        expect(s.emailActions[0]?.config.sender).toBe("noreply");
     });
 
     it("compiles multiple email actions", () => {
