@@ -39,7 +39,7 @@ export class EmailFactory implements ConstructFactory<ResourceProvider<EmailReso
                     outputStrategy.addBackendOutputEntry("AWS::Amplify::Custom", {
                         version: "1",
                         payload: {
-                            customOutputs: JSON.stringify({
+                            customEmailOutputs: JSON.stringify({
                                 custom: {
                                     email: {
                                         sendFunctionName: construct.resources.lambdaFunctionName,
