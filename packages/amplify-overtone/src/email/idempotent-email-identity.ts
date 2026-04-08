@@ -48,7 +48,6 @@ export class IdempotentEmailIdentity extends Construct {
 
         const region = Stack.of(this).region;
         const account = Stack.of(this).account;
-        const identityArn = `arn:aws:ses:${region}:${account}:identity/${props.email}`;
 
         const handler = new NodejsFunction(this, "Handler", {
             entry: path.join(HANDLER_DIR, "handler.ts"),
@@ -61,7 +60,11 @@ export class IdempotentEmailIdentity extends Construct {
             new PolicyStatement({
                 effect: Effect.ALLOW,
                 actions: ["ses:CreateEmailIdentity", "ses:DeleteEmailIdentity"],
-                resources: [identityArn],
+                // Use a wildcard for identity resources: during CloudFormation
+                // replacements (email property change), the IAM policy is updated
+                // to the new email before the Delete handler runs for the old one.
+                // A scoped ARN causes AccessDenied on the old identity's deletion.
+                resources: [`arn:aws:ses:${region}:${account}:identity/*`],
             }),
         );
 
