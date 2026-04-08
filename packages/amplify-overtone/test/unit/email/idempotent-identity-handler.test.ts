@@ -65,7 +65,11 @@ describe("Create", () => {
 // ---------------------------------------------------------------------------
 
 describe("Update", () => {
-    it("returns the same physical ID when the email is unchanged", async () => {
+    it("ensures identity exists and preserves physical ID when email is unchanged", async () => {
+        sesMock
+            .on(CreateEmailIdentityCommand)
+            .rejects(new AlreadyExistsException({ message: "Already exists", $metadata: {} }));
+
         const result = await handler({
             RequestType: "Update",
             ResourceProperties: { Email: "same@example.com", ServiceToken: "" },
@@ -74,10 +78,28 @@ describe("Update", () => {
         });
 
         expect(result.PhysicalResourceId).toBe("ses-identity:same@example.com:created");
-        expect(sesMock.commandCalls(CreateEmailIdentityCommand)).toHaveLength(0);
+        expect(sesMock.commandCalls(CreateEmailIdentityCommand)).toHaveLength(1);
     });
 
-    it("preserves 'preexisted' flag on no-op update", async () => {
+    it("re-creates identity after drift and preserves physical ID", async () => {
+        sesMock.on(CreateEmailIdentityCommand).resolves({});
+
+        const result = await handler({
+            RequestType: "Update",
+            ResourceProperties: { Email: "same@example.com", ServiceToken: "" },
+            OldResourceProperties: { Email: "same@example.com", ServiceToken: "" },
+            PhysicalResourceId: "ses-identity:same@example.com:created",
+        });
+
+        expect(result.PhysicalResourceId).toBe("ses-identity:same@example.com:created");
+        expect(sesMock.commandCalls(CreateEmailIdentityCommand)).toHaveLength(1);
+    });
+
+    it("preserves 'preexisted' flag on update", async () => {
+        sesMock
+            .on(CreateEmailIdentityCommand)
+            .rejects(new AlreadyExistsException({ message: "Already exists", $metadata: {} }));
+
         const result = await handler({
             RequestType: "Update",
             ResourceProperties: { Email: "same@example.com", ServiceToken: "" },

@@ -65,8 +65,17 @@ export const handler = async (event: CfnEvent): Promise<CfnResponse> => {
                 console.log(`Update (replacement): ${email}, preExisted=${preExisted}`);
                 return { PhysicalResourceId: makePhysicalId(email, preExisted) };
             }
-            // Email unchanged → preserve physical ID (and its preExisted flag)
-            console.log(`Update (no-op): ${email}`);
+            // Email unchanged → ensure identity still exists (handles drift)
+            try {
+                await ses.send(new CreateEmailIdentityCommand({ EmailIdentity: email }));
+                console.log(`Update (re-created after drift): ${email}`);
+            } catch (error) {
+                if (error instanceof AlreadyExistsException) {
+                    console.log(`Update (no-op, identity exists): ${email}`);
+                } else {
+                    throw error;
+                }
+            }
             return { PhysicalResourceId: event.PhysicalResourceId! };
         }
 

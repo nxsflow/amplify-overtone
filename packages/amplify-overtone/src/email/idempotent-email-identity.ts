@@ -74,6 +74,9 @@ export class IdempotentEmailIdentity extends Construct {
             resourceType: "Custom::SesEmailIdentity",
             properties: {
                 Email: props.email,
+                // Force an Update call on every deploy so the handler can
+                // re-create the identity if it was deleted externally (drift).
+                DeployToken: new Date().toISOString(),
             },
         });
     }
