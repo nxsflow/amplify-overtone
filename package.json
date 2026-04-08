@@ -39,7 +39,7 @@
     },
     "packageManager": "pnpm@10.33.0",
     "devDependencies": {
-        "@biomejs/biome": "^2.4.9",
+        "@biomejs/biome": "2.4.10",
         "@changesets/cli": "^2.30.0",
         "esbuild": "^0.27.4",
         "typescript": "^5.8.3"
