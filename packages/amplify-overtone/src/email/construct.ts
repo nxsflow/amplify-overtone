@@ -27,6 +27,7 @@ import {
     PhysicalResourceId,
 } from "aws-cdk-lib/custom-resources";
 import { Construct } from "constructs";
+import { IdempotentEmailIdentity } from "./idempotent-email-identity.js";
 import type { EmailProps, EmailResources, SenderWithEmail, SenderWithPrefix } from "./types.js";
 
 // Find the package root by walking up from this file's directory until we find package.json.
@@ -204,8 +205,8 @@ export class AmplifyEmail extends Construct {
             const senderEmails = Object.values(normalizedSenders).map((s) => s.email);
 
             for (const [key, sender] of Object.entries(normalizedSenders)) {
-                new EmailIdentity(this, `SenderIdentity-${key}`, {
-                    identity: Identity.email(sender.email),
+                new IdempotentEmailIdentity(this, `SenderIdentity-${key}`, {
+                    email: sender.email,
                 });
             }
 
@@ -254,8 +255,8 @@ export class AmplifyEmail extends Construct {
 
         if (sandboxRecipients.length > 0) {
             for (const [i, email] of sandboxRecipients.entries()) {
-                new EmailIdentity(this, `SandboxRecipient${i}`, {
-                    identity: Identity.email(email),
+                new IdempotentEmailIdentity(this, `SandboxRecipient${i}`, {
+                    email,
                 });
             }
 

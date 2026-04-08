@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - main
-      - "alpha/**"
-      - "beta/**"
+      - alpha
+      - beta
 
 concurrency:
   group: publish-${{ github.ref }}
@@ -36,12 +36,27 @@ jobs:
 
       # Full validation for main and beta branches
       - name: Run tests
-        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/beta/')
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/beta'
         run: pnpm test
 
       - name: Run lint
-        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/beta/')
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/beta'
         run: pnpm lint
+
+      # Guard: pre.json must NOT exist on main, MUST exist on pre-release branches
+      - name: Validate pre-release mode
+        run: |
+          if [[ "${{ github.ref }}" == refs/heads/main ]]; then
+            if [ -f .changeset/pre.json ]; then
+              echo "::error::pre.json must not exist on main — exit pre-release mode before merging"
+              exit 1
+            fi
+          else
+            if [ ! -f .changeset/pre.json ]; then
+              echo "::error::pre.json is missing — run 'changeset pre enter alpha|beta' before publishing"
+              exit 1
+            fi
+          fi
 
       # Stable releases: changesets/action creates Version PR or publishes
       - name: Create Release PR or Publish (stable)
@@ -53,7 +68,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
 
-      # Pre-releases: publish directly with changeset pre mode
+      # Pre-releases: changeset pre mode (pre.json) handles the dist-tag
       - name: Publish pre-release
         if: github.ref != 'refs/heads/main'
         run: pnpm changeset publish

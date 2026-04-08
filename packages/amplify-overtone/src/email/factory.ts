@@ -36,7 +36,7 @@ export class EmailFactory implements ConstructFactory<ResourceProvider<EmailReso
                     const construct = new AmplifyEmail(scope, "AmplifyEmail", emailProps);
 
                     // Register outputs so schema actions (Spec B) can discover config
-                    outputStrategy.appendToBackendOutputList("AWS::Amplify::Custom", {
+                    outputStrategy.addBackendOutputEntry("AWS::Amplify::Custom", {
                         version: "1",
                         payload: {
                             customOutputs: JSON.stringify({

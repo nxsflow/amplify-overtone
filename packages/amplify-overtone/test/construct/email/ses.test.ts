@@ -1,3 +1,4 @@
+import { Match } from "aws-cdk-lib/assertions";
 import { describe, it } from "vitest";
 import { createEmailTemplate, createNoDomainTemplate } from "./helpers.js";
 
@@ -26,11 +27,27 @@ describe("SES — Mode 3 (domain + Route 53)", () => {
 describe("SES — Mode 1 (no domain)", () => {
     const template = createNoDomainTemplate();
 
-    it("creates an SES EmailIdentity for the sender address", () => {
-        template.hasResourceProperties("AWS::SES::EmailIdentity", {
-            EmailIdentity: "noreply@example.com",
+    it("creates an idempotent identity for the sender address", () => {
+        template.hasResourceProperties("Custom::SesEmailIdentity", {
+            Email: "noreply@example.com",
         });
-        template.resourceCountIs("AWS::SES::EmailIdentity", 1);
+        // No L2 EmailIdentity — only the domain modes use those
+        template.resourceCountIs("AWS::SES::EmailIdentity", 0);
+    });
+
+    it("grants identity handler a wildcard SES policy for safe replacements", () => {
+        template.hasResourceProperties("AWS::IAM::Policy", {
+            PolicyDocument: {
+                Statement: Match.arrayWith([
+                    Match.objectLike({
+                        Action: ["ses:CreateEmailIdentity", "ses:DeleteEmailIdentity"],
+                        Resource: {
+                            "Fn::Join": ["", Match.arrayWith([":identity/*"])],
+                        },
+                    }),
+                ]),
+            },
+        });
     });
 
     it("still creates a ConfigurationSet", () => {

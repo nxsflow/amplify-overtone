@@ -1,7 +1,9 @@
 {
     "permissions": {
         "allow": [
+            "Bash(biome check:*)",
             "Bash(cat:*)",
+            "Bash(curl -s http://localhost:3000)",
             "Bash(find:*)",
             "Bash(gh api:*)",
             "Bash(gh pr checks:*)",
@@ -10,6 +12,7 @@
             "Bash(gh repo:*)",
             "Bash(gh run view:*)",
             "Bash(gh search:*)",
+            "Bash(ls .changeset/*.md)",
             "Bash(npm view:*)",
             "Bash(npx biome:*)",
             "Bash(pnpm add:*)",
@@ -24,9 +27,11 @@
             "Bash(pnpm format)",
             "Bash(pnpm install:*)",
             "Bash(pnpm lint)",
+            "Bash(pnpm lint:*)",
             "Bash(pnpm list:*)",
             "Bash(pnpm overtone:build)",
             "Bash(pnpm overtone:test)",
+            "Bash(pnpm overtone:test:*)",
             "Bash(pnpm overtone:typecheck)",
             "Bash(pnpm test)",
             "Bash(pnpm test-infra:bootstrap)",
@@ -35,10 +40,12 @@
             "Bash(pnpm test-infra:destroy)",
             "Bash(pnpm test-infra:typecheck)",
             "Bash(pnpm typecheck:*)",
+            "Bash(pnpm --filter website build)",
             "Fetch",
             "mcp__aws-knowledge-mcp-server__*",
             "mcp__awslabs_aws-documentation-mcp-server__*",
             "mcp__playwright__*",
+            "Read(//Users/ckoch/.claude/**)",
             "Skill",
             "WebFetch",
             "WebSearch"
