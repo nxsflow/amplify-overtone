@@ -1,5 +1,35 @@
 # @nxsflow/amplify-overtone
 
+## 0.3.0-alpha.7
+
+### Minor Changes
+
+- b6ef127: Make email address identity creation idempotent to prevent deployment failures when SES identities already exist
+- 75814bd: Replace AwsCustomResource with Lambda-backed CustomResource for idempotent email identity and add unit tests for the identity handler
+
+### Patch Changes
+
+- 9a02973: Align email templates with Overtone brand guidelines and fix plain text content parity
+- 2ee6ed1: Fix custom output key to match AWS::Amplify::Custom schema (must be customOutputs, not customEmailOutputs)
+- ecc52fd: Fix amplify_outputs.json structure for custom email outputs
+- 22e3eea: Handle SES identity drift by re-creating identities on every deploy if they were deleted externally
+- 55d915e: Fix npm alpha dist-tag not advancing on pre-release publishes
+
+## 0.3.0-alpha.0
+
+### Minor Changes
+
+- b6ef127: Make email address identity creation idempotent to prevent deployment failures when SES identities already exist
+- 75814bd: Replace AwsCustomResource with Lambda-backed CustomResource for idempotent email identity and add unit tests for the identity handler
+
+### Patch Changes
+
+- 9a02973: Align email templates with Overtone brand guidelines and fix plain text content parity
+- 2ee6ed1: Fix custom output key to match AWS::Amplify::Custom schema (must be customOutputs, not customEmailOutputs)
+- ecc52fd: Fix amplify_outputs.json structure for custom email outputs
+- 22e3eea: Handle SES identity drift by re-creating identities on every deploy if they were deleted externally
+- 55d915e: Fix npm alpha dist-tag not advancing on pre-release publishes
+
 ## 0.2.0
 
 ### Minor Changes
