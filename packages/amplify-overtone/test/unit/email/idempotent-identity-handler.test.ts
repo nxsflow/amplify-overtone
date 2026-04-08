@@ -30,7 +30,7 @@ describe("Create", () => {
 
         expect(result.PhysicalResourceId).toBe("ses-identity:new@example.com:created");
         expect(sesMock.commandCalls(CreateEmailIdentityCommand)).toHaveLength(1);
-        expect(sesMock.commandCalls(CreateEmailIdentityCommand)[0].args[0].input).toEqual({
+        expect(sesMock.commandCalls(CreateEmailIdentityCommand)[0]?.args[0].input).toEqual({
             EmailIdentity: "new@example.com",
         });
     });
@@ -99,7 +99,7 @@ describe("Update", () => {
         });
 
         expect(result.PhysicalResourceId).toBe("ses-identity:new@example.com:created");
-        expect(sesMock.commandCalls(CreateEmailIdentityCommand)[0].args[0].input).toEqual({
+        expect(sesMock.commandCalls(CreateEmailIdentityCommand)[0]?.args[0].input).toEqual({
             EmailIdentity: "new@example.com",
         });
     });
@@ -136,7 +136,7 @@ describe("Delete", () => {
 
         expect(result.PhysicalResourceId).toBe("ses-identity:test@example.com:created");
         expect(sesMock.commandCalls(DeleteEmailIdentityCommand)).toHaveLength(1);
-        expect(sesMock.commandCalls(DeleteEmailIdentityCommand)[0].args[0].input).toEqual({
+        expect(sesMock.commandCalls(DeleteEmailIdentityCommand)[0]?.args[0].input).toEqual({
             EmailIdentity: "test@example.com",
         });
     });
