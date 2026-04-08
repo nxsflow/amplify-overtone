@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - main
-      - "alpha/**"
-      - "beta/**"
+      - alpha
+      - beta
 
 concurrency:
   group: publish-${{ github.ref }}
@@ -36,11 +36,11 @@ jobs:
 
       # Full validation for main and beta branches
       - name: Run tests
-        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/beta/')
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/beta'
         run: pnpm test
 
       - name: Run lint
-        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/beta/')
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/beta'
         run: pnpm lint
 
       # Guard: pre.json must NOT exist on main, MUST exist on pre-release branches
