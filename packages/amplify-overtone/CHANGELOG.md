@@ -1,5 +1,11 @@
 # @nxsflow/amplify-overtone
 
+## 0.3.0-alpha.8
+
+### Patch Changes
+
+- a9e0b91: Use hash-based construct IDs for sandbox recipient identities instead of array indices. Prevents identity shuffling, accidental deletions, and IAM permission errors when reordering or removing entries from sandboxRecipients.
+
 ## 0.3.0-alpha.7
 
 ### Minor Changes

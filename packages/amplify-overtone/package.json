@@ -1,6 +1,6 @@
 {
     "name": "@nxsflow/amplify-overtone",
-    "version": "0.3.0-alpha.7",
+    "version": "0.3.0-alpha.8",
     "description": "Extend AWS Amplify Gen 2 with email, collaboration, and local-first support — backend constructs and resolvers",
     "type": "module",
     "license": "Apache-2.0",

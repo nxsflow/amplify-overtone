@@ -16,6 +16,7 @@
     "fix-identity-drift",
     "fix-npm-dist-alpha",
     "idempotent-email-identity",
-    "lambda-backed-custom-resource"
+    "lambda-backed-custom-resource",
+    "stable-sandbox-recipient-ids"
   ]
 }
