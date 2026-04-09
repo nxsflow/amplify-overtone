@@ -3,7 +3,6 @@ export type {
     EmailDefinition,
     EmailProps,
     EmailResources,
-    EmailTemplateName,
     SendEmailPayload,
     SendEmailResult,
     SenderConfig,

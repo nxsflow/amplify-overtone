@@ -1,14 +1,5 @@
-import type { EmailTemplateName } from "../types.js";
-import { confirmationCodeTemplate } from "./defaults/confirmation-code.js";
-import { gettingStartedTemplate } from "./defaults/getting-started.js";
-import { inviteTemplate } from "./defaults/invite.js";
-import { passwordResetTemplate } from "./defaults/password-reset.js";
-import type { TemplateDefinition } from "./types.js";
+import { coreTemplate } from "./defaults/core.js";
 
-/**
- * Escapes special HTML characters to prevent XSS injection.
- * Escapes in order: & first to avoid double-escaping.
- */
 export function escapeHtml(text: string): string {
     return text
         .replace(/&/g, "&amp;")
@@ -16,13 +7,6 @@ export function escapeHtml(text: string): string {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;");
 }
-
-const templateRegistry: Record<EmailTemplateName, TemplateDefinition> = {
-    "confirmation-code": confirmationCodeTemplate,
-    "password-reset": passwordResetTemplate,
-    invite: inviteTemplate,
-    "getting-started": gettingStartedTemplate,
-};
 
 function buildBaseHtml(brandName: string, content: string): string {
     const brandHtml = brandName
@@ -49,34 +33,20 @@ ${content}
 }
 
 /**
- * Renders a built-in email template by key.
- *
- * @param templateKey - One of: "confirmation-code", "password-reset", "invite", "getting-started"
- * @param data - Template data values (will be HTML-escaped before substitution)
- * @param brandName - Brand name shown in the email header
- * @returns Object with subject, html, and text fields
- * @throws If the template key is unknown or required data fields are missing
+ * Renders an email using the core template with pre-resolved fields.
  */
-export function renderTemplate(
-    templateKey: EmailTemplateName,
+export function renderEmail(
     data: Record<string, string>,
     brandName: string,
-): { subject: string; html: string; text: string } {
-    const template = templateRegistry[templateKey];
-
-    // HTML-escape all data values before passing to templates
+): { html: string; text: string } {
     const escapedData: Record<string, string> = {};
     for (const [key, value] of Object.entries(data)) {
         escapedData[key] = escapeHtml(value);
     }
 
-    const contentHtml = template.renderHtml(escapedData, brandName);
-    const text = template.renderText(data, brandName);
+    const contentHtml = coreTemplate.renderHtml(escapedData, brandName);
+    const text = coreTemplate.renderText(data, brandName);
     const html = buildBaseHtml(brandName, contentHtml);
 
-    return {
-        subject: template.subject,
-        html,
-        text,
-    };
+    return { html, text };
 }
