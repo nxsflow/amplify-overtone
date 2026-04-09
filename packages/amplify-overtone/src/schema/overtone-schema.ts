@@ -1,7 +1,7 @@
 import { Code, FunctionRuntime } from "aws-cdk-lib/aws-appsync";
 import type { IFunction } from "aws-cdk-lib/aws-lambda";
 import { generateGraphqlSchema } from "./graphql-generator.js";
-import { generateResolverCode } from "./resolver-generator.js";
+import { generateEmailInvokeCode } from "./resolver-generator.js";
 import type { CompiledEmailAction } from "./types.js";
 
 /**
@@ -64,7 +64,7 @@ export class OvertoneSchema {
                 fieldName: action.name,
                 dataSource,
                 runtime: FunctionRuntime.JS_1_0_0,
-                code: Code.fromInline(generateResolverCode(action)),
+                code: Code.fromInline(generateEmailInvokeCode(action)),
             });
         }
     }

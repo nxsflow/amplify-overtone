@@ -1,12 +1,16 @@
 import { describe, expect, it } from "vitest";
 import { OvertoneSchema } from "../../../src/schema/overtone-schema.js";
-import { generateResolverCode } from "../../../src/schema/resolver-generator.js";
+import { generateEmailInvokeCode } from "../../../src/schema/resolver-generator.js";
 import type { CompiledEmailAction } from "../../../src/schema/types.js";
 
 const sampleAction: CompiledEmailAction = {
     name: "inviteEmail",
-    config: { sender: "noreply", template: "invite" },
-    subjectTemplate: "{{inviter}} has invited you",
+    config: { sender: "noreply" },
+    compiledTemplate: {
+        subject: "{{inviter}} has invited you",
+        header: "You have been invited",
+        body: "{{inviter}} invited you to join.",
+    },
     arguments: {
         recipientEmail: { typeName: "AWSEmail", required: true, isList: false },
         inviter: { typeName: "String", required: true, isList: false },
@@ -27,19 +31,22 @@ describe("OvertoneSchema", () => {
     });
 
     it("generates correct resolver code for email actions", () => {
-        const code = generateResolverCode(sampleAction);
+        const code = generateEmailInvokeCode(sampleAction);
         expect(code).toContain("export function request(ctx)");
         expect(code).toContain("export function response(ctx)");
         expect(code).toContain('"noreply"');
-        expect(code).toContain('"invite"');
         expect(code).toContain("messageId");
     });
 
     it("handles multiple email actions", () => {
         const secondAction: CompiledEmailAction = {
             name: "resetPasswordEmail",
-            config: { sender: "support", template: "reset" },
-            subjectTemplate: "Reset your password",
+            config: { sender: "support" },
+            compiledTemplate: {
+                subject: "Reset your password",
+                header: "Password Reset",
+                body: "Click the link to reset your password.",
+            },
             arguments: {
                 recipientEmail: {
                     typeName: "AWSEmail",
@@ -147,8 +154,12 @@ describe("OvertoneSchema", () => {
     it("addToBackend creates one resolver per action with shared data source", () => {
         const secondAction: CompiledEmailAction = {
             name: "welcomeEmail",
-            config: { sender: "noreply", template: "welcome" },
-            subjectTemplate: "Welcome!",
+            config: { sender: "noreply" },
+            compiledTemplate: {
+                subject: "Welcome!",
+                header: "Welcome",
+                body: "Thanks for joining.",
+            },
             arguments: {
                 recipientEmail: {
                     typeName: "AWSEmail",

@@ -4,8 +4,12 @@ import type { CompiledEmailAction } from "../../../src/schema/types.js";
 
 const sampleAction: CompiledEmailAction = {
     name: "inviteEmail",
-    config: { sender: "noreply", template: "invite" },
-    subjectTemplate: "{{inviter}} has invited you",
+    config: { sender: "noreply" },
+    compiledTemplate: {
+        subject: "{{inviter}} has invited you",
+        header: "You have been invited",
+        body: "{{inviter}} invited you to join.",
+    },
     arguments: {
         recipientEmail: { typeName: "AWSEmail", required: true, isList: false },
         inviter: { typeName: "String", required: true, isList: false },
