@@ -16,29 +16,41 @@ export type TemplateField =
     | string
     | ((args: Record<string, string | CognitoUserFields>) => string);
 
-/**
- * Static or dynamic subject for an email action.
- *
- * - String: used as-is (e.g., `"Your confirmation code"`)
- * - Function: called at build time with a Proxy to produce a template string.
- *   Only simple template literal interpolation is supported.
- *
- * @example
- * subject: "Welcome!"
- * subject: ({ inviter }) => `${inviter} has invited you`
- */
-export type EmailSubject = string | ((args: Record<string, string>) => string);
+/** Call-to-action definition — each field is a TemplateField. */
+export interface CallToActionInput {
+    label: TemplateField;
+    href: TemplateField;
+}
+
+/** User-facing template definition passed to .template(). */
+export interface EmailTemplateInput {
+    subject: TemplateField;
+    header: TemplateField;
+    body: TemplateField;
+    callToAction?: CallToActionInput;
+    footer?: TemplateField;
+}
+
+export interface CompiledCallToAction {
+    label: string;
+    href: string;
+}
+
+/** Compiled template — all callbacks resolved to {{variable}} strings. */
+export interface CompiledTemplate {
+    subject: string;
+    header: string;
+    body: string;
+    callToAction?: CompiledCallToAction;
+    footer?: string;
+}
 
 /**
  * Configuration passed to `n.email()`.
  */
 export interface EmailActionConfig {
     /** Key from `defineEmail()` senders map. */
-    sender: string;
-    /** Built-in or user-provided template key. */
-    template: string;
-    /** Static string or template function for the email subject. */
-    subject?: EmailSubject;
+    sender?: string;
 }
 
 /**
@@ -78,7 +90,7 @@ export type AuthRule =
 export interface CompiledEmailAction {
     name: string;
     config: EmailActionConfig;
-    subjectTemplate: string;
+    compiledTemplate?: CompiledTemplate;
     arguments: ArgumentsDef;
     returnType: ReturnTypeDef;
     authRules: AuthRule[];
@@ -94,6 +106,7 @@ export type OvertoneSchemaDefinition = Record<string, EmailActionBuilder>;
  */
 export interface EmailActionBuilder {
     arguments(args: ArgumentsDef): EmailActionBuilder;
+    template(def: EmailTemplateInput): EmailActionBuilder;
     returns(returnType: ReturnTypeDef): EmailActionBuilder;
     authorization(
         callback: (allow: AuthorizationAllow) => AuthRule | AuthRule[],

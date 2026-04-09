@@ -2,58 +2,73 @@ import { describe, expect, it } from "vitest";
 import { emailAction } from "../../../src/schema/email-action.js";
 
 describe("emailAction", () => {
-    it("compiles minimal config", () => {
-        const action = emailAction({ sender: "noreply", template: "invite" });
-        const compiled = action._compile("inviteEmail");
+    it("compiles callback template fields into {{variable}} strings", () => {
+        const action = emailAction({ sender: "noreply" })
+            .arguments({
+                recipient: { typeName: "String", required: true, isList: false, resolveType: "cognitoUser" },
+                invitedBy: { typeName: "String", required: true, isList: false, resolveType: "cognitoUser" },
+                projectName: { typeName: "String", required: true, isList: false },
+            })
+            .template({
+                subject: ({ invitedBy, projectName }) =>
+                    `${invitedBy.givenName} invited you to ${projectName}`,
+                header: "You've been invited!",
+                body: ({ invitedBy, projectName }) =>
+                    `${invitedBy.givenName} (${invitedBy.email}) invited you to ${projectName}.`,
+            })
+            .authorization((allow) => [allow.authenticated()]);
 
-        expect(compiled.name).toBe("inviteEmail");
+        const compiled = action._compile("sendInvite");
+        expect(compiled.name).toBe("sendInvite");
         expect(compiled.config.sender).toBe("noreply");
-        expect(compiled.config.template).toBe("invite");
-        expect(compiled.arguments).toEqual({});
-        expect(compiled.returnType).toEqual({
-            messageId: { typeName: "String", required: false, isList: false },
-        });
-        expect(compiled.authRules).toEqual([]);
+        expect(compiled.compiledTemplate?.subject).toBe("{{invitedByGivenName}} invited you to {{projectName}}");
+        expect(compiled.compiledTemplate?.header).toBe("You've been invited!");
+        expect(compiled.compiledTemplate?.body).toBe("{{invitedByGivenName}} ({{invitedByEmail}}) invited you to {{projectName}}.");
+        expect(compiled.authRules).toHaveLength(1);
     });
 
-    it("compiles with arguments and returns", () => {
-        const action = emailAction({
-            sender: "noreply",
-            template: "invite",
-            subject: ({ inviter }) => `${inviter} has invited you`,
-        })
+    it("compiles callToAction and footer", () => {
+        const action = emailAction({ sender: "noreply" })
             .arguments({
-                recipientEmail: { typeName: "AWSEmail", required: true, isList: false },
-                inviter: { typeName: "String", required: true, isList: false },
+                recipient: { typeName: "String", required: true, isList: false, resolveType: "cognitoUser" },
+                link: { typeName: "AWSURL", required: true, isList: false },
             })
-            .returns({
-                messageId: { typeName: "String", required: true, isList: false },
-                status: { typeName: "String", required: false, isList: false },
+            .template({
+                subject: "Welcome",
+                header: "Welcome!",
+                body: "You are all set.",
+                callToAction: { label: "Get Started", href: ({ link }) => link },
+                footer: "You can unsubscribe at any time.",
             });
 
-        const compiled = action._compile("inviteEmail");
-        expect(compiled.subjectTemplate).toBe("{{inviter}} has invited you");
-        expect(compiled.arguments).toHaveProperty("recipientEmail");
-        expect(compiled.arguments.recipientEmail?.required).toBe(true);
-        expect(compiled.returnType).toHaveProperty("status");
+        const compiled = action._compile("welcome");
+        expect(compiled.compiledTemplate?.callToAction).toEqual({ label: "Get Started", href: "{{link}}" });
+        expect(compiled.compiledTemplate?.footer).toBe("You can unsubscribe at any time.");
     });
 
-    it("compiles with authorization", () => {
-        const action = emailAction({ sender: "noreply", template: "invite" }).authorization(
-            (allow) => [allow.authenticated()],
-        );
+    it("compiles static strings without callbacks", () => {
+        const action = emailAction({ sender: "noreply" })
+            .arguments({
+                recipient: { typeName: "String", required: true, isList: false, resolveType: "cognitoUser" },
+            })
+            .template({ subject: "Static subject", header: "Static header", body: "Static body." });
 
-        const compiled = action._compile("sendEmail");
-        expect(compiled.authRules).toEqual([{ strategy: "authenticated" }]);
+        const compiled = action._compile("staticTest");
+        expect(compiled.compiledTemplate?.subject).toBe("Static subject");
+        expect(compiled.compiledTemplate?.header).toBe("Static header");
+        expect(compiled.compiledTemplate?.body).toBe("Static body.");
     });
 
-    it("is immutable — methods return new builders", () => {
-        const base = emailAction({ sender: "noreply", template: "invite" });
-        const withArgs = base.arguments({
-            to: { typeName: "String", required: true, isList: false },
-        });
+    it("is immutable — .template() returns new builder", () => {
+        const base = emailAction({ sender: "noreply" });
+        const withTemplate = base.template({ subject: "Test", header: "Test", body: "Test body." });
+        expect(base._compile("a").compiledTemplate).toBeUndefined();
+        expect(withTemplate._compile("b").compiledTemplate).toBeDefined();
+    });
 
-        expect(base._compile("a").arguments).toEqual({});
-        expect(withArgs._compile("b").arguments).toHaveProperty("to");
+    it("defaults sender to undefined when not specified", () => {
+        const action = emailAction({}).template({ subject: "Test", header: "Test", body: "Test body." });
+        const compiled = action._compile("test");
+        expect(compiled.config.sender).toBeUndefined();
     });
 });
