@@ -1,5 +1,21 @@
 // packages/amplify-overtone/src/schema/types.ts
 
+/** Shape of a resolved n.userId() argument in template callbacks. */
+export interface CognitoUserFields {
+    name: string;
+    email: string;
+    givenName: string;
+    familyName: string;
+}
+
+/**
+ * A template field: static string or callback that receives all arguments.
+ * n.userId() args are typed as CognitoUserFields, plain args as string.
+ */
+export type TemplateField =
+    | string
+    | ((args: Record<string, string | CognitoUserFields>) => string);
+
 /**
  * Static or dynamic subject for an email action.
  *
