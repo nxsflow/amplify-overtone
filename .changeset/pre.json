@@ -1,8 +1,8 @@
 {
   "mode": "pre",
-  "tag": "alpha",
+  "tag": "beta",
   "initialVersions": {
-    "@nxsflow/amplify-overtone": "0.3.0-alpha.6",
+    "@nxsflow/amplify-overtone": "0.3.0-alpha.8",
     "@nxsflow/amplify-overtone-client": "0.1.0",
     "@nxsflow/docs": "0.0.0",
     "@nxsflow/integration-tests": "0.0.0",
@@ -17,6 +17,7 @@
     "fix-npm-dist-alpha",
     "idempotent-email-identity",
     "lambda-backed-custom-resource",
+    "promote-to-beta",
     "stable-sandbox-recipient-ids"
   ]
 }
