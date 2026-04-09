@@ -1,4 +1,5 @@
 import { emailAction } from "./email-action.js";
+import { userId } from "./field-types.js";
 import { schema } from "./schema-builder.js";
 
 /**
@@ -18,4 +19,5 @@ import { schema } from "./schema-builder.js";
 export const n = {
     email: emailAction,
     schema,
+    userId,
 } as const;

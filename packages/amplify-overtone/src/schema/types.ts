@@ -33,6 +33,8 @@ export interface FieldDef {
     typeName: string;
     required: boolean;
     isList: boolean;
+    /** When set, indicates this field needs runtime resolution. */
+    resolveType?: "cognitoUser";
 }
 
 /**
