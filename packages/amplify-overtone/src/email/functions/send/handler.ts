@@ -1,10 +1,9 @@
 import { SESv2Client, SendEmailCommand } from "@aws-sdk/client-sesv2";
-import { renderTemplate } from "../../templates/renderer.js";
+import { renderEmail } from "../../templates/renderer.js";
 import type { SendEmailPayload, SendEmailResult } from "../../types.js";
 
 const ses = new SESv2Client({});
 
-/** Normalized sender config as serialized by the construct. */
 interface NormalizedSender {
     email: string;
     displayName: string;
@@ -26,26 +25,29 @@ export const handler = async (event: SendEmailPayload): Promise<SendEmailResult>
     }
 
     const { email: senderEmail, displayName } = senderConfig;
-
-    // Build the From address
     const fromAddress = displayName ? `"${displayName}" <${senderEmail}>` : senderEmail;
 
-    // Render template
-    const {
-        subject: templateSubject,
-        html,
-        text,
-    } = renderTemplate(event.template, event.data, displayName);
-    const subject = event.subject || templateSubject;
+    const data: Record<string, string> = {
+        header: event.header,
+        body: event.body,
+    };
+    if (event.callToAction) {
+        data.callToActionLabel = event.callToAction.label;
+        data.callToActionHref = event.callToAction.href;
+    }
+    if (event.footer) {
+        data.footer = event.footer;
+    }
 
-    // Call SES
+    const { html, text } = renderEmail(data, displayName);
+
     const result = await ses.send(
         new SendEmailCommand({
             FromEmailAddress: fromAddress,
             Destination: { ToAddresses: [event.to] },
             Content: {
                 Simple: {
-                    Subject: { Data: subject, Charset: "UTF-8" },
+                    Subject: { Data: event.subject, Charset: "UTF-8" },
                     Body: {
                         Text: { Data: text, Charset: "UTF-8" },
                         Html: { Data: html, Charset: "UTF-8" },
