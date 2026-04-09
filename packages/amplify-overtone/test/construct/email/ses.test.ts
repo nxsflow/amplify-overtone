@@ -1,5 +1,5 @@
 import { Match } from "aws-cdk-lib/assertions";
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { createEmailTemplate, createNoDomainTemplate } from "./helpers.js";
 
 // ---------------------------------------------------------------------------
@@ -56,5 +56,33 @@ describe("SES — Mode 1 (no domain)", () => {
 
     it("still creates a ConfigurationSet event destination", () => {
         template.resourceCountIs("AWS::SES::ConfigurationSetEventDestination", 1);
+    });
+});
+
+describe("SES — sandbox recipient construct IDs are stable", () => {
+    it("produces the same logical IDs regardless of array order", () => {
+        const templateAB = createNoDomainTemplate({
+            sandboxRecipients: ["alice@example.com", "bob@example.com"],
+        });
+        const templateBA = createNoDomainTemplate({
+            sandboxRecipients: ["bob@example.com", "alice@example.com"],
+        });
+
+        const idsAB = Object.keys(templateAB.findResources("Custom::SesEmailIdentity"));
+        const idsBA = Object.keys(templateBA.findResources("Custom::SesEmailIdentity"));
+
+        expect(idsAB.sort()).toEqual(idsBA.sort());
+    });
+
+    it("does not use index-based construct IDs", () => {
+        const template = createNoDomainTemplate({
+            sandboxRecipients: ["alice@example.com"],
+        });
+
+        const logicalIds = Object.keys(template.findResources("Custom::SesEmailIdentity"));
+        // Should not contain sequential index patterns like "Recipient0" or "Recipient1"
+        for (const id of logicalIds) {
+            expect(id).not.toMatch(/SandboxRecipient\d+/);
+        }
     });
 });

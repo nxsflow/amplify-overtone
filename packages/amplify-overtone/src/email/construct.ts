@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -254,8 +255,9 @@ export class AmplifyEmail extends Construct {
         // -----------------------------------------------------------------
 
         if (sandboxRecipients.length > 0) {
-            for (const [i, email] of sandboxRecipients.entries()) {
-                new IdempotentEmailIdentity(this, `SandboxRecipient${i}`, {
+            for (const email of sandboxRecipients) {
+                const hash = createHash("sha256").update(email).digest("hex").slice(0, 8);
+                new IdempotentEmailIdentity(this, `SandboxRecipient-${hash}`, {
                     email,
                 });
             }
