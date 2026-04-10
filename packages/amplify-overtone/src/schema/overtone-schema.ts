@@ -68,9 +68,10 @@ export class OvertoneSchema {
         // Validate sender keys
         const validSenders = backend.email.resources.senderKeys;
         for (const action of this.emailActions) {
-            if (!validSenders.includes(action.config.sender)) {
+            const sender = action.config.sender;
+            if (sender !== undefined && !validSenders.includes(sender)) {
                 throw new Error(
-                    `Email action "${action.name}" references sender "${action.config.sender}" ` +
+                    `Email action "${action.name}" references sender "${sender}" ` +
                         `which is not defined in defineEmail(). Available senders: ${validSenders.join(", ")}`,
                 );
             }
@@ -112,9 +113,7 @@ export class OvertoneSchema {
                         new PolicyStatement({
                             effect: Effect.ALLOW,
                             actions: ["cognito-idp:AdminGetUser"],
-                            resources: [
-                                `arn:aws:cognito-idp:*:*:userpool/${options.userPoolId}`,
-                            ],
+                            resources: [`arn:aws:cognito-idp:*:*:userpool/${options.userPoolId}`],
                         }),
                     );
                 }

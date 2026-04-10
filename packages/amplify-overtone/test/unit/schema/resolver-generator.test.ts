@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
-    generateUserLookupCode,
     generateEmailInvokeCode,
+    generateUserLookupCode,
     hasUserIdArgs,
 } from "../../../src/schema/resolver-generator.js";
 import type { CompiledEmailAction } from "../../../src/schema/types.js";
@@ -17,8 +17,18 @@ const actionWithUserIds: CompiledEmailAction = {
         footer: "Ignore this if unexpected.",
     },
     arguments: {
-        recipient: { typeName: "String", required: true, isList: false, resolveType: "cognitoUser" },
-        invitedBy: { typeName: "String", required: true, isList: false, resolveType: "cognitoUser" },
+        recipient: {
+            typeName: "String",
+            required: true,
+            isList: false,
+            resolveType: "cognitoUser",
+        },
+        invitedBy: {
+            typeName: "String",
+            required: true,
+            isList: false,
+            resolveType: "cognitoUser",
+        },
         projectName: { typeName: "String", required: true, isList: false },
     },
     returnType: { messageId: { typeName: "String", required: false, isList: false } },

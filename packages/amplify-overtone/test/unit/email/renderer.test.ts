@@ -18,10 +18,7 @@ describe("escapeHtml", () => {
 
 describe("renderEmail", () => {
     it("renders core fields into HTML with base layout", () => {
-        const result = renderEmail(
-            { header: "Welcome", body: "Hello there." },
-            "TestBrand",
-        );
+        const result = renderEmail({ header: "Welcome", body: "Hello there." }, "TestBrand");
         expect(result.html).toContain("<!DOCTYPE html>");
         expect(result.html).toContain("Welcome");
         expect(result.html).toContain("Hello there.");
@@ -29,10 +26,7 @@ describe("renderEmail", () => {
     });
 
     it("renders plain text", () => {
-        const result = renderEmail(
-            { header: "Welcome", body: "Hello there." },
-            "TestBrand",
-        );
+        const result = renderEmail({ header: "Welcome", body: "Hello there." }, "TestBrand");
         expect(result.text).toContain("Welcome");
         expect(result.text).toContain("Hello there.");
     });

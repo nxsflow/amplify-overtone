@@ -53,10 +53,7 @@ function createTemplateProxy(args: ArgumentsDef): Record<string, unknown> {
  * - Static strings pass through as-is.
  * - Callbacks are invoked with a Proxy that captures property accesses as `{{variable}}` placeholders.
  */
-export function compileTemplateField(
-    field: TemplateField,
-    args: ArgumentsDef,
-): string {
+export function compileTemplateField(field: TemplateField, args: ArgumentsDef): string {
     if (typeof field === "string") return field;
     const proxy = createTemplateProxy(args);
     return field(proxy as Record<string, string>);

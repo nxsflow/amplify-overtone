@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockAdminGetUser = vi.fn();
 
@@ -27,9 +27,7 @@ describe("user-lookup handler", () => {
             ],
         });
 
-        const { handler } = await import(
-            "../../../src/email/functions/user-lookup/handler.js"
-        );
+        const { handler } = await import("../../../src/email/functions/user-lookup/handler.js");
 
         const result = await handler({
             userIdArgs: { invitedBy: "user-123" },
@@ -64,16 +62,14 @@ describe("user-lookup handler", () => {
                 ],
             });
 
-        const { handler } = await import(
-            "../../../src/email/functions/user-lookup/handler.js"
-        );
+        const { handler } = await import("../../../src/email/functions/user-lookup/handler.js");
 
         const result = await handler({
             userIdArgs: { recipient: "user-111", invitedBy: "user-222" },
         });
 
-        expect(result.recipient.name).toBe("Alice");
-        expect(result.invitedBy.name).toBe("Bob");
+        expect(result.recipient?.name).toBe("Alice");
+        expect(result.invitedBy?.name).toBe("Bob");
     });
 
     it("returns empty strings for missing attributes", async () => {
@@ -81,17 +77,15 @@ describe("user-lookup handler", () => {
             UserAttributes: [{ Name: "email", Value: "user@example.com" }],
         });
 
-        const { handler } = await import(
-            "../../../src/email/functions/user-lookup/handler.js"
-        );
+        const { handler } = await import("../../../src/email/functions/user-lookup/handler.js");
 
         const result = await handler({
             userIdArgs: { recipient: "user-123" },
         });
 
-        expect(result.recipient.name).toBe("");
-        expect(result.recipient.email).toBe("user@example.com");
-        expect(result.recipient.givenName).toBe("");
-        expect(result.recipient.familyName).toBe("");
+        expect(result.recipient?.name).toBe("");
+        expect(result.recipient?.email).toBe("user@example.com");
+        expect(result.recipient?.givenName).toBe("");
+        expect(result.recipient?.familyName).toBe("");
     });
 });

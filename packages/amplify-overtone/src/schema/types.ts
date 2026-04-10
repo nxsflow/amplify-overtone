@@ -12,9 +12,7 @@ export interface CognitoUserFields {
  * A template field: static string or callback that receives all arguments.
  * n.userId() args are typed as CognitoUserFields, plain args as string.
  */
-export type TemplateField =
-    | string
-    | ((args: Record<string, string | CognitoUserFields>) => string);
+export type TemplateField = string | ((args: Record<string, string | CognitoUserFields>) => string);
 
 /** Call-to-action definition — each field is a TemplateField. */
 export interface CallToActionInput {

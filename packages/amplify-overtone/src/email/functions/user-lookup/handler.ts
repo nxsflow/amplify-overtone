@@ -1,5 +1,6 @@
 import {
     AdminGetUserCommand,
+    type AttributeType,
     CognitoIdentityProviderClient,
 } from "@aws-sdk/client-cognito-identity-provider";
 
@@ -19,16 +20,11 @@ interface ResolvedUser {
 
 type UserLookupResult = Record<string, ResolvedUser>;
 
-function extractAttribute(
-    attrs: { Name?: string; Value?: string }[] | undefined,
-    name: string,
-): string {
+function extractAttribute(attrs: AttributeType[] | undefined, name: string): string {
     return attrs?.find((a) => a.Name === name)?.Value ?? "";
 }
 
-export const handler = async (
-    event: UserLookupPayload,
-): Promise<UserLookupResult> => {
+export const handler = async (event: UserLookupPayload): Promise<UserLookupResult> => {
     const userPoolId = process.env.USER_POOL_ID;
     if (!userPoolId) {
         throw new Error("USER_POOL_ID environment variable is not set");

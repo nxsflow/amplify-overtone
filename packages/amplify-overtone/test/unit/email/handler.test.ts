@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@aws-sdk/client-sesv2", () => ({
     SESv2Client: class {
@@ -16,9 +16,7 @@ describe("send-email handler", () => {
     });
 
     it("accepts core fields and sends email", async () => {
-        const { handler } = await import(
-            "../../../src/email/functions/send/handler.js"
-        );
+        const { handler } = await import("../../../src/email/functions/send/handler.js");
         const result = await handler({
             to: "user@example.com",
             subject: "Test Subject",
@@ -29,9 +27,7 @@ describe("send-email handler", () => {
     });
 
     it("throws when sender not found", async () => {
-        const { handler } = await import(
-            "../../../src/email/functions/send/handler.js"
-        );
+        const { handler } = await import("../../../src/email/functions/send/handler.js");
         await expect(
             handler({
                 to: "user@example.com",

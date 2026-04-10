@@ -1,7 +1,6 @@
 export type {
     EmailProps,
     EmailResources,
-    EmailTemplateName,
     SendEmailPayload,
     SendEmailResult,
     SenderConfig,
@@ -13,11 +12,15 @@ export type {
     ArgumentsDef,
     AuthorizationAllow,
     AuthRule,
+    CallToActionInput,
+    CognitoUserFields,
     CompiledEmailAction,
+    CompiledTemplate,
     EmailActionBuilder,
     EmailActionConfig,
-    EmailSubject,
+    EmailTemplateInput,
     FieldDef,
     ReturnTypeDef,
+    TemplateField,
 } from "./schema/index.js";
 export { n, OvertoneSchema } from "./schema/index.js";

@@ -51,15 +51,15 @@ describe("coreTemplate", () => {
         });
 
         it("throws when header is missing", () => {
-            expect(() =>
-                coreTemplate.renderHtml({ body: "Content." }, "TestBrand"),
-            ).toThrow("requires data.header");
+            expect(() => coreTemplate.renderHtml({ body: "Content." }, "TestBrand")).toThrow(
+                "requires data.header",
+            );
         });
 
         it("throws when body is missing", () => {
-            expect(() =>
-                coreTemplate.renderHtml({ header: "Hi" }, "TestBrand"),
-            ).toThrow("requires data.body");
+            expect(() => coreTemplate.renderHtml({ header: "Hi" }, "TestBrand")).toThrow(
+                "requires data.body",
+            );
         });
     });
 
@@ -95,15 +95,15 @@ describe("coreTemplate", () => {
         });
 
         it("throws when header is missing", () => {
-            expect(() =>
-                coreTemplate.renderText({ body: "Content." }, "TestBrand"),
-            ).toThrow("requires data.header");
+            expect(() => coreTemplate.renderText({ body: "Content." }, "TestBrand")).toThrow(
+                "requires data.header",
+            );
         });
 
         it("throws when body is missing", () => {
-            expect(() =>
-                coreTemplate.renderText({ header: "Hi" }, "TestBrand"),
-            ).toThrow("requires data.body");
+            expect(() => coreTemplate.renderText({ header: "Hi" }, "TestBrand")).toThrow(
+                "requires data.body",
+            );
         });
     });
 });

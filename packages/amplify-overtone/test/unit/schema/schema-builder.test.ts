@@ -5,14 +5,15 @@ import { schema } from "../../../src/schema/schema-builder.js";
 describe("schema", () => {
     it("compiles email actions into OvertoneSchema", () => {
         const s = schema({
-            inviteEmail: emailAction({
-                sender: "noreply",
-                template: "invite",
-                subject: ({ inviter }) => `${inviter} has invited you`,
-            })
+            inviteEmail: emailAction({ sender: "noreply" })
                 .arguments({
                     recipientEmail: { typeName: "AWSEmail", required: true, isList: false },
                     inviter: { typeName: "String", required: true, isList: false },
+                })
+                .template({
+                    subject: ({ inviter }) => `${inviter} has invited you`,
+                    header: "You have been invited",
+                    body: "Click to accept.",
                 })
                 .authorization((allow) => [allow.authenticated()]),
         });
@@ -24,11 +25,8 @@ describe("schema", () => {
 
     it("compiles multiple email actions", () => {
         const s = schema({
-            inviteEmail: emailAction({ sender: "noreply", template: "invite" }),
-            welcomeEmail: emailAction({
-                sender: "noreply",
-                template: "getting-started",
-            }),
+            inviteEmail: emailAction({ sender: "noreply" }),
+            welcomeEmail: emailAction({ sender: "noreply" }),
         });
 
         expect(s.emailActions).toHaveLength(2);
@@ -39,7 +37,7 @@ describe("schema", () => {
 
     it("generates GraphQL SDL", () => {
         const s = schema({
-            inviteEmail: emailAction({ sender: "noreply", template: "invite" })
+            inviteEmail: emailAction({ sender: "noreply" })
                 .arguments({
                     recipientEmail: { typeName: "AWSEmail", required: true, isList: false },
                 })

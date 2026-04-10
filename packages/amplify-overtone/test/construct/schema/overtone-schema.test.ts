@@ -46,11 +46,7 @@ const userIdAction: CompiledEmailAction = {
 
 /** Build a mock backend for testing. */
 function makeMockBackend(
-    opts: {
-        senderKeys?: string[];
-        graphqlApi?: unknown;
-        definition?: string;
-    } = {},
+    opts: { senderKeys?: string[]; graphqlApi?: unknown; definition?: string } = {},
 ) {
     const lambdaDsIds: string[] = [];
     const resolvers: { id: string; props: Record<string, unknown> }[] = [];
@@ -203,12 +199,12 @@ describe("OvertoneSchema", () => {
         };
 
         const schema = new OvertoneSchema([sampleAction, secondAction]);
-        const { mockBackend, lambdaDsIds, resolvers } = makeMockBackend();
+        const { mockBackend, resolvers } = makeMockBackend();
         const mockDs = { name: "OvertoneEmailDS" };
 
         // Override addLambdaDataSource to return our tracked mock
         let dsCallCount = 0;
-        mockBackend.data.addLambdaDataSource = (id: string, _fn: unknown) => {
+        mockBackend.data.addLambdaDataSource = (_id: string, _fn: unknown) => {
             dsCallCount++;
             return mockDs;
         };
@@ -255,7 +251,7 @@ describe("OvertoneSchema", () => {
         // In real CDK, AppsyncFunction takes scope as first arg; here we mock the api object
         // to only verify the resolver is called with pipelineConfig.
         const mockApi = { __isGraphqlApi: true };
-        const { mockBackend, lambdaDsIds, resolvers } = makeMockBackend({
+        const { mockBackend } = makeMockBackend({
             graphqlApi: mockApi,
         });
 
@@ -337,7 +333,7 @@ describe("OvertoneSchema", () => {
         // biome-ignore lint/suspicious/noExplicitAny: mock backend
         schema.addToBackend(mockBackend as any, { userPoolId: "us-east-1_ABC123" });
 
-        expect(envVars["USER_POOL_ID"]).toBe("us-east-1_ABC123");
+        expect(envVars.USER_POOL_ID).toBe("us-east-1_ABC123");
         expect(policies).toHaveLength(1);
     });
 });

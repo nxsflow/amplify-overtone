@@ -9,9 +9,7 @@ const COGNITO_FIELDS = [
 
 /** Check if any arguments have resolveType (need pipeline resolver). */
 export function hasUserIdArgs(action: CompiledEmailAction): boolean {
-    return Object.values(action.arguments).some(
-        (def) => def.resolveType === "cognitoUser",
-    );
+    return Object.values(action.arguments).some((def) => def.resolveType === "cognitoUser");
 }
 
 /**
@@ -67,15 +65,11 @@ export function response(ctx) {
  * Also used as a single-function resolver when no userId args exist.
  */
 export function generateEmailInvokeCode(action: CompiledEmailAction): string {
-    const sender = action.config.sender
-        ? JSON.stringify(action.config.sender)
-        : "undefined";
+    const sender = action.config.sender ? JSON.stringify(action.config.sender) : "undefined";
     const template = action.compiledTemplate;
 
     if (!template) {
-        throw new Error(
-            `Email action "${action.name}" has no .template() definition.`,
-        );
+        throw new Error(`Email action "${action.name}" has no .template() definition.`);
     }
 
     const hasUserIds = hasUserIdArgs(action);
@@ -95,9 +89,7 @@ export function generateEmailInvokeCode(action: CompiledEmailAction): string {
             if (def.resolveType === "cognitoUser") {
                 flattenLines.push(`  const ${name} = resolved.${name} || {};`);
                 for (const [suffix, attr] of COGNITO_FIELDS) {
-                    flattenLines.push(
-                        `  vars.${name}${suffix} = ${name}.${attr} || '';`,
-                    );
+                    flattenLines.push(`  vars.${name}${suffix} = ${name}.${attr} || '';`);
                 }
             }
         }
