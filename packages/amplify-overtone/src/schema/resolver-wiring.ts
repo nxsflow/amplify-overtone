@@ -1,7 +1,7 @@
 // src/schema/resolver-wiring.ts
 import { Code, FunctionRuntime } from "aws-cdk-lib/aws-appsync";
 import type { IFunction } from "aws-cdk-lib/aws-lambda";
-import { generateEmailInvokeCode, generateUserLookupCode } from "./resolver-generator.js";
+import { generateEmailInvokeCode, type ResolverAction } from "./resolver-generator.js";
 import { OVERTONE_EMAIL_META, type OvertoneEmailMeta } from "./types.js";
 
 export interface ExtractedEmailAction {
@@ -19,6 +19,7 @@ export function extractEmailActions(
     const actions: ExtractedEmailAction[] = [];
 
     for (const [name, entry] of Object.entries(schemaEntries)) {
+        // biome-ignore lint/suspicious/noExplicitAny: symbol indexing on unknown Amplify schema object
         const meta = (entry as any)?.[OVERTONE_EMAIL_META] as OvertoneEmailMeta | undefined;
         if (meta) {
             actions.push({ name, meta });
@@ -73,16 +74,16 @@ export function addEmailResolvers(
 
     // Check if any action needs userId resolution
     const hasAnyUserIdArgs = emailActions.some((a) => a.meta.userIdArgNames.length > 0);
-    let userLookupDS: unknown;
 
     if (hasAnyUserIdArgs) {
-        userLookupDS = backend.data.addLambdaDataSource(
+        const _userLookupDS = backend.data.addLambdaDataSource(
             "OvertoneUserLookupDS",
             backend.email.resources.userLookupLambda,
         );
 
         if (options?.userPoolId) {
             const fn = backend.email.resources.userLookupLambda;
+            // biome-ignore lint/suspicious/noExplicitAny: IFunction from CDK doesn't expose addEnvironment in types
             (fn as any).addEnvironment?.("USER_POOL_ID", options.userPoolId);
         }
     }
@@ -92,12 +93,13 @@ export function addEmailResolvers(
         const template = action.meta.compiledTemplate;
         if (!template) continue;
 
-        // Build resolver-generator-compatible action
-        const resolverAction = {
+        // Build resolver action for code generation
+        const resolverAction: ResolverAction = {
             name: action.name,
-            config: { sender: action.meta.sender },
+            config: action.meta.sender !== undefined ? { sender: action.meta.sender } : {},
             compiledTemplate: template,
-            arguments: buildResolverArgs(action.meta),
+            userIdArgNames: action.meta.userIdArgNames,
+            hasRecipientUserId: action.meta.hasRecipientUserId,
         };
 
         backend.data.addResolver(`${action.name}Resolver`, {
@@ -105,17 +107,7 @@ export function addEmailResolvers(
             fieldName: action.name,
             dataSource: emailDS,
             runtime: FunctionRuntime.JS_1_0_0,
-            code: Code.fromInline(generateEmailInvokeCode(resolverAction as any)),
+            code: Code.fromInline(generateEmailInvokeCode(resolverAction)),
         });
     }
-}
-
-function buildResolverArgs(
-    meta: OvertoneEmailMeta,
-): Record<string, { resolveType?: "cognitoUser" }> {
-    const args: Record<string, { resolveType?: "cognitoUser" }> = {};
-    for (const name of meta.userIdArgNames) {
-        args[name] = { resolveType: "cognitoUser" };
-    }
-    return args;
 }

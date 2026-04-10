@@ -2,9 +2,9 @@ import { a } from "@aws-amplify/data-schema";
 import { isUserIdField } from "./field-types.js";
 import { compileTemplateField } from "./template-compiler.js";
 import {
-    OVERTONE_EMAIL_META,
     type CompiledTemplate,
     type EmailTemplateInput,
+    OVERTONE_EMAIL_META,
     type OvertoneEmailMeta,
 } from "./types.js";
 
@@ -17,17 +17,17 @@ import {
  * - Stores metadata on OVERTONE_EMAIL_META symbol
  */
 export function emailAction(config: { sender?: string }) {
-    // Start with a real Amplify mutation with default return type
-    const mutation = (a.mutation() as any).returns(
-        a.customType({ messageId: a.string() }),
-    ) as any;
+    // Start with a real Amplify mutation with default return type.
+    // biome-ignore lint/suspicious/noExplicitAny: Amplify mutation builder types are not publicly exposed
+    const mutation = (a.mutation() as any).returns(a.customType({ messageId: a.string() })) as any;
 
     const meta: OvertoneEmailMeta = {
-        sender: config.sender,
+        ...(config.sender !== undefined ? { sender: config.sender } : {}),
         userIdArgNames: [],
         hasRecipientUserId: false,
     };
 
+    // biome-ignore lint/suspicious/noExplicitAny: proxy wraps opaque Amplify mutation builder
     function wrapWithProxy(target: any): any {
         const proxy = new Proxy(target, {
             get(t, prop, receiver) {
@@ -45,8 +45,7 @@ export function emailAction(config: { sender?: string }) {
                                 meta.userIdArgNames.push(name);
                             }
                         }
-                        meta.hasRecipientUserId =
-                            meta.userIdArgNames.includes("recipient");
+                        meta.hasRecipientUserId = meta.userIdArgNames.includes("recipient");
 
                         // Pass through to Amplify
                         const result = t.arguments(args);
@@ -58,10 +57,7 @@ export function emailAction(config: { sender?: string }) {
                 if (prop === "template") {
                     return (templateInput: EmailTemplateInput) => {
                         meta.templateInput = templateInput;
-                        meta.compiledTemplate = compileTemplate(
-                            templateInput,
-                            meta.userIdArgNames,
-                        );
+                        meta.compiledTemplate = compileTemplate(templateInput, meta.userIdArgNames);
                         return proxy; // Return same proxy (template doesn't change Amplify state)
                     };
                 }
@@ -89,10 +85,7 @@ export function emailAction(config: { sender?: string }) {
     return wrapWithProxy(mutation);
 }
 
-function compileTemplate(
-    input: EmailTemplateInput,
-    userIdArgNames: string[],
-): CompiledTemplate {
+function compileTemplate(input: EmailTemplateInput, userIdArgNames: string[]): CompiledTemplate {
     // Build a minimal args map for the template compiler
     const fakeArgs: Record<string, { resolveType?: "cognitoUser" }> = {};
     for (const name of userIdArgNames) {

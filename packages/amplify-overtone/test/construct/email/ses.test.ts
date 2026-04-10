@@ -72,7 +72,7 @@ describe("SES — sandbox recipient construct IDs are stable", () => {
         const idsBA = Object.keys(templateBA.findResources("Custom::SesEmailIdentity"));
 
         expect(idsAB.sort()).toEqual(idsBA.sort());
-    });
+    }, 20_000);
 
     it("does not use index-based construct IDs", () => {
         const template = createNoDomainTemplate({

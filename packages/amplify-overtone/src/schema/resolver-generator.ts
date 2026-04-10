@@ -1,4 +1,4 @@
-import type { CompiledEmailAction } from "./types.js";
+import type { CompiledTemplate } from "./types.js";
 
 const COGNITO_FIELDS = [
     ["Name", "name"],
@@ -7,9 +7,20 @@ const COGNITO_FIELDS = [
     ["FamilyName", "familyName"],
 ] as const;
 
+/** Minimal action interface for resolver code generation. */
+export interface ResolverAction {
+    name: string;
+    config: { sender?: string };
+    compiledTemplate: CompiledTemplate;
+    /** Argument names that are n.userId() fields. */
+    userIdArgNames: string[];
+    /** Whether "recipient" is a userId arg. */
+    hasRecipientUserId: boolean;
+}
+
 /** Check if any arguments have resolveType (need pipeline resolver). */
-export function hasUserIdArgs(action: CompiledEmailAction): boolean {
-    return Object.values(action.arguments).some((def) => def.resolveType === "cognitoUser");
+export function hasUserIdArgs(action: ResolverAction): boolean {
+    return action.userIdArgNames.length > 0;
 }
 
 /**
@@ -31,10 +42,8 @@ function interpolationExpr(template: string, varsObj: string): string {
 /**
  * Pipeline function 1: Invoke user-lookup Lambda with userId args.
  */
-export function generateUserLookupCode(action: CompiledEmailAction): string {
-    const userIdEntries = Object.entries(action.arguments)
-        .filter(([, def]) => def.resolveType === "cognitoUser")
-        .map(([name]) => `      ${name}: ctx.args.${name},`);
+export function generateUserLookupCode(action: ResolverAction): string {
+    const userIdEntries = action.userIdArgNames.map((name) => `      ${name}: ctx.args.${name},`);
 
     return `
 export function request(ctx) {
@@ -64,45 +73,30 @@ export function response(ctx) {
  *
  * Also used as a single-function resolver when no userId args exist.
  */
-export function generateEmailInvokeCode(action: CompiledEmailAction): string {
+export function generateEmailInvokeCode(action: ResolverAction): string {
     const sender = action.config.sender ? JSON.stringify(action.config.sender) : "undefined";
     const template = action.compiledTemplate;
 
-    if (!template) {
-        throw new Error(`Email action "${action.name}" has no .template() definition.`);
-    }
-
     const hasUserIds = hasUserIdArgs(action);
-    const hasRecipientUserId = action.arguments.recipient?.resolveType === "cognitoUser";
 
     // Build the args flattening code
     let flattenBlock: string;
     if (hasUserIds) {
         const flattenLines: string[] = [];
-        for (const [name, def] of Object.entries(action.arguments)) {
-            if (def.resolveType !== "cognitoUser") {
-                flattenLines.push(`  vars.${name} = ctx.args.${name};`);
-            }
-        }
         flattenLines.push("  const resolved = ctx.stash.resolvedUsers || {};");
-        for (const [name, def] of Object.entries(action.arguments)) {
-            if (def.resolveType === "cognitoUser") {
-                flattenLines.push(`  const ${name} = resolved.${name} || {};`);
-                for (const [suffix, attr] of COGNITO_FIELDS) {
-                    flattenLines.push(`  vars.${name}${suffix} = ${name}.${attr} || '';`);
-                }
+        for (const name of action.userIdArgNames) {
+            flattenLines.push(`  const ${name} = resolved.${name} || {};`);
+            for (const [suffix, attr] of COGNITO_FIELDS) {
+                flattenLines.push(`  vars.${name}${suffix} = ${name}.${attr} || '';`);
             }
         }
         flattenBlock = flattenLines.join("\n");
     } else {
-        const lines = Object.keys(action.arguments).map(
-            (name) => `  vars.${name} = ctx.args.${name};`,
-        );
-        flattenBlock = lines.join("\n");
+        flattenBlock = "";
     }
 
     let toExpr: string;
-    if (hasRecipientUserId) {
+    if (action.hasRecipientUserId) {
         toExpr = "vars.recipientEmail";
     } else {
         toExpr = "ctx.args.recipientEmail";
@@ -132,7 +126,7 @@ export function generateEmailInvokeCode(action: CompiledEmailAction): string {
 
     return `
 export function request(ctx) {
-  const vars = {};
+  const vars = { ...ctx.args };
 ${flattenBlock}
 
   return {

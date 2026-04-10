@@ -20,11 +20,13 @@ import { OVERTONE_USER_ID } from "./types.js";
  */
 export function userId() {
     const field = a.string().required();
+    // biome-ignore lint/suspicious/noExplicitAny: attaching a symbol to an opaque Amplify field builder
     (field as any)[OVERTONE_USER_ID] = true;
     return field;
 }
 
 /** Detects whether a field was created by n.userId(). */
 export function isUserIdField(field: unknown): boolean {
+    // biome-ignore lint/suspicious/noExplicitAny: symbol access on unknown field builder
     return (field as any)?.[OVERTONE_USER_ID] === true;
 }

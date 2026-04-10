@@ -27,8 +27,8 @@ describe("extractEmailActions", () => {
 
         const actions = extractEmailActions(schemaEntries);
         expect(actions).toHaveLength(1);
-        expect(actions[0].name).toBe("sendInvite");
-        expect(actions[0].meta.sender).toBe("noreply");
+        expect(actions[0]!.name).toBe("sendInvite");
+        expect(actions[0]!.meta.sender).toBe("noreply");
     });
 
     it("returns empty array when no email actions found", () => {
@@ -71,7 +71,7 @@ describe("extractEmailActions", () => {
         };
 
         const actions = extractEmailActions(schemaEntries);
-        expect(actions[0].meta.userIdArgNames).toEqual(["recipient", "invitedBy"]);
-        expect(actions[0].meta.hasRecipientUserId).toBe(true);
+        expect(actions[0]!.meta.userIdArgNames).toEqual(["recipient", "invitedBy"]);
+        expect(actions[0]!.meta.hasRecipientUserId).toBe(true);
     });
 });

@@ -1,23 +1,13 @@
 // test/unit/schema/template-compiler.test.ts
 import { describe, expect, it } from "vitest";
 import { compileTemplateField } from "../../../src/schema/template-compiler.js";
-import type { ArgumentsDef, CognitoUserFields } from "../../../src/schema/types.js";
+import type { CognitoUserFields } from "../../../src/schema/types.js";
 
 describe("compileTemplateField", () => {
-    const args: ArgumentsDef = {
-        recipient: {
-            typeName: "String",
-            required: true,
-            isList: false,
-            resolveType: "cognitoUser",
-        },
-        invitedBy: {
-            typeName: "String",
-            required: true,
-            isList: false,
-            resolveType: "cognitoUser",
-        },
-        projectName: { typeName: "String", required: true, isList: false },
+    const args: Record<string, { resolveType?: "cognitoUser" }> = {
+        recipient: { resolveType: "cognitoUser" },
+        invitedBy: { resolveType: "cognitoUser" },
+        projectName: {},
     };
 
     it("passes through a static string unchanged", () => {

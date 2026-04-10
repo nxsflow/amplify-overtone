@@ -1,6 +1,7 @@
 // test/unit/schema/field-types.test.ts
-import { describe, expect, it } from "vitest";
+
 import { a } from "@aws-amplify/data-schema";
+import { describe, expect, it } from "vitest";
 import { isUserIdField, userId } from "../../../src/schema/field-types.js";
 import { OVERTONE_USER_ID } from "../../../src/schema/types.js";
 
@@ -12,6 +13,7 @@ describe("n.userId()", () => {
 
     it("is tagged with the OVERTONE_USER_ID symbol", () => {
         const field = userId();
+        // biome-ignore lint/suspicious/noExplicitAny: reading symbol from opaque Amplify field builder in test
         expect((field as any)[OVERTONE_USER_ID]).toBe(true);
     });
 

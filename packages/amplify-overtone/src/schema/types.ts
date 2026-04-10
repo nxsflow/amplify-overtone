@@ -18,9 +18,7 @@ export interface CognitoUserFields {
     familyName: string;
 }
 
-export type TemplateField =
-    | string
-    | ((args: Record<string, string | CognitoUserFields>) => string);
+export type TemplateField = string | ((args: Record<string, string | CognitoUserFields>) => string);
 
 export interface CallToActionInput {
     label: TemplateField;
@@ -46,25 +44,6 @@ export interface CompiledTemplate {
     body: string;
     callToAction?: CompiledCallToAction;
     footer?: string;
-}
-
-// ── Compiled email action (used by resolver-generator) ───────────────
-
-export interface ArgumentDefinition {
-    typeName: string;
-    required: boolean;
-    isList: boolean;
-    resolveType?: "cognitoUser";
-}
-
-/** Fully compiled action passed to resolver-generator functions. */
-export interface CompiledEmailAction {
-    name: string;
-    config: { sender?: string };
-    compiledTemplate?: CompiledTemplate;
-    arguments: Record<string, ArgumentDefinition>;
-    returnType: Record<string, ArgumentDefinition>;
-    authRules: unknown[];
 }
 
 // ── Overtone email metadata ──────────────────────────────────────────

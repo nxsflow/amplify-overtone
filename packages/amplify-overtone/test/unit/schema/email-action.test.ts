@@ -1,11 +1,12 @@
-import { describe, expect, it } from "vitest";
 import { a } from "@aws-amplify/data-schema";
+import { describe, expect, it } from "vitest";
 import { emailAction } from "../../../src/schema/email-action.js";
 import { userId } from "../../../src/schema/field-types.js";
-import { OVERTONE_EMAIL_META } from "../../../src/schema/types.js";
 import type { OvertoneEmailMeta } from "../../../src/schema/types.js";
+import { OVERTONE_EMAIL_META } from "../../../src/schema/types.js";
 
 function getMeta(action: unknown): OvertoneEmailMeta {
+    // biome-ignore lint/suspicious/noExplicitAny: accessing symbol from opaque proxy in test
     return (action as any)[OVERTONE_EMAIL_META];
 }
 
@@ -18,7 +19,8 @@ describe("n.email()", () => {
                 header: "Hi",
                 body: "Welcome.",
             })
-            .authorization(allow => [allow.authenticated()]);
+            // biome-ignore lint/suspicious/noExplicitAny: Amplify authorization callback type not publicly exported
+            .authorization((allow: any) => [allow.authenticated()]);
 
         // Should not throw — a.schema() accepts it as a CustomOperation
         const schema = a.schema({ sendEmail: emailOp });
@@ -37,7 +39,8 @@ describe("n.email()", () => {
                 projectName: a.string().required(),
             })
             .template({
-                subject: ({ invitedBy, projectName }) =>
+                // biome-ignore lint/suspicious/noExplicitAny: template args typed via Proxy at runtime
+                subject: ({ invitedBy, projectName }: Record<string, any>) =>
                     `${invitedBy.givenName} invited you to ${projectName}`,
                 header: "Invitation",
                 body: "You are invited.",
@@ -52,12 +55,11 @@ describe("n.email()", () => {
     });
 
     it("detects n.userId() arguments", () => {
-        const emailOp = emailAction({ sender: "noreply" })
-            .arguments({
-                recipient: userId(),
-                invitedBy: userId(),
-                projectName: a.string().required(),
-            });
+        const emailOp = emailAction({ sender: "noreply" }).arguments({
+            recipient: userId(),
+            invitedBy: userId(),
+            projectName: a.string().required(),
+        });
 
         const meta = getMeta(emailOp);
         expect(meta.userIdArgNames).toContain("recipient");
@@ -66,12 +68,12 @@ describe("n.email()", () => {
     });
 
     it("detects recipient convention", () => {
-        const withRecipient = emailAction({ sender: "noreply" })
-            .arguments({ recipient: userId() });
+        const withRecipient = emailAction({ sender: "noreply" }).arguments({ recipient: userId() });
         expect(getMeta(withRecipient).hasRecipientUserId).toBe(true);
 
-        const withoutRecipient = emailAction({ sender: "noreply" })
-            .arguments({ invitedBy: userId() });
+        const withoutRecipient = emailAction({ sender: "noreply" }).arguments({
+            invitedBy: userId(),
+        });
         expect(getMeta(withoutRecipient).hasRecipientUserId).toBe(false);
     });
 
@@ -79,7 +81,8 @@ describe("n.email()", () => {
         const emailOp = emailAction({ sender: "noreply" })
             .arguments({ name: a.string().required() })
             .template({ subject: "Hi", header: "Hi", body: "Body." })
-            .authorization(allow => [allow.authenticated()]);
+            // biome-ignore lint/suspicious/noExplicitAny: Amplify authorization callback type not publicly exported
+            .authorization((allow: any) => [allow.authenticated()]);
 
         const schema = a.schema({ sendEmail: emailOp });
         expect(schema).toBeDefined();

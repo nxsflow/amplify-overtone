@@ -3,10 +3,10 @@ import {
     generateEmailInvokeCode,
     generateUserLookupCode,
     hasUserIdArgs,
+    type ResolverAction,
 } from "../../../src/schema/resolver-generator.js";
-import type { CompiledEmailAction } from "../../../src/schema/types.js";
 
-const actionWithUserIds: CompiledEmailAction = {
+const actionWithUserIds: ResolverAction = {
     name: "sendInvite",
     config: { sender: "noreply" },
     compiledTemplate: {
@@ -16,26 +16,11 @@ const actionWithUserIds: CompiledEmailAction = {
         callToAction: { label: "Accept", href: "https://app.example.com" },
         footer: "Ignore this if unexpected.",
     },
-    arguments: {
-        recipient: {
-            typeName: "String",
-            required: true,
-            isList: false,
-            resolveType: "cognitoUser",
-        },
-        invitedBy: {
-            typeName: "String",
-            required: true,
-            isList: false,
-            resolveType: "cognitoUser",
-        },
-        projectName: { typeName: "String", required: true, isList: false },
-    },
-    returnType: { messageId: { typeName: "String", required: false, isList: false } },
-    authRules: [],
+    userIdArgNames: ["recipient", "invitedBy"],
+    hasRecipientUserId: true,
 };
 
-const actionWithoutUserIds: CompiledEmailAction = {
+const actionWithoutUserIds: ResolverAction = {
     name: "sendNotice",
     config: { sender: "noreply" },
     compiledTemplate: {
@@ -43,13 +28,8 @@ const actionWithoutUserIds: CompiledEmailAction = {
         header: "Notice",
         body: "{{message}}",
     },
-    arguments: {
-        recipientEmail: { typeName: "AWSEmail", required: true, isList: false },
-        title: { typeName: "String", required: true, isList: false },
-        message: { typeName: "String", required: true, isList: false },
-    },
-    returnType: { messageId: { typeName: "String", required: false, isList: false } },
-    authRules: [],
+    userIdArgNames: [],
+    hasRecipientUserId: false,
 };
 
 describe("hasUserIdArgs", () => {
