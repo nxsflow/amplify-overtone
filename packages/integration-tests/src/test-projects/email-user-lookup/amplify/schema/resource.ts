@@ -1,12 +1,13 @@
+import { a } from "@aws-amplify/data-schema";
 import { n } from "@nxsflow/amplify-overtone";
 
-export const emailSchema = n.schema({
+export const schemaDefinition = {
     sendInvite: n
         .email({ sender: "noreply" })
         .arguments({
             recipient: n.userId(),
             invitedBy: n.userId(),
-            projectName: { typeName: "String", required: true, isList: false },
+            projectName: a.string().required(),
         })
         .template({
             subject: ({ invitedBy, projectName }) =>
@@ -17,4 +18,6 @@ export const emailSchema = n.schema({
             footer: "If you did not expect this invitation, you can ignore this email.",
         })
         .authorization((allow) => [allow.authenticated()]),
-});
+};
+
+export const schema = a.schema(schemaDefinition);

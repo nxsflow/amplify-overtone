@@ -1,6 +1,7 @@
 import { defineBackend, defineData, referenceAuth } from "@aws-amplify/backend";
+import { addEmailResolvers, extractEmailActions } from "@nxsflow/amplify-overtone";
 import { email } from "./email/resource.js";
-import { emailSchema } from "./schema/resource.js";
+import { schema, schemaDefinition } from "./schema/resource.js";
 
 const userPoolId = process.env.TEST_USER_POOL_ID!;
 const userPoolClientId = process.env.TEST_USER_POOL_CLIENT_ID!;
@@ -29,15 +30,13 @@ const auth = referenceAuth({
 });
 
 const data = defineData({
+    schema,
     authorizationModes: {
         defaultAuthorizationMode: "userPool",
     },
-    schema: /* GraphQL */ `
-        type Query {
-            _placeholder: String
-        }
-    `,
 });
 
 const backend = defineBackend({ auth, data, email });
-emailSchema.addToBackend(backend, { userPoolId });
+
+const emailActions = extractEmailActions(schemaDefinition);
+addEmailResolvers(backend, emailActions, { userPoolId });
