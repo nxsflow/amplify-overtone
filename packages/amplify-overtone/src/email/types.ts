@@ -255,6 +255,9 @@ export interface EmailResources {
     /** The send-email Lambda function (for grantInvoke, addEnvironment). */
     lambda: IFunction;
 
+    /** The user-lookup Lambda (for n.userId() Cognito resolution). */
+    userLookupLambda: IFunction;
+
     /**
      * The custom mail domain, or `undefined` when no domain is configured.
      *
@@ -274,6 +277,9 @@ export interface EmailResources {
 
     /** Send-email Lambda function name — used in Amplify outputs for client discovery. */
     lambdaFunctionName: string;
+
+    /** User-lookup Lambda function name. */
+    userLookupFunctionName: string;
 
     /** Configured sender keys (e.g., ["noreply", "support"]). Used by addToBackend() for validation. */
     senderKeys: string[];
