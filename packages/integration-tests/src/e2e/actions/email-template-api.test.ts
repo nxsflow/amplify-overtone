@@ -37,7 +37,9 @@ describe("email-template-api integration test", { concurrency: false }, () => {
         assertEmailOutputsExist(outputs);
     });
 
-    it("send-email Lambda accepts core fields and email arrives", { timeout: 120_000 }, async () => {
+    it("send-email Lambda accepts core fields and email arrives", {
+        timeout: 120_000,
+    }, async () => {
         const outputs = await testProject.getAmplifyOutputs();
         const emailOutputs = assertEmailOutputsExist(outputs);
 

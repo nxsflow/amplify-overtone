@@ -10,8 +10,16 @@ import { schema } from "./schema-builder.js";
  * import { n } from "@nxsflow/amplify-overtone";
  *
  * const emailSchema = n.schema({
- *   inviteEmail: n.email({ sender: "noreply", template: "invite" })
- *     .arguments({ recipientEmail: { typeName: "AWSEmail", required: true, isList: false } })
+ *   sendInvite: n.email({ sender: "noreply" })
+ *     .arguments({
+ *       recipient: n.userId(),
+ *       projectName: { typeName: "String", required: true, isList: false },
+ *     })
+ *     .template({
+ *       subject: ({ projectName }) => `Invite to ${projectName}`,
+ *       header: "You've been invited!",
+ *       body: ({ projectName }) => `Join us on ${projectName}.`,
+ *     })
  *     .authorization(allow => [allow.authenticated()])
  * });
  * ```

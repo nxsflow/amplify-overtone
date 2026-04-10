@@ -118,12 +118,10 @@ describe("custom-domain-email integration test", { concurrency: false }, () => {
                 InvocationType: "RequestResponse",
                 Payload: new TextEncoder().encode(
                     JSON.stringify({
-                        template: "invite",
                         to: "editor@amp-recv.nxsflowmail.com",
-                        data: {
-                            inviterName: "E2E Test",
-                            inviteLink: "https://example.com/invite/test",
-                        },
+                        subject: "You've been invited!",
+                        header: "You've been invited!",
+                        body: "E2E Test has invited you. Accept your invite at https://example.com/invite/test",
                     }),
                 ),
             }),
@@ -152,9 +150,10 @@ describe("custom-domain-email integration test", { concurrency: false }, () => {
                 InvocationType: "RequestResponse",
                 Payload: new TextEncoder().encode(
                     JSON.stringify({
-                        template: "confirmation-code",
                         to: "editor@amp-recv.nxsflowmail.com",
-                        data: { code: "999888" },
+                        subject: "Your confirmation code",
+                        header: "Confirmation Code",
+                        body: "Use the code below to verify your identity: 999888",
                     }),
                 ),
             }),
@@ -178,9 +177,10 @@ describe("custom-domain-email integration test", { concurrency: false }, () => {
                 InvocationType: "RequestResponse",
                 Payload: new TextEncoder().encode(
                     JSON.stringify({
-                        template: "password-reset",
                         to: "editor@amp-recv.nxsflowmail.com",
-                        data: { resetLink: "https://example.com/reset" },
+                        subject: "Reset your password",
+                        header: "Password Reset",
+                        body: "Click the link below to reset your password: https://example.com/reset",
                     }),
                 ),
             }),
@@ -204,15 +204,16 @@ describe("custom-domain-email integration test", { concurrency: false }, () => {
                 InvocationType: "RequestResponse",
                 Payload: new TextEncoder().encode(
                     JSON.stringify({
-                        template: "getting-started",
                         to: "editor@amp-recv.nxsflowmail.com",
-                        data: { userName: "Tester" },
+                        subject: "Welcome, Tester!",
+                        header: "Welcome!",
+                        body: "Hi Tester, welcome aboard! Here's how to get started.",
                     }),
                 ),
             }),
         );
 
-        const email = await mailbox.waitForEmail("editor/welcome", 60_000);
+        const email = await mailbox.waitForEmail("editor/welcome-tester", 60_000);
         assert.ok(email, "Email should arrive");
         assert.ok(email.subject?.toLowerCase().includes("welcome"), `Subject: ${email.subject}`);
     });

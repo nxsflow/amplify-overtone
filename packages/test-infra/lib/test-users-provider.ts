@@ -27,7 +27,10 @@ const EMAIL_PREFIXES: Record<(typeof USER_ROLES)[number], string> = {
     editor: "editor",
     reader: "reader",
 };
-const USER_DISPLAY_NAMES: Record<(typeof USER_ROLES)[number], { givenName: string; familyName: string }> = {
+const USER_DISPLAY_NAMES: Record<
+    (typeof USER_ROLES)[number],
+    { givenName: string; familyName: string }
+> = {
     owner: { givenName: "Otto", familyName: "Owner" },
     coOwner: { givenName: "Cora", familyName: "CoOwner" },
     editor: { givenName: "Edith", familyName: "Editor" },

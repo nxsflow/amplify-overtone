@@ -37,7 +37,7 @@ describe("default-email integration test", { concurrency: false }, () => {
         assertEmailOutputsExist(outputs);
     });
 
-    it("send-email Lambda sends confirmation-code and email arrives in S3", {
+    it("send-email Lambda sends email and it arrives in S3", {
         timeout: 120_000,
     }, async () => {
         const outputs = await testProject.getAmplifyOutputs();
@@ -49,9 +49,10 @@ describe("default-email integration test", { concurrency: false }, () => {
                 InvocationType: "RequestResponse",
                 Payload: new TextEncoder().encode(
                     JSON.stringify({
-                        template: "confirmation-code",
                         to: "reader@amp-recv.nxsflowmail.com",
-                        data: { code: "123456" },
+                        subject: "Your confirmation code",
+                        header: "Confirmation Code",
+                        body: "Use the code below to verify your identity: 123456",
                     }),
                 ),
             }),

@@ -27,7 +27,7 @@ describe("email-user-lookup integration test", { concurrency: false }, () => {
             userPoolId = infra.userPoolId;
 
             // Look up the "owner" test user's sub (Cognito user ID)
-            const ownerTestUser = infra.testUsers["owner"];
+            const ownerTestUser = infra.testUsers.owner;
             assert.ok(ownerTestUser, "Owner test user should exist in test infra config");
 
             const ownerUser = await cognito.send(
@@ -52,7 +52,9 @@ describe("email-user-lookup integration test", { concurrency: false }, () => {
         { timeout: 300_000 },
     );
 
-    it("user-lookup Lambda resolves Cognito attributes from user ID", { timeout: 30_000 }, async () => {
+    it("user-lookup Lambda resolves Cognito attributes from user ID", {
+        timeout: 30_000,
+    }, async () => {
         const outputs = await testProject.getAmplifyOutputs();
         const emailOutputs = assertEmailOutputsExist(outputs);
 
@@ -88,7 +90,9 @@ describe("email-user-lookup integration test", { concurrency: false }, () => {
         );
     });
 
-    it("full flow: resolved user attributes appear in delivered email", { timeout: 120_000 }, async () => {
+    it("full flow: resolved user attributes appear in delivered email", {
+        timeout: 120_000,
+    }, async () => {
         const outputs = await testProject.getAmplifyOutputs();
         const emailOutputs = assertEmailOutputsExist(outputs);
 
@@ -118,9 +122,6 @@ describe("email-user-lookup integration test", { concurrency: false }, () => {
             email.subject?.includes("Otto invited you"),
             `Subject should contain resolved name, got: ${email.subject}`,
         );
-        assert.ok(
-            email.body.includes("Otto Owner"),
-            "Body should contain resolved full name",
-        );
+        assert.ok(email.body.includes("Otto Owner"), "Body should contain resolved full name");
     });
 });
