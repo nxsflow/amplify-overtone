@@ -1,24 +1,21 @@
 import { emailAction } from "./email-action.js";
 import { userId } from "./field-types.js";
-import { schema } from "./schema-builder.js";
 
 /**
- * The `n` namespace — Overtone's schema builder.
+ * The `n` namespace — Overtone's extensions for Amplify.
  *
  * @example
  * ```ts
+ * import { a } from "@aws-amplify/data-schema";
  * import { n } from "@nxsflow/amplify-overtone";
  *
- * const emailSchema = n.schema({
+ * const schema = a.schema({
  *   sendInvite: n.email({ sender: "noreply" })
- *     .arguments({
- *       recipient: n.userId(),
- *       projectName: { typeName: "String", required: true, isList: false },
- *     })
+ *     .arguments({ recipient: n.userId(), name: a.string().required() })
  *     .template({
- *       subject: ({ projectName }) => `Invite to ${projectName}`,
- *       header: "You've been invited!",
- *       body: ({ projectName }) => `Join us on ${projectName}.`,
+ *       subject: ({ name }) => `Hello ${name}`,
+ *       header: "Welcome",
+ *       body: ({ name }) => `Hi ${name}, welcome!`,
  *     })
  *     .authorization(allow => [allow.authenticated()])
  * });
@@ -26,6 +23,5 @@ import { schema } from "./schema-builder.js";
  */
 export const n = {
     email: emailAction,
-    schema,
     userId,
 } as const;

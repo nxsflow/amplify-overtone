@@ -1,18 +1,13 @@
 export { n } from "./namespace.js";
-export { OvertoneSchema } from "./overtone-schema.js";
+export { addEmailResolvers, extractEmailActions } from "./resolver-wiring.js";
+export { isUserIdField } from "./field-types.js";
 export type {
-    ArgumentsDef,
-    AuthorizationAllow,
-    AuthRule,
     CallToActionInput,
     CognitoUserFields,
-    CompiledEmailAction,
+    CompiledCallToAction,
     CompiledTemplate,
-    EmailActionBuilder,
-    EmailActionConfig,
     EmailTemplateInput,
-    FieldDef,
-    OvertoneSchemaDefinition,
-    ReturnTypeDef,
+    OvertoneEmailMeta,
     TemplateField,
 } from "./types.js";
+export { OVERTONE_EMAIL_META, OVERTONE_USER_ID } from "./types.js";

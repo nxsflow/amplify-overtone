@@ -9,18 +9,19 @@ export type {
 } from "./email/index.js";
 export { defineEmail } from "./email/index.js";
 export type {
-    ArgumentsDef,
-    AuthorizationAllow,
-    AuthRule,
     CallToActionInput,
     CognitoUserFields,
-    CompiledEmailAction,
+    CompiledCallToAction,
     CompiledTemplate,
-    EmailActionBuilder,
-    EmailActionConfig,
     EmailTemplateInput,
-    FieldDef,
-    ReturnTypeDef,
+    OvertoneEmailMeta,
     TemplateField,
 } from "./schema/index.js";
-export { n, OvertoneSchema } from "./schema/index.js";
+export {
+    addEmailResolvers,
+    extractEmailActions,
+    isUserIdField,
+    n,
+    OVERTONE_EMAIL_META,
+    OVERTONE_USER_ID,
+} from "./schema/index.js";
