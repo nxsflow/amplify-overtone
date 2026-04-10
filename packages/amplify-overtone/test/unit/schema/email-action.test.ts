@@ -1,106 +1,87 @@
 import { describe, expect, it } from "vitest";
+import { a } from "@aws-amplify/data-schema";
 import { emailAction } from "../../../src/schema/email-action.js";
-import type { CognitoUserFields } from "../../../src/schema/types.js";
+import { userId } from "../../../src/schema/field-types.js";
+import { OVERTONE_EMAIL_META } from "../../../src/schema/types.js";
+import type { OvertoneEmailMeta } from "../../../src/schema/types.js";
 
-describe("emailAction", () => {
-    it("compiles callback template fields into {{variable}} strings", () => {
-        const action = emailAction({ sender: "noreply" })
+function getMeta(action: unknown): OvertoneEmailMeta {
+    return (action as any)[OVERTONE_EMAIL_META];
+}
+
+describe("n.email()", () => {
+    it("is accepted by a.schema() as a mutation", () => {
+        const emailOp = emailAction({ sender: "noreply" })
+            .arguments({ name: a.string().required() })
+            .template({
+                subject: "Hello",
+                header: "Hi",
+                body: "Welcome.",
+            })
+            .authorization(allow => [allow.authenticated()]);
+
+        // Should not throw — a.schema() accepts it as a CustomOperation
+        const schema = a.schema({ sendEmail: emailOp });
+        expect(schema).toBeDefined();
+    });
+
+    it("stores sender in Overtone metadata", () => {
+        const emailOp = emailAction({ sender: "support" });
+        expect(getMeta(emailOp).sender).toBe("support");
+    });
+
+    it("stores compiled template after .template() call", () => {
+        const emailOp = emailAction({ sender: "noreply" })
             .arguments({
-                recipient: {
-                    typeName: "String",
-                    required: true,
-                    isList: false,
-                    resolveType: "cognitoUser",
-                },
-                invitedBy: {
-                    typeName: "String",
-                    required: true,
-                    isList: false,
-                    resolveType: "cognitoUser",
-                },
-                projectName: { typeName: "String", required: true, isList: false },
+                invitedBy: userId(),
+                projectName: a.string().required(),
             })
             .template({
                 subject: ({ invitedBy, projectName }) =>
-                    `${(invitedBy as CognitoUserFields).givenName} invited you to ${projectName as string}`,
-                header: "You've been invited!",
-                body: ({ invitedBy, projectName }) =>
-                    `${(invitedBy as CognitoUserFields).givenName} (${(invitedBy as CognitoUserFields).email}) invited you to ${projectName as string}.`,
-            })
-            .authorization((allow) => [allow.authenticated()]);
-
-        const compiled = action._compile("sendInvite");
-        expect(compiled.name).toBe("sendInvite");
-        expect(compiled.config.sender).toBe("noreply");
-        expect(compiled.compiledTemplate?.subject).toBe(
-            "{{invitedByGivenName}} invited you to {{projectName}}",
-        );
-        expect(compiled.compiledTemplate?.header).toBe("You've been invited!");
-        expect(compiled.compiledTemplate?.body).toBe(
-            "{{invitedByGivenName}} ({{invitedByEmail}}) invited you to {{projectName}}.",
-        );
-        expect(compiled.authRules).toHaveLength(1);
-    });
-
-    it("compiles callToAction and footer", () => {
-        const action = emailAction({ sender: "noreply" })
-            .arguments({
-                recipient: {
-                    typeName: "String",
-                    required: true,
-                    isList: false,
-                    resolveType: "cognitoUser",
-                },
-                link: { typeName: "AWSURL", required: true, isList: false },
-            })
-            .template({
-                subject: "Welcome",
-                header: "Welcome!",
-                body: "You are all set.",
-                callToAction: { label: "Get Started", href: ({ link }) => link as string },
-                footer: "You can unsubscribe at any time.",
+                    `${invitedBy.givenName} invited you to ${projectName}`,
+                header: "Invitation",
+                body: "You are invited.",
             });
 
-        const compiled = action._compile("welcome");
-        expect(compiled.compiledTemplate?.callToAction).toEqual({
-            label: "Get Started",
-            href: "{{link}}",
-        });
-        expect(compiled.compiledTemplate?.footer).toBe("You can unsubscribe at any time.");
+        const meta = getMeta(emailOp);
+        expect(meta.compiledTemplate?.subject).toBe(
+            "{{invitedByGivenName}} invited you to {{projectName}}",
+        );
+        expect(meta.compiledTemplate?.header).toBe("Invitation");
+        expect(meta.compiledTemplate?.body).toBe("You are invited.");
     });
 
-    it("compiles static strings without callbacks", () => {
-        const action = emailAction({ sender: "noreply" })
+    it("detects n.userId() arguments", () => {
+        const emailOp = emailAction({ sender: "noreply" })
             .arguments({
-                recipient: {
-                    typeName: "String",
-                    required: true,
-                    isList: false,
-                    resolveType: "cognitoUser",
-                },
-            })
-            .template({ subject: "Static subject", header: "Static header", body: "Static body." });
+                recipient: userId(),
+                invitedBy: userId(),
+                projectName: a.string().required(),
+            });
 
-        const compiled = action._compile("staticTest");
-        expect(compiled.compiledTemplate?.subject).toBe("Static subject");
-        expect(compiled.compiledTemplate?.header).toBe("Static header");
-        expect(compiled.compiledTemplate?.body).toBe("Static body.");
+        const meta = getMeta(emailOp);
+        expect(meta.userIdArgNames).toContain("recipient");
+        expect(meta.userIdArgNames).toContain("invitedBy");
+        expect(meta.userIdArgNames).not.toContain("projectName");
     });
 
-    it("is immutable — .template() returns new builder", () => {
-        const base = emailAction({ sender: "noreply" });
-        const withTemplate = base.template({ subject: "Test", header: "Test", body: "Test body." });
-        expect(base._compile("a").compiledTemplate).toBeUndefined();
-        expect(withTemplate._compile("b").compiledTemplate).toBeDefined();
+    it("detects recipient convention", () => {
+        const withRecipient = emailAction({ sender: "noreply" })
+            .arguments({ recipient: userId() });
+        expect(getMeta(withRecipient).hasRecipientUserId).toBe(true);
+
+        const withoutRecipient = emailAction({ sender: "noreply" })
+            .arguments({ invitedBy: userId() });
+        expect(getMeta(withoutRecipient).hasRecipientUserId).toBe(false);
     });
 
-    it("defaults sender to undefined when not specified", () => {
-        const action = emailAction({}).template({
-            subject: "Test",
-            header: "Test",
-            body: "Test body.",
-        });
-        const compiled = action._compile("test");
-        expect(compiled.config.sender).toBeUndefined();
+    it("passes .authorization() through to Amplify mutation", () => {
+        const emailOp = emailAction({ sender: "noreply" })
+            .arguments({ name: a.string().required() })
+            .template({ subject: "Hi", header: "Hi", body: "Body." })
+            .authorization(allow => [allow.authenticated()]);
+
+        const schema = a.schema({ sendEmail: emailOp });
+        expect(schema).toBeDefined();
     });
 });

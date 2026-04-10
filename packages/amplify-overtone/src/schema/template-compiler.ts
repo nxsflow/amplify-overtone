@@ -1,4 +1,4 @@
-import type { ArgumentsDef, TemplateField } from "./types.js";
+import type { TemplateField } from "./types.js";
 
 /** Cognito attribute name → PascalCase suffix for the flattened variable name. */
 const COGNITO_ATTR_MAP: Record<string, string> = {
@@ -7,6 +7,9 @@ const COGNITO_ATTR_MAP: Record<string, string> = {
     givenName: "GivenName",
     familyName: "FamilyName",
 };
+
+/** Minimal args shape needed by the template compiler. */
+type TemplateArgs = Record<string, { resolveType?: "cognitoUser" }>;
 
 /**
  * Creates a nested Proxy for a `n.userId()` argument.
@@ -34,7 +37,7 @@ function capitalize(s: string): string {
  * - `n.userId()` args → nested Proxy with Cognito attribute properties
  * - Plain args → `"{{argName}}"` string
  */
-function createTemplateProxy(args: ArgumentsDef): Record<string, unknown> {
+function createTemplateProxy(args: TemplateArgs): Record<string, unknown> {
     return new Proxy({} as Record<string, unknown>, {
         get: (_, prop) => {
             const argName = String(prop);
@@ -53,7 +56,7 @@ function createTemplateProxy(args: ArgumentsDef): Record<string, unknown> {
  * - Static strings pass through as-is.
  * - Callbacks are invoked with a Proxy that captures property accesses as `{{variable}}` placeholders.
  */
-export function compileTemplateField(field: TemplateField, args: ArgumentsDef): string {
+export function compileTemplateField(field: TemplateField, args: TemplateArgs): string {
     if (typeof field === "string") return field;
     const proxy = createTemplateProxy(args);
     return field(proxy as Record<string, string>);
