@@ -1,5 +1,8 @@
 // packages/amplify-overtone/src/schema/types.ts
 
+/** Symbol used to tag n.userId() fields for Overtone detection. */
+export const OVERTONE_USER_ID: unique symbol = Symbol("overtone.userId");
+
 /** Shape of a resolved n.userId() argument in template callbacks. */
 export interface CognitoUserFields {
     name: string;

@@ -23,6 +23,9 @@ importers:
 
   packages/amplify-overtone:
     devDependencies:
+      '@aws-amplify/data-schema':
+        specifier: ^1.0.0
+        version: 1.25.3
       '@aws-amplify/plugin-types':
         specifier: ^1.12.0
         version: 1.12.0(@aws-cdk/cli-plugin-contract@2.182.1)(@aws-sdk/types@3.973.6)(aws-cdk-lib@2.245.0(constructs@10.6.0))(constructs@10.6.0)

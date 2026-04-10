@@ -1,18 +1,30 @@
-import type { FieldDef } from "./types.js";
+// src/schema/field-types.ts
+import { a } from "@aws-amplify/data-schema";
+import { OVERTONE_USER_ID } from "./types.js";
 
 /**
  * Declares a Cognito user ID argument.
  *
- * At runtime, the user-lookup Lambda resolves this user ID to Cognito attributes.
- * Derived fields become available in `.template()` using the pattern `{argName}{Attribute}`:
- * - `{argName}Name` — Cognito `name`
- * - `{argName}Email` — Cognito `email`
- * - `{argName}GivenName` — Cognito `given_name`
- * - `{argName}FamilyName` — Cognito `family_name`
+ * Returns `a.string().required()` decorated with a hidden symbol.
+ * Amplify sees `String!` for GraphQL. Overtone detects the symbol
+ * to trigger pipeline resolver Cognito user resolution.
  *
- * If the argument is named `recipient`, the resolved email is automatically
- * used as the To address.
+ * Derived fields in `.template()` callbacks:
+ * - `{argName}.name` — Cognito `name`
+ * - `{argName}.email` — Cognito `email`
+ * - `{argName}.givenName` — Cognito `given_name`
+ * - `{argName}.familyName` — Cognito `family_name`
+ *
+ * If the argument is named `recipient`, the resolved email is
+ * automatically used as the To address.
  */
-export function userId(): FieldDef {
-    return { typeName: "String", required: true, isList: false, resolveType: "cognitoUser" };
+export function userId() {
+    const field = a.string().required();
+    (field as any)[OVERTONE_USER_ID] = true;
+    return field;
+}
+
+/** Detects whether a field was created by n.userId(). */
+export function isUserIdField(field: unknown): boolean {
+    return (field as any)?.[OVERTONE_USER_ID] === true;
 }
