@@ -7,8 +7,19 @@ import {
     Stack,
     type StackProps,
 } from "aws-cdk-lib";
-import { UserPool, UserPoolClient } from "aws-cdk-lib/aws-cognito";
-import { Effect, PolicyStatement, ServicePrincipal } from "aws-cdk-lib/aws-iam";
+import {
+    CfnIdentityPool,
+    CfnIdentityPoolRoleAttachment,
+    UserPool,
+    UserPoolClient,
+} from "aws-cdk-lib/aws-cognito";
+import {
+    Effect,
+    FederatedPrincipal,
+    PolicyStatement,
+    Role,
+    ServicePrincipal,
+} from "aws-cdk-lib/aws-iam";
 import { Runtime } from "aws-cdk-lib/aws-lambda";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { RetentionDays } from "aws-cdk-lib/aws-logs";
@@ -222,6 +233,55 @@ export class OvertoneTestInfraStack extends Stack {
             },
         });
 
+        const identityPool = new CfnIdentityPool(this, "TestIdentityPool", {
+            identityPoolName: "overtone-test-identity-pool",
+            allowUnauthenticatedIdentities: true,
+            cognitoIdentityProviders: [
+                {
+                    clientId: userPoolClient.userPoolClientId,
+                    providerName: userPool.userPoolProviderName,
+                },
+            ],
+        });
+
+        const authenticatedRole = new Role(this, "AuthenticatedRole", {
+            assumedBy: new FederatedPrincipal(
+                "cognito-identity.amazonaws.com",
+                {
+                    StringEquals: {
+                        "cognito-identity.amazonaws.com:aud": identityPool.ref,
+                    },
+                    "ForAnyValue:StringLike": {
+                        "cognito-identity.amazonaws.com:amr": "authenticated",
+                    },
+                },
+                "sts:AssumeRoleWithWebIdentity",
+            ),
+        });
+
+        const unauthenticatedRole = new Role(this, "UnauthenticatedRole", {
+            assumedBy: new FederatedPrincipal(
+                "cognito-identity.amazonaws.com",
+                {
+                    StringEquals: {
+                        "cognito-identity.amazonaws.com:aud": identityPool.ref,
+                    },
+                    "ForAnyValue:StringLike": {
+                        "cognito-identity.amazonaws.com:amr": "unauthenticated",
+                    },
+                },
+                "sts:AssumeRoleWithWebIdentity",
+            ),
+        });
+
+        new CfnIdentityPoolRoleAttachment(this, "IdentityPoolRoles", {
+            identityPoolId: identityPool.ref,
+            roles: {
+                authenticated: authenticatedRole.roleArn,
+                unauthenticated: unauthenticatedRole.roleArn,
+            },
+        });
+
         const secretName = "overtone-test-users";
 
         const testUsersHandler = new NodejsFunction(this, "TestUsersHandler", {
@@ -298,6 +358,21 @@ export class OvertoneTestInfraStack extends Stack {
         new CfnOutput(this, "TestUsersSecretArn", {
             value: testUsersResource.getAttString("SecretArn"),
             description: "Secrets Manager ARN containing test user credentials",
+        });
+
+        new CfnOutput(this, "IdentityPoolId", {
+            value: identityPool.ref,
+            description: "Cognito identity pool for test authentication",
+        });
+
+        new CfnOutput(this, "AuthenticatedRoleArn", {
+            value: authenticatedRole.roleArn,
+            description: "IAM role for authenticated test users",
+        });
+
+        new CfnOutput(this, "UnauthenticatedRoleArn", {
+            value: unauthenticatedRole.roleArn,
+            description: "IAM role for unauthenticated test users",
         });
     }
 }

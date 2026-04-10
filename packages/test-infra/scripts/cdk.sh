@@ -72,6 +72,9 @@ if [ "$ACTION" = "deploy" ]; then
     RECEIPT_S3_BUCKET=$(get_stack_output "ReceiptS3BucketName")
     RECIPIENT_DOMAIN=$(get_stack_output "RecipientDomain")
     SECRET_ARN=$(get_stack_output "TestUsersSecretArn")
+    IDENTITY_POOL_ID=$(get_stack_output "IdentityPoolId")
+    AUTH_ROLE_ARN=$(get_stack_output "AuthenticatedRoleArn")
+    UNAUTH_ROLE_ARN=$(get_stack_output "UnauthenticatedRoleArn")
 
     # Read test user credentials from Secrets Manager
     TEST_USERS=$(aws secretsmanager get-secret-value \
@@ -84,11 +87,11 @@ if [ "$ACTION" = "deploy" ]; then
     # TEST_USERS is piped via stdin because passwords contain $ characters
     # that bash would interpret as variable expansions in arguments
     echo "$TEST_USERS" | node -e "
-        const [, outputFile, userPoolId, userPoolClientId, receiptS3Bucket, recipientDomain] = process.argv;
+        const [, outputFile, userPoolId, userPoolClientId, receiptS3Bucket, recipientDomain, identityPoolId, authRoleArn, unauthRoleArn] = process.argv;
         const testUsers = JSON.parse(require('fs').readFileSync('/dev/stdin', 'utf-8'));
-        const output = { userPoolId, userPoolClientId, receiptS3Bucket, recipientDomain, testUsers };
+        const output = { userPoolId, userPoolClientId, identityPoolId, authRoleArn, unauthRoleArn, receiptS3Bucket, recipientDomain, testUsers };
         require('fs').writeFileSync(outputFile, JSON.stringify(output, null, 4) + '\n');
-    " "$OUTPUT_FILE" "$USER_POOL_ID" "$USER_POOL_CLIENT_ID" "$RECEIPT_S3_BUCKET" "$RECIPIENT_DOMAIN"
+    " "$OUTPUT_FILE" "$USER_POOL_ID" "$USER_POOL_CLIENT_ID" "$RECEIPT_S3_BUCKET" "$RECIPIENT_DOMAIN" "$IDENTITY_POOL_ID" "$AUTH_ROLE_ARN" "$UNAUTH_ROLE_ARN"
 
     echo "Written: $OUTPUT_FILE"
 fi
