@@ -2,6 +2,7 @@ import assert from "node:assert";
 
 export interface EmailOutputs {
     sendFunctionName: string;
+    userLookupFunctionName?: string;
     domain?: string;
     senders?: Record<string, { localPart: string; displayName: string }>;
     defaultSender?: string;

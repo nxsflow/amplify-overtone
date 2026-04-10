@@ -43,6 +43,8 @@ export class EmailFactory implements ConstructFactory<ResourceProvider<EmailReso
                                 custom: {
                                     email: {
                                         sendFunctionName: construct.resources.lambdaFunctionName,
+                                        userLookupFunctionName:
+                                            construct.resources.userLookupFunctionName,
                                         ...(construct.resources.emailDomain
                                             ? { domain: construct.resources.emailDomain }
                                             : {}),
