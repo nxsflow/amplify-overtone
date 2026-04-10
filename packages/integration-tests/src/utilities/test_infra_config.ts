@@ -5,6 +5,9 @@ import { fileURLToPath } from "node:url";
 export interface TestInfraConfig {
     userPoolId: string;
     userPoolClientId: string;
+    identityPoolId: string;
+    authRoleArn: string;
+    unauthRoleArn: string;
     receiptS3Bucket: string;
     recipientDomain: string;
     testUsers: Record<string, { email: string; password: string }>;

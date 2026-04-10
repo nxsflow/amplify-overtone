@@ -1,11 +1,43 @@
-import { defineBackend } from "@aws-amplify/backend";
+import { defineBackend, defineData, referenceAuth } from "@aws-amplify/backend";
 import { email } from "./email/resource.js";
+import { emailSchema } from "./schema/resource.js";
 
-const userPoolId = process.env.TEST_USER_POOL_ID;
-if (!userPoolId) {
-    throw new Error("Required env var TEST_USER_POOL_ID is not set");
+const userPoolId = process.env.TEST_USER_POOL_ID!;
+const userPoolClientId = process.env.TEST_USER_POOL_CLIENT_ID!;
+const identityPoolId = process.env.TEST_IDENTITY_POOL_ID!;
+const authRoleArn = process.env.TEST_AUTH_ROLE_ARN!;
+const unauthRoleArn = process.env.TEST_UNAUTH_ROLE_ARN!;
+
+for (const [name, value] of Object.entries({
+    TEST_USER_POOL_ID: userPoolId,
+    TEST_USER_POOL_CLIENT_ID: userPoolClientId,
+    TEST_IDENTITY_POOL_ID: identityPoolId,
+    TEST_AUTH_ROLE_ARN: authRoleArn,
+    TEST_UNAUTH_ROLE_ARN: unauthRoleArn,
+})) {
+    if (!value) {
+        throw new Error(`Required env var ${name} is not set`);
+    }
 }
 
-const _backend = defineBackend({ email });
-// Note: addToBackend() with userPoolId wiring will be added
-// when the full pipeline resolver integration is complete.
+const auth = referenceAuth({
+    userPoolId,
+    userPoolClientId,
+    identityPoolId,
+    authRoleArn,
+    unauthRoleArn,
+});
+
+const data = defineData({
+    authorizationModes: {
+        defaultAuthorizationMode: "userPool",
+    },
+    schema: /* GraphQL */ `
+        type Query {
+            _placeholder: String
+        }
+    `,
+});
+
+const backend = defineBackend({ auth, data, email });
+emailSchema.addToBackend(backend, { userPoolId });
