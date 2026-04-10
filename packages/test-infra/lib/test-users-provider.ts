@@ -27,6 +27,12 @@ const EMAIL_PREFIXES: Record<(typeof USER_ROLES)[number], string> = {
     editor: "editor",
     reader: "reader",
 };
+const USER_DISPLAY_NAMES: Record<(typeof USER_ROLES)[number], { givenName: string; familyName: string }> = {
+    owner: { givenName: "Otto", familyName: "Owner" },
+    coOwner: { givenName: "Cora", familyName: "CoOwner" },
+    editor: { givenName: "Edith", familyName: "Editor" },
+    reader: { givenName: "Reed", familyName: "Reader" },
+};
 
 function generatePassword(length = 16): string {
     const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -62,6 +68,7 @@ async function createOrUpdateUser(
     userPoolId: string,
     email: string,
     password: string,
+    displayNames: { givenName: string; familyName: string },
 ): Promise<void> {
     try {
         await cognito.send(
@@ -71,6 +78,9 @@ async function createOrUpdateUser(
                 UserAttributes: [
                     { Name: "email", Value: email },
                     { Name: "email_verified", Value: "true" },
+                    { Name: "name", Value: `${displayNames.givenName} ${displayNames.familyName}` },
+                    { Name: "given_name", Value: displayNames.givenName },
+                    { Name: "family_name", Value: displayNames.familyName },
                 ],
                 MessageAction: "SUPPRESS",
             }),
@@ -169,7 +179,7 @@ export async function handler(
     for (const role of USER_ROLES) {
         const email = `${EMAIL_PREFIXES[role]}@${RecipientDomain}`;
         const password = generatePassword();
-        await createOrUpdateUser(UserPoolId, email, password);
+        await createOrUpdateUser(UserPoolId, email, password, USER_DISPLAY_NAMES[role]);
         testUsers[role] = { email, password };
     }
 
