@@ -1,4 +1,5 @@
 import type { TemplateDefinition } from "../types.js";
+import * as S from "../styles.js";
 
 export const coreTemplate: TemplateDefinition = {
     subject: "",
@@ -13,17 +14,17 @@ export const coreTemplate: TemplateDefinition = {
 
         const ctaHtml =
             data.callToActionLabel && data.callToActionHref
-                ? `<div style="margin:24px 0;">
-    <a href="${data.callToActionHref}" style="display:inline-block;padding:12px 24px;background:#A78BFA;color:#FFFFFF;text-decoration:none;border-radius:6px;font-weight:600;">${data.callToActionLabel}</a>
+                ? `<div style="${S.ctaWrap}">
+    <a href="${data.callToActionHref}" style="${S.ctaLink}">${data.callToActionLabel}</a>
 </div>`
                 : "";
 
         const footerHtml = data.footer
-            ? `<p style="margin:16px 0 0;font-size:14px;color:#6B6B6B;">${data.footer}</p>`
+            ? `<p style="${S.footerText}">${data.footer}</p>`
             : "";
 
-        return `<p style="margin:0 0 8px;font-size:20px;font-weight:700;color:#1C1C1C;">${data.header}</p>
-<p style="margin:0 0 16px;font-size:16px;color:#1C1C1C;">${data.body}</p>
+        return `<p style="${S.header}">${data.header}</p>
+<p style="${S.bodyText}">${data.body}</p>
 ${ctaHtml}${footerHtml}`;
     },
 
