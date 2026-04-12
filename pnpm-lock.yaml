@@ -103,6 +103,9 @@ importers:
       '@aws-sdk/client-s3':
         specifier: ^3.1019.0
         version: 3.1019.0
+      '@aws-sdk/client-secrets-manager':
+        specifier: ^3.1019.0
+        version: 3.1019.0
       '@aws-sdk/client-sesv2':
         specifier: ^3.1019.0
         version: 3.1019.0
@@ -139,6 +142,12 @@ importers:
 
   packages/test-infra:
     devDependencies:
+      '@aws-amplify/backend':
+        specifier: ^1.21.1
+        version: 1.22.0(@aws-cdk/cli-plugin-contract@2.182.1)(@aws-sdk/client-cloudformation@3.1019.0)(@aws-sdk/client-s3@3.1019.0)(@aws-sdk/types@3.973.6)(aws-cdk-lib@2.245.0(constructs@10.6.0))(constructs@10.6.0)(zod@3.25.17)
+      '@aws-amplify/backend-cli':
+        specifier: ^1.8.2
+        version: 1.8.2(@aws-cdk/cli-plugin-contract@2.182.1)(@aws-sdk/types@3.973.6)(@types/node@22.19.15)(aws-cdk-lib@2.245.0(constructs@10.6.0))(constructs@10.6.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3)
       '@aws-sdk/client-cognito-identity-provider':
         specifier: ^3.1019.0
         version: 3.1019.0
@@ -166,6 +175,39 @@ importers:
       esbuild:
         specifier: ^0.27.0
         version: 0.27.4
+      tsx:
+        specifier: ^4.19.0
+        version: 4.21.0
+
+  packages/test-infra-old:
+    devDependencies:
+      '@aws-sdk/client-cognito-identity-provider':
+        specifier: ^3.1019.0
+        version: 3.1019.0
+      '@aws-sdk/client-s3':
+        specifier: ^3.1019.0
+        version: 3.1019.0
+      '@aws-sdk/client-secrets-manager':
+        specifier: ^3.1019.0
+        version: 3.1019.0
+      '@types/aws-lambda':
+        specifier: ^8.10.161
+        version: 8.10.161
+      '@types/node':
+        specifier: ^22.0.0
+        version: 22.19.15
+      aws-cdk:
+        specifier: ^2.170.0
+        version: 2.1114.1
+      aws-cdk-lib:
+        specifier: ^2.170.0
+        version: 2.245.0(constructs@10.6.0)
+      constructs:
+        specifier: ^10.4.2
+        version: 10.6.0
+      esbuild:
+        specifier: ^0.27.0
+        version: 0.27.7
       tsx:
         specifier: ^4.19.0
         version: 4.21.0

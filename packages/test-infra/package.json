@@ -4,13 +4,15 @@
     "version": "0.0.1",
     "type": "module",
     "scripts": {
-        "build": "tsc --noEmit",
         "typecheck": "tsc --noEmit",
-        "bootstrap": "./scripts/bootstrap.sh",
-        "deploy": "./scripts/cdk.sh deploy",
-        "destroy": "./scripts/cdk.sh destroy"
+        "lint": "biome check",
+        "format": "biome format --write",
+        "deploy": "./amplify-deploy.sh",
+        "destroy": "./amplify-deploy.sh --destroy"
     },
     "devDependencies": {
+        "@aws-amplify/backend": "^1.21.1",
+        "@aws-amplify/backend-cli": "^1.8.2",
         "@aws-sdk/client-cognito-identity-provider": "^3.1019.0",
         "@aws-sdk/client-s3": "^3.1019.0",
         "@aws-sdk/client-secrets-manager": "^3.1019.0",

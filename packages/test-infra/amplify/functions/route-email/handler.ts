@@ -1,8 +1,9 @@
 import { CopyObjectCommand, GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { env } from "$amplify/env/route-email";
 
 const s3 = new S3Client({});
 
-const BUCKET = process.env.BUCKET_NAME!;
+const BUCKET = env.RECEIVE_EMAIL_BUCKET_NAME;
 
 /**
  * Parses raw email headers to extract To and Subject.

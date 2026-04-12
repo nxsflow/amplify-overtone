@@ -47,10 +47,8 @@ packages/
 │           ├── auth-inheritance/# Permission propagation
 │           ├── local-first/     # Offline-capable sync
 │           └── actions/         # Email, push, webhook actions
-└── test-infra/                  # (private) CDK app for test infrastructure
-    ├── bin/
-    ├── lib/                     # Cognito user pool + SES receipt rules
-    └── scripts/
+└── test-infra/                  # (private) Amplify Gen 2 app for test infrastructure
+    └── amplify/                 # Auth, storage, SES receipt rules, test user provisioning
 ```
 
 ## Testing
@@ -84,7 +82,7 @@ pnpm e2e:test
 pnpm test-infra:destroy
 ```
 
-Test infrastructure outputs (user pool IDs, S3 bucket, test user credentials) are written to `overtone_test_infra.json` by the deploy step. Integration tests read this file automatically.
+Test infrastructure outputs (user pool IDs, S3 bucket, IAM role ARNs) are written to `packages/test-infra/amplify_outputs.json` by the deploy step. Test user credentials are stored in AWS Secrets Manager and fetched at test runtime.
 
 ## Making Changes
 
