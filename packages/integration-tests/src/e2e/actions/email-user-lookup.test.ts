@@ -125,14 +125,35 @@ describe("email-user-lookup integration test", { concurrency: false }, () => {
         assert.ok(!body.errors, `GraphQL errors: ${JSON.stringify(body.errors)}`);
         assert.ok(body.data?.sendInvite !== undefined, "Mutation should return a result");
 
-        // Verify the email was delivered with resolved user attributes
+        // Verify the email was delivered with all resolved Cognito user attributes
         const email = await mailbox.waitForEmail("reader/otto-invited-you", 60_000);
         assert.ok(email, "Email should be delivered to S3");
+
+        // subject uses invitedBy.givenName
         assert.ok(
             email.subject?.includes("Otto invited you"),
-            `Subject should contain resolved name, got: ${email.subject}`,
+            `Subject should contain resolved givenName, got: ${email.subject}`,
         );
-        assert.ok(email.body.includes("Otto Owner"), "Body should contain resolved full name");
+
+        // header uses invitedBy.name (full display name)
+        assert.ok(
+            email.body.includes("Otto Owner wants to collaborate"),
+            "Header should contain resolved name (full display name)",
+        );
+
+        // body uses invitedBy.givenName, invitedBy.familyName, invitedBy.email, recipient.name
+        assert.ok(
+            email.body.includes("Otto Owner ("),
+            "Body should contain invitedBy givenName + familyName",
+        );
+        assert.ok(
+            email.body.includes("owner@"),
+            "Body should contain invitedBy email",
+        );
+        assert.ok(
+            email.body.includes("invited Reed Reader to collaborate"),
+            "Body should contain recipient name (full display name)",
+        );
         assert.ok(email.body.includes("TestProject"), "Body should contain project name");
     });
 });

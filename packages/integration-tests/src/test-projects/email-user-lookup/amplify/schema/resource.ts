@@ -12,9 +12,10 @@ export const schemaDefinition = {
         .template({
             subject: ({ invitedBy, projectName }) =>
                 `${invitedBy.givenName} invited you to ${projectName}`,
-            header: "You've been invited!",
-            body: ({ invitedBy, projectName }) =>
-                `${invitedBy.givenName} (${invitedBy.email}) invited you to collaborate on ${projectName}.`,
+            header: ({ invitedBy }) =>
+                `${invitedBy.name} wants to collaborate`,
+            body: ({ invitedBy, recipient, projectName }) =>
+                `${invitedBy.givenName} ${invitedBy.familyName} (${invitedBy.email}) invited ${recipient.name} to collaborate on ${projectName}.`,
             footer: "If you did not expect this invitation, you can ignore this email.",
         })
         .authorization((allow) => [allow.authenticated()]),
