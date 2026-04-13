@@ -331,12 +331,10 @@ export class AmplifyEmail extends Construct {
                 : ["noreply"];
 
         this.resources = {
-            lambda: sendFn,
+            sendLambda: sendFn,
             userLookupLambda: userLookupFn,
             emailDomain: domain,
             sesIdentityArn,
-            lambdaFunctionName: sendFn.functionName,
-            userLookupFunctionName: userLookupFn.functionName,
             senderKeys,
         };
     }

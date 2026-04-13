@@ -253,7 +253,7 @@ export interface SendEmailResult {
 
 export interface EmailResources {
     /** The send-email Lambda function (for grantInvoke, addEnvironment). */
-    lambda: IFunction;
+    sendLambda: IFunction;
 
     /** The user-lookup Lambda (for n.userId() Cognito resolution). */
     userLookupLambda: IFunction;
@@ -274,12 +274,6 @@ export interface EmailResources {
      * @example "arn:aws:ses:us-east-1:123456789012:identity/mail.nxsflow.com"
      */
     sesIdentityArn: string | undefined;
-
-    /** Send-email Lambda function name — used in Amplify outputs for client discovery. */
-    lambdaFunctionName: string;
-
-    /** User-lookup Lambda function name. */
-    userLookupFunctionName: string;
 
     /** Configured sender keys (e.g., ["noreply", "support"]). Used by addToBackend() for validation. */
     senderKeys: string[];

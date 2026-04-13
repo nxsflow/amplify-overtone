@@ -44,7 +44,7 @@ export function addEmailResolvers(
         };
         email: {
             resources: {
-                lambda: IFunction;
+                sendLambda: IFunction;
                 userLookupLambda: IFunction;
                 senderKeys: string[];
             };
@@ -69,7 +69,7 @@ export function addEmailResolvers(
     // Create email Lambda data source
     const emailDS = backend.data.addLambdaDataSource(
         "OvertoneEmailDS",
-        backend.email.resources.lambda,
+        backend.email.resources.sendLambda,
     );
 
     // Check if any action needs userId resolution

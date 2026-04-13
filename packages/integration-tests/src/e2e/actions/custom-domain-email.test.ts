@@ -5,10 +5,7 @@ import { ListResourceRecordSetsCommand, Route53Client } from "@aws-sdk/client-ro
 import { GetEmailIdentityCommand, SESv2Client } from "@aws-sdk/client-sesv2";
 import type { TestProjectBase } from "../../test-project-setup/test_project_base.js";
 import { customDomainEmailTestProjectCreator } from "../../test-projects/custom-domain-email/test_project_creator.js";
-import {
-    assertEmailDomainOutput,
-    assertEmailOutputsExist,
-} from "../../utilities/amplify_outputs_validator.js";
+import { discoverFunctionName } from "../../utilities/lambda_discovery.js";
 import { S3Mailbox } from "../../utilities/s3_mailbox.js";
 import { waitForSesVerification } from "../../utilities/ses_identity_waiter.js";
 import { loadTestInfraConfig } from "../../utilities/test_infra_config.js";
@@ -28,6 +25,7 @@ for (const [name, value] of Object.entries({
 describe("custom-domain-email integration test", { concurrency: false }, () => {
     let testProject: TestProjectBase;
     let mailbox: S3Mailbox;
+    let sendFunctionName: string;
     const e2eProjectDir = "./e2e-tests";
     const ses = new SESv2Client({});
     const route53 = new Route53Client({});
@@ -40,6 +38,11 @@ describe("custom-domain-email integration test", { concurrency: false }, () => {
 
             testProject = await customDomainEmailTestProjectCreator.createProject(e2eProjectDir);
             await testProject.deploy();
+            sendFunctionName = await discoverFunctionName(
+                lambda,
+                "custom-domain-email-test",
+                "SendEmail",
+            );
         },
         { timeout: 600_000 },
     );
@@ -52,13 +55,6 @@ describe("custom-domain-email integration test", { concurrency: false }, () => {
     );
 
     // -- Infrastructure verification --
-
-    it("amplify_outputs.json contains email config with domain", async () => {
-        await testProject.assertPostDeployment();
-        const outputs = await testProject.getAmplifyOutputs();
-        assertEmailOutputsExist(outputs);
-        assertEmailDomainOutput(outputs, senderDomain);
-    });
 
     it("DNS records are created (DKIM, SPF, DMARC, MX)", async () => {
         const result = await route53.send(
@@ -109,12 +105,9 @@ describe("custom-domain-email integration test", { concurrency: false }, () => {
         // mailbox.clearMailbox removed — 7-day lifecycle handles cleanup
         // await mailbox.clearMailbox("editor/");
 
-        const outputs = await testProject.getAmplifyOutputs();
-        const emailOutputs = assertEmailOutputsExist(outputs);
-
         const result = await lambda.send(
             new InvokeCommand({
-                FunctionName: emailOutputs.sendFunctionName,
+                FunctionName: sendFunctionName,
                 InvocationType: "RequestResponse",
                 Payload: new TextEncoder().encode(
                     JSON.stringify({
@@ -141,12 +134,9 @@ describe("custom-domain-email integration test", { concurrency: false }, () => {
         // mailbox.clearMailbox removed — 7-day lifecycle handles cleanup
         // await mailbox.clearMailbox("editor/your-confirmation-code");
 
-        const outputs = await testProject.getAmplifyOutputs();
-        const emailOutputs = assertEmailOutputsExist(outputs);
-
         await lambda.send(
             new InvokeCommand({
-                FunctionName: emailOutputs.sendFunctionName,
+                FunctionName: sendFunctionName,
                 InvocationType: "RequestResponse",
                 Payload: new TextEncoder().encode(
                     JSON.stringify({
@@ -168,12 +158,9 @@ describe("custom-domain-email integration test", { concurrency: false }, () => {
         // mailbox.clearMailbox removed — 7-day lifecycle handles cleanup
         // await mailbox.clearMailbox("editor/reset-your-password");
 
-        const outputs = await testProject.getAmplifyOutputs();
-        const emailOutputs = assertEmailOutputsExist(outputs);
-
         await lambda.send(
             new InvokeCommand({
-                FunctionName: emailOutputs.sendFunctionName,
+                FunctionName: sendFunctionName,
                 InvocationType: "RequestResponse",
                 Payload: new TextEncoder().encode(
                     JSON.stringify({
@@ -195,12 +182,9 @@ describe("custom-domain-email integration test", { concurrency: false }, () => {
         // mailbox.clearMailbox removed — 7-day lifecycle handles cleanup
         // await mailbox.clearMailbox("editor/welcome");
 
-        const outputs = await testProject.getAmplifyOutputs();
-        const emailOutputs = assertEmailOutputsExist(outputs);
-
         await lambda.send(
             new InvokeCommand({
-                FunctionName: emailOutputs.sendFunctionName,
+                FunctionName: sendFunctionName,
                 InvocationType: "RequestResponse",
                 Payload: new TextEncoder().encode(
                     JSON.stringify({

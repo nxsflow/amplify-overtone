@@ -29,32 +29,10 @@ export class EmailFactory implements ConstructFactory<ResourceProvider<EmailReso
     getInstance(factoryProps: ConstructFactoryGetInstanceProps): ResourceProvider<EmailResources> {
         if (!this.instance) {
             const emailProps = this.props;
-            const outputStrategy = factoryProps.outputStorageStrategy;
             const provider = factoryProps.constructContainer.getOrCompute({
                 resourceGroupName: "email",
                 generateContainerEntry: ({ scope }) => {
                     const construct = new AmplifyEmail(scope, "AmplifyEmail", emailProps);
-
-                    // Register outputs so schema actions (Spec B) can discover config
-                    outputStrategy.addBackendOutputEntry("AWS::Amplify::Custom", {
-                        version: "1",
-                        payload: {
-                            customOutputs: JSON.stringify({
-                                custom: {
-                                    email: {
-                                        sendFunctionName: construct.resources.lambdaFunctionName,
-                                        userLookupFunctionName:
-                                            construct.resources.userLookupFunctionName,
-                                        ...(construct.resources.emailDomain
-                                            ? { domain: construct.resources.emailDomain }
-                                            : {}),
-                                        defaultSender: emailProps.defaultSender ?? "noreply",
-                                    },
-                                },
-                            }),
-                        },
-                    });
-
                     return { resources: construct.resources };
                 },
             });
