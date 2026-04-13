@@ -1,5 +1,8 @@
 {
     "extends": "../../tsconfig.json",
     "include": ["src"],
-    "exclude": ["src/test-projects/*/amplify"]
+    "exclude": ["src/test-projects/*/amplify"],
+    "compilerOptions": {
+        "types": ["node"]
+    }
 }

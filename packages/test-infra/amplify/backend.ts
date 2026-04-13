@@ -19,6 +19,16 @@ backend.auth.resources.cfnResources.cfnUserPool.addPropertyOverride(
     true,
 );
 
+backend.auth.resources.cfnResources.cfnUserPoolClient.addPropertyOverride(
+    "ExplicitAuthFlows",
+    [
+        "ALLOW_CUSTOM_AUTH",
+        "ALLOW_USER_SRP_AUTH",
+        "ALLOW_REFRESH_TOKEN_AUTH",
+        "ALLOW_USER_PASSWORD_AUTH",
+    ],
+);
+
 const testUsersSecretName = "overtone-test-users";
 
 new AddLifeCycleRule(backend.storage.stack, "StorageLifecycle", {
