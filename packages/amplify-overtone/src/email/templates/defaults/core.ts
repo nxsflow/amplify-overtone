@@ -19,9 +19,7 @@ export const coreTemplate: TemplateDefinition = {
 </div>`
                 : "";
 
-        const footerHtml = data.footer
-            ? `<p style="${S.footerText}">${data.footer}</p>`
-            : "";
+        const footerHtml = data.footer ? `<p style="${S.footerText}">${data.footer}</p>` : "";
 
         return `<p style="${S.header}">${data.header}</p>
 <p style="${S.bodyText}">${data.body}</p>

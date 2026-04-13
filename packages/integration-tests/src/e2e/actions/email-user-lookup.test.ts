@@ -146,10 +146,7 @@ describe("email-user-lookup integration test", { concurrency: false }, () => {
             email.body.includes("Otto Owner ("),
             "Body should contain invitedBy givenName + familyName",
         );
-        assert.ok(
-            email.body.includes("owner@"),
-            "Body should contain invitedBy email",
-        );
+        assert.ok(email.body.includes("owner@"), "Body should contain invitedBy email");
         assert.ok(
             email.body.includes("invited Reed Reader to collaborate"),
             "Body should contain recipient name (full display name)",

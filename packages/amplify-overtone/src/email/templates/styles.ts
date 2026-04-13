@@ -17,8 +17,7 @@ const color = {
     border: "#E5E5E0",
 } as const;
 
-const font =
-    "'Merriweather Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif";
+const font = "'Merriweather Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif";
 
 // ── Composed style strings ─────────────────────────────────────
 
