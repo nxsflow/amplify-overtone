@@ -17,17 +17,16 @@ let actionCounter = 0;
 /**
  * Creates an email action compatible with `a.schema()`.
  *
- * Wraps `a.mutation()` and adds:
- * - `.template()` — compiles callbacks into {{variable}} strings
- * - Detects `n.userId()` arguments for pipeline resolver wiring
- * - Stores metadata on OVERTONE_EMAIL_META symbol
- * - Registers action in the module-level registry with a unique ID
- * - Writes a per-action AppSync JS resolver file and chains `.handler()`
+ * Returns an object that wraps `a.mutation()` and delegates all builder
+ * methods to it (`.arguments()`, `.authorization()`, `.returns()`, etc.).
+ * Adds `.template()` for email-specific template compilation.
+ *
+ * Methods modify internal state and return `this` — same pattern as `a.model()`.
+ * The underlying mutation object is exposed to `a.schema()` via symbol access.
  */
 export function emailAction(config: { sender?: string }) {
-    // Start with a real Amplify mutation with default return type.
     // biome-ignore lint/suspicious/noExplicitAny: Amplify mutation builder types are not publicly exposed
-    const mutation = (a.mutation() as any).returns(a.customType({ messageId: a.string() })) as any;
+    let mutation: any = (a.mutation() as any).returns(a.customType({ messageId: a.string() }));
 
     const meta: OvertoneEmailMeta = {
         ...(config.sender !== undefined ? { sender: config.sender } : {}),
@@ -35,78 +34,67 @@ export function emailAction(config: { sender?: string }) {
         hasRecipientUserId: false,
     };
 
-    // biome-ignore lint/suspicious/noExplicitAny: proxy wraps opaque Amplify mutation builder
-    function wrapWithProxy(target: any): any {
-        const proxy = new Proxy(target, {
-            get(t, prop, receiver) {
-                // Return metadata when symbol is accessed
-                if (prop === OVERTONE_EMAIL_META) {
-                    return meta;
+    const emailBuilder = {
+        /** Access the underlying mutation — used by a.schema() internals. */
+        get data() {
+            return mutation.data;
+        },
+
+        /** Overtone metadata symbol — used by the email factory. */
+        [OVERTONE_EMAIL_META]: meta,
+
+        /** Define mutation arguments. Detects n.userId() fields. */
+        arguments(args: Record<string, unknown>) {
+            meta.userIdArgNames = [];
+            for (const [name, field] of Object.entries(args)) {
+                if (isUserIdField(field)) {
+                    meta.userIdArgNames.push(name);
                 }
+            }
+            meta.hasRecipientUserId = meta.userIdArgNames.includes("recipient");
+            mutation = mutation.arguments(args);
+            return this;
+        },
 
-                // Intercept .arguments() to detect n.userId() fields
-                if (prop === "arguments") {
-                    return (args: Record<string, unknown>) => {
-                        meta.userIdArgNames = [];
-                        for (const [name, field] of Object.entries(args)) {
-                            if (isUserIdField(field)) {
-                                meta.userIdArgNames.push(name);
-                            }
-                        }
-                        meta.hasRecipientUserId = meta.userIdArgNames.includes("recipient");
+        /** Compile email template and wire handler. */
+        template(templateInput: EmailTemplateInput) {
+            meta.templateInput = templateInput;
+            meta.compiledTemplate = compileTemplate(templateInput, meta.userIdArgNames);
 
-                        // Pass through to Amplify
-                        const result = t.arguments(args);
-                        return wrapWithProxy(result);
-                    };
-                }
+            const actionId = `email-action-${++actionCounter}`;
+            registerEmailAction(actionId, meta);
 
-                // Add .template() method
-                if (prop === "template") {
-                    return (templateInput: EmailTemplateInput) => {
-                        meta.templateInput = templateInput;
-                        meta.compiledTemplate = compileTemplate(templateInput, meta.userIdArgNames);
+            const resolverFilePath = writeResolverFile(actionId);
+            mutation = mutation.handler(
+                a.handler.custom({
+                    dataSource: "OvertoneEmailDS",
+                    entry: resolverFilePath,
+                }),
+            );
 
-                        // Generate a unique action ID and register in the registry
-                        const actionId = `email-action-${++actionCounter}`;
-                        registerEmailAction(actionId, meta);
+            return this;
+        },
 
-                        // Write per-action resolver file to temp directory
-                        const resolverFilePath = writeResolverFile(actionId);
+        /** Pass through to Amplify mutation. */
+        authorization(authFn: unknown) {
+            mutation = mutation.authorization(authFn);
+            return this;
+        },
 
-                        // Chain .handler() on the underlying mutation
-                        const withHandler = t.handler(
-                            a.handler.custom({
-                                dataSource: "OvertoneEmailDS",
-                                entry: resolverFilePath,
-                            }),
-                        );
+        /** Pass through to Amplify mutation. */
+        returns(returnType: unknown) {
+            mutation = mutation.returns(returnType);
+            return this;
+        },
 
-                        return wrapWithProxy(withHandler);
-                    };
-                }
+        /** Pass through to Amplify mutation. */
+        handler(handlerRef: unknown) {
+            mutation = mutation.handler(handlerRef);
+            return this;
+        },
+    };
 
-                // Pass through all other methods (.authorization, .returns, .handler, etc.)
-                const value = Reflect.get(t, prop, receiver);
-                if (typeof value === "function") {
-                    return (...fnArgs: unknown[]) => {
-                        const result = value.apply(t, fnArgs);
-                        // If the method returns a new object (chaining), wrap it too
-                        if (result && typeof result === "object" && result !== t) {
-                            return wrapWithProxy(result);
-                        }
-                        return result;
-                    };
-                }
-
-                return value;
-            },
-        });
-
-        return proxy;
-    }
-
-    return wrapWithProxy(mutation);
+    return emailBuilder;
 }
 
 function writeResolverFile(actionId: string): string {
@@ -137,7 +125,6 @@ export function response(ctx) {
 }
 
 function compileTemplate(input: EmailTemplateInput, userIdArgNames: string[]): CompiledTemplate {
-    // Build a minimal args map for the template compiler
     const fakeArgs: Record<string, { resolveType?: "cognitoUser" }> = {};
     for (const name of userIdArgNames) {
         fakeArgs[name] = { resolveType: "cognitoUser" };
