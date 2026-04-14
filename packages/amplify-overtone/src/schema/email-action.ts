@@ -1,4 +1,8 @@
+import * as fs from "node:fs";
+import * as os from "node:os";
+import * as path from "node:path";
 import { a } from "@aws-amplify/data-schema";
+import { registerEmailAction } from "./action-registry.js";
 import { isUserIdField } from "./field-types.js";
 import { compileTemplateField } from "./template-compiler.js";
 import {
@@ -8,6 +12,8 @@ import {
     type OvertoneEmailMeta,
 } from "./types.js";
 
+let actionCounter = 0;
+
 /**
  * Creates an email action compatible with `a.schema()`.
  *
@@ -15,6 +21,8 @@ import {
  * - `.template()` — compiles callbacks into {{variable}} strings
  * - Detects `n.userId()` arguments for pipeline resolver wiring
  * - Stores metadata on OVERTONE_EMAIL_META symbol
+ * - Registers action in the module-level registry with a unique ID
+ * - Writes a per-action AppSync JS resolver file and chains `.handler()`
  */
 export function emailAction(config: { sender?: string }) {
     // Start with a real Amplify mutation with default return type.
@@ -58,7 +66,23 @@ export function emailAction(config: { sender?: string }) {
                     return (templateInput: EmailTemplateInput) => {
                         meta.templateInput = templateInput;
                         meta.compiledTemplate = compileTemplate(templateInput, meta.userIdArgNames);
-                        return proxy; // Return same proxy (template doesn't change Amplify state)
+
+                        // Generate a unique action ID and register in the registry
+                        const actionId = `email-action-${++actionCounter}`;
+                        registerEmailAction(actionId, meta);
+
+                        // Write per-action resolver file to temp directory
+                        const resolverFilePath = writeResolverFile(actionId);
+
+                        // Chain .handler() on the underlying mutation
+                        const withHandler = t.handler(
+                            a.handler.custom({
+                                dataSource: "OvertoneEmailDS",
+                                entry: resolverFilePath,
+                            }),
+                        );
+
+                        return wrapWithProxy(withHandler);
                     };
                 }
 
@@ -83,6 +107,33 @@ export function emailAction(config: { sender?: string }) {
     }
 
     return wrapWithProxy(mutation);
+}
+
+function writeResolverFile(actionId: string): string {
+    const resolversDir = path.join(os.tmpdir(), "overtone-resolvers");
+    fs.mkdirSync(resolversDir, { recursive: true });
+
+    const filePath = path.join(resolversDir, `${actionId}.js`);
+    const content = `export function request(ctx) {
+  return {
+    operation: "Invoke",
+    payload: {
+      actionId: "${actionId}",
+      fieldName: ctx.info.fieldName,
+      arguments: ctx.args,
+    },
+  };
+}
+
+export function response(ctx) {
+  if (ctx.error) {
+    return util.error(ctx.error.message, ctx.error.type);
+  }
+  return ctx.result;
+}
+`;
+    fs.writeFileSync(filePath, content, "utf8");
+    return filePath;
 }
 
 function compileTemplate(input: EmailTemplateInput, userIdArgNames: string[]): CompiledTemplate {

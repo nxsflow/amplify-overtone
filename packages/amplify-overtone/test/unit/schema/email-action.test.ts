@@ -1,5 +1,9 @@
+import * as fs from "node:fs";
+import * as os from "node:os";
+import * as path from "node:path";
 import { a } from "@aws-amplify/data-schema";
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { clearActionRegistry, getRegisteredActions } from "../../../src/schema/action-registry.js";
 import { emailAction } from "../../../src/schema/email-action.js";
 import { userId } from "../../../src/schema/field-types.js";
 import type { OvertoneEmailMeta } from "../../../src/schema/types.js";
@@ -9,6 +13,87 @@ function getMeta(action: unknown): OvertoneEmailMeta {
     // biome-ignore lint/suspicious/noExplicitAny: accessing symbol from opaque proxy in test
     return (action as any)[OVERTONE_EMAIL_META];
 }
+
+describe("action registry", () => {
+    beforeEach(() => {
+        clearActionRegistry();
+    });
+
+    afterEach(() => {
+        clearActionRegistry();
+    });
+
+    it("starts empty after clear", () => {
+        expect(getRegisteredActions()).toHaveLength(0);
+    });
+
+    it("registers an action when .template() is called", () => {
+        emailAction({ sender: "noreply" })
+            .arguments({ name: a.string().required() })
+            .template({ subject: "Hello", header: "Hi", body: "Welcome." });
+
+        const actions = getRegisteredActions();
+        expect(actions).toHaveLength(1);
+    });
+
+    it("assigns unique IDs to multiple actions", () => {
+        emailAction({ sender: "noreply" })
+            .arguments({ name: a.string().required() })
+            .template({ subject: "Hello", header: "Hi", body: "Welcome." });
+
+        emailAction({ sender: "support" })
+            .arguments({ name: a.string().required() })
+            .template({ subject: "Support", header: "Hello", body: "Contact us." });
+
+        const actions = getRegisteredActions();
+        expect(actions).toHaveLength(2);
+
+        const ids = actions.map((a) => a.id);
+        expect(new Set(ids).size).toBe(2);
+        for (const id of ids) {
+            expect(id).toMatch(/^email-action-\d+$/);
+        }
+    });
+
+    it("stores compiled template in registry entry", () => {
+        emailAction({ sender: "noreply" })
+            .arguments({ recipient: userId(), projectName: a.string().required() })
+            .template({
+                // biome-ignore lint/suspicious/noExplicitAny: template args typed via Proxy at runtime
+                subject: ({ projectName }: Record<string, any>) => `Invite to ${projectName}`,
+                header: "Invitation",
+                body: "You have been invited.",
+            });
+
+        const actions = getRegisteredActions();
+        expect(actions).toHaveLength(1);
+
+        const { meta } = actions[0];
+        expect(meta.compiledTemplate?.subject).toBe("Invite to {{projectName}}");
+        expect(meta.compiledTemplate?.header).toBe("Invitation");
+        expect(meta.sender).toBe("noreply");
+        expect(meta.userIdArgNames).toContain("recipient");
+        expect(meta.hasRecipientUserId).toBe(true);
+    });
+
+    it("writes a resolver file to the temp directory", () => {
+        emailAction({ sender: "noreply" })
+            .arguments({ name: a.string().required() })
+            .template({ subject: "Hello", header: "Hi", body: "Welcome." });
+
+        const actions = getRegisteredActions();
+        expect(actions).toHaveLength(1);
+
+        const actionId = actions[0].id;
+        const expectedPath = path.join(os.tmpdir(), "overtone-resolvers", `${actionId}.js`);
+        expect(fs.existsSync(expectedPath)).toBe(true);
+
+        const content = fs.readFileSync(expectedPath, "utf8");
+        expect(content).toContain(`actionId: "${actionId}"`);
+        expect(content).toContain("export function request(ctx)");
+        expect(content).toContain("export function response(ctx)");
+    });
+});
 
 describe("n.email()", () => {
     it("is accepted by a.schema() as a mutation", () => {
