@@ -18,8 +18,6 @@ export type {
     TemplateField,
 } from "./schema/index.js";
 export {
-    addEmailResolvers,
-    extractEmailActions,
     isUserIdField,
     n,
     OVERTONE_EMAIL_META,

@@ -1,6 +1,5 @@
 export { isUserIdField } from "./field-types.js";
 export { n } from "./namespace.js";
-export { addEmailResolvers, extractEmailActions } from "./resolver-wiring.js";
 export type {
     CallToActionInput,
     CognitoUserFields,

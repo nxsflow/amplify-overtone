@@ -3,11 +3,9 @@ import type {
     ConstructFactoryGetInstanceProps,
     ResourceProvider,
 } from "@aws-amplify/plugin-types";
-import { Code, FunctionRuntime } from "aws-cdk-lib/aws-appsync";
 import { Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
-import type { IFunction } from "aws-cdk-lib/aws-lambda";
+import type { Function as LambdaFunction, IFunction } from "aws-cdk-lib/aws-lambda";
 import { getRegisteredActions } from "../schema/action-registry.js";
-import { generateEmailInvokeCode, type ResolverAction } from "../schema/resolver-generator.js";
 import { AmplifyEmail } from "./construct.js";
 import type { EmailDefinition, EmailProps, EmailResources } from "./types.js";
 
@@ -108,7 +106,7 @@ export class EmailFactory implements ConstructFactory<ResourceProvider<EmailReso
                 recipientArg: action.meta.hasRecipientUserId ? "recipient" : undefined,
             };
         }
-        construct.resources.sendLambda.addEnvironment(
+        (construct.resources.sendLambda as LambdaFunction).addEnvironment(
             "EMAIL_TEMPLATES",
             JSON.stringify(templateMap),
         );
@@ -125,7 +123,10 @@ export class EmailFactory implements ConstructFactory<ResourceProvider<EmailReso
                 const userPoolId: string | undefined = authResources?.userPool?.userPoolId;
 
                 if (userPoolId) {
-                    construct.resources.sendLambda.addEnvironment("USER_POOL_ID", userPoolId);
+                    (construct.resources.sendLambda as LambdaFunction).addEnvironment(
+                        "USER_POOL_ID",
+                        userPoolId,
+                    );
 
                     // Grant AdminGetUser permission
                     (construct.resources.sendLambda as IFunction).addToRolePolicy?.(
@@ -137,28 +138,6 @@ export class EmailFactory implements ConstructFactory<ResourceProvider<EmailReso
                     );
                 }
             }
-        }
-
-        // Create AppSync resolvers for each action
-        for (const action of actions) {
-            const template = action.meta.compiledTemplate;
-            if (!template) continue;
-
-            const resolverAction: ResolverAction = {
-                name: action.id,
-                config: action.meta.sender !== undefined ? { sender: action.meta.sender } : {},
-                compiledTemplate: template,
-                userIdArgNames: action.meta.userIdArgNames,
-                hasRecipientUserId: action.meta.hasRecipientUserId,
-            };
-
-            dataConstruct.addResolver(`${action.id}Resolver`, {
-                typeName: "Mutation",
-                fieldName: action.id,
-                dataSource: emailDS,
-                runtime: FunctionRuntime.JS_1_0_0,
-                code: Code.fromInline(generateEmailInvokeCode(resolverAction)),
-            });
         }
     }
 }
