@@ -1,4 +1,4 @@
-import { a } from "@aws-amplify/data-schema";
+import { a, defineData } from "@aws-amplify/backend";
 import { n } from "@nxsflow/amplify-overtone";
 
 export const schemaDefinition = {
@@ -19,4 +19,11 @@ export const schemaDefinition = {
         .authorization((allow) => [allow.authenticated()]),
 };
 
-export const schema = a.schema(schemaDefinition);
+const schema = a.schema(schemaDefinition);
+
+export const data = defineData({
+    schema,
+    authorizationModes: {
+        defaultAuthorizationMode: "userPool",
+    },
+});

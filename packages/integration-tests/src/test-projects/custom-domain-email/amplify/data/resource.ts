@@ -1,5 +1,5 @@
-import { a } from "@aws-amplify/data-schema";
-import { n } from "@nxsflow/amplify-overtone";
+import { a, defineBackend, defineData } from "@aws-amplify/backend";
+import { defineEmail, n } from "@nxsflow/amplify-overtone";
 
 export const schemaDefinition = {
     sendInvite: n
@@ -25,3 +25,10 @@ export const schemaDefinition = {
 };
 
 export const schema = a.schema(schemaDefinition);
+
+export const data = defineData({
+    schema,
+    authorizationModes: {
+        defaultAuthorizationMode: "userPool",
+    },
+});
