@@ -120,8 +120,11 @@ export const handler = async (event: EmailActionEvent): Promise<SendEmailResult>
 
     // 5. Determine recipient
     let to: string;
-    if (templateConfig.recipientArg && resolvedUsers[templateConfig.recipientArg]?.email) {
-        to = resolvedUsers[templateConfig.recipientArg].email;
+    const recipientUser = templateConfig.recipientArg
+        ? resolvedUsers[templateConfig.recipientArg]
+        : undefined;
+    if (recipientUser?.email) {
+        to = recipientUser.email;
     } else {
         to = event.arguments.recipient ?? event.arguments.to ?? "";
     }

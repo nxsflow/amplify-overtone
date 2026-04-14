@@ -6,7 +6,7 @@ import { userId } from "./field-types.js";
  *
  * @example
  * ```ts
- * import { a } from "@aws-amplify/data-schema";
+ * import { a } from "@aws-amplify/backend";
  * import { n } from "@nxsflow/amplify-overtone";
  *
  * const schema = a.schema({

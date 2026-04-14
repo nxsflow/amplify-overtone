@@ -73,7 +73,7 @@ describe("send-email handler", () => {
             arguments: { greeting: "Hello", sender: "Alice", recipient: "bob@example.com" },
         });
 
-        const [sendEmailCommand] = mockSesSend.mock.calls[0];
+        const [sendEmailCommand] = mockSesSend.mock.calls[0]!;
         expect(sendEmailCommand).toBeDefined();
     });
 

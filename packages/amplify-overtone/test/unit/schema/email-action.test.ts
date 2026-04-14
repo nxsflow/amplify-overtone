@@ -68,7 +68,7 @@ describe("action registry", () => {
         const actions = getRegisteredActions();
         expect(actions).toHaveLength(1);
 
-        const { meta } = actions[0];
+        const { meta } = actions[0]!;
         expect(meta.compiledTemplate?.subject).toBe("Invite to {{projectName}}");
         expect(meta.compiledTemplate?.header).toBe("Invitation");
         expect(meta.sender).toBe("noreply");
@@ -84,7 +84,7 @@ describe("action registry", () => {
         const actions = getRegisteredActions();
         expect(actions).toHaveLength(1);
 
-        const actionId = actions[0].id;
+        const actionId = actions[0]!.id;
         const expectedPath = path.join(os.tmpdir(), "overtone-resolvers", `${actionId}.js`);
         expect(fs.existsSync(expectedPath)).toBe(true);
 
