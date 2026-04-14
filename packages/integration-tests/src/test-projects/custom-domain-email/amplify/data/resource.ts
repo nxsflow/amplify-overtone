@@ -1,5 +1,5 @@
-import { a, defineBackend, defineData } from "@aws-amplify/backend";
-import { defineEmail, n } from "@nxsflow/amplify-overtone";
+import { a, defineData } from "@aws-amplify/backend";
+import { n } from "@nxsflow/amplify-overtone";
 
 export const schemaDefinition = {
     sendInvite: n
