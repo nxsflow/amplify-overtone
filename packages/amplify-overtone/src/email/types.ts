@@ -255,9 +255,6 @@ export interface EmailResources {
     /** The send-email Lambda function (for grantInvoke, addEnvironment). */
     sendLambda: IFunction;
 
-    /** The user-lookup Lambda (for n.userId() Cognito resolution). */
-    userLookupLambda: IFunction;
-
     /**
      * The custom mail domain, or `undefined` when no domain is configured.
      *

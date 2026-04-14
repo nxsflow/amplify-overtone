@@ -51,7 +51,6 @@ function findPackageRoot(startDir: string): string {
 
 const PACKAGE_ROOT = findPackageRoot(path.dirname(fileURLToPath(import.meta.url)));
 const HANDLER_DIR = path.join(PACKAGE_ROOT, "src", "email", "functions", "send");
-const USER_LOOKUP_HANDLER_DIR = path.join(PACKAGE_ROOT, "src", "email", "functions", "user-lookup");
 
 /**
  * Internal sender representation passed to the Lambda as SENDERS_CONFIG.
@@ -171,22 +170,6 @@ export class AmplifyEmail extends Construct {
                 SENDERS_CONFIG: JSON.stringify(normalizedSenders),
                 DEFAULT_SENDER: defaultSender,
                 ...(domain ? { EMAIL_DOMAIN: domain } : {}),
-            },
-        });
-
-        // -----------------------------------------------------------------
-        // User-lookup Lambda (for n.userId() Cognito resolution)
-        // USER_POOL_ID and AdminGetUser IAM permission are added at addToBackend
-        // time, since user pool info comes from the backend config.
-        // -----------------------------------------------------------------
-
-        const userLookupFn = new NodejsFunction(this, "UserLookupFunction", {
-            entry: path.join(USER_LOOKUP_HANDLER_DIR, "handler.ts"),
-            handler: "handler",
-            runtime: Runtime.NODEJS_22_X,
-            timeout: Duration.seconds(timeoutSeconds),
-            bundling: {
-                externalModules: ["@aws-sdk/*"],
             },
         });
 
@@ -332,7 +315,6 @@ export class AmplifyEmail extends Construct {
 
         this.resources = {
             sendLambda: sendFn,
-            userLookupLambda: userLookupFn,
             emailDomain: domain,
             sesIdentityArn,
             senderKeys,
