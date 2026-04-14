@@ -1,7 +1,7 @@
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
-import { a } from "@aws-amplify/data-schema";
+import { a } from "@aws-amplify/backend";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { clearActionRegistry, getRegisteredActions } from "../../../src/schema/action-registry.js";
 import { emailAction } from "../../../src/schema/email-action.js";
@@ -171,5 +171,42 @@ describe("n.email()", () => {
 
         const schema = a.schema({ sendEmail: emailOp });
         expect(schema).toBeDefined();
+    });
+
+    it("survives schema.transform() with plain args (CDK synthesis)", () => {
+        const emailOp = emailAction({ sender: "noreply" })
+            .arguments({ name: a.string().required() })
+            .template({ subject: "Hi", header: "Hi", body: "Body." })
+            // biome-ignore lint/suspicious/noExplicitAny: Amplify authorization callback type not publicly exported
+            .authorization((allow: any) => [allow.authenticated()]);
+
+        const schema = a.schema({ sendEmail: emailOp });
+        // biome-ignore lint/suspicious/noExplicitAny: testing internal Amplify schema processing
+        const result = (schema as any).transform();
+        expect(result).toBeDefined();
+    });
+
+    it("survives schema.transform() with n.userId() args (CDK synthesis)", () => {
+        const emailOp = emailAction({ sender: "noreply" })
+            .arguments({
+                recipient: userId(),
+                invitedBy: userId(),
+                projectName: a.string().required(),
+            })
+            .template({
+                subject: ({ invitedBy, projectName }: any) =>
+                    `${invitedBy.givenName} invited you to ${projectName}`,
+                header: ({ invitedBy }: any) => `${invitedBy.name} wants to collaborate`,
+                body: ({ invitedBy, recipient, projectName }: any) =>
+                    `${invitedBy.givenName} ${invitedBy.familyName} invited ${recipient.name} to ${projectName}.`,
+                footer: "Footer text",
+            })
+            // biome-ignore lint/suspicious/noExplicitAny: Amplify authorization callback type not publicly exported
+            .authorization((allow: any) => [allow.authenticated()]);
+
+        const schema = a.schema({ sendInvite: emailOp });
+        // biome-ignore lint/suspicious/noExplicitAny: testing internal Amplify schema processing
+        const result = (schema as any).transform();
+        expect(result).toBeDefined();
     });
 });

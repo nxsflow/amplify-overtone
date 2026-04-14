@@ -1,7 +1,7 @@
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
-import { a } from "@aws-amplify/data-schema";
+import { a } from "@aws-amplify/backend";
 import { registerEmailAction } from "./action-registry.js";
 import { isUserIdField } from "./field-types.js";
 import { compileTemplateField } from "./template-compiler.js";

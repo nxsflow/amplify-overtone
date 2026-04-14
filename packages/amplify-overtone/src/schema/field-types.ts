@@ -1,5 +1,5 @@
 // src/schema/field-types.ts
-import { a } from "@aws-amplify/data-schema";
+import { a } from "@aws-amplify/backend";
 import { OVERTONE_USER_ID } from "./types.js";
 
 /**

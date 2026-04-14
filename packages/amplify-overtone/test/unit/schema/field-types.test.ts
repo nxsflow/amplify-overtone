@@ -1,6 +1,6 @@
 // test/unit/schema/field-types.test.ts
 
-import { a } from "@aws-amplify/data-schema";
+import { a } from "@aws-amplify/backend";
 import { describe, expect, it } from "vitest";
 import { isUserIdField, userId } from "../../../src/schema/field-types.js";
 import { OVERTONE_USER_ID } from "../../../src/schema/types.js";
