@@ -34,7 +34,8 @@ export function emailAction(config: { sender?: string }) {
         hasRecipientUserId: false,
     };
 
-    const emailBuilder = {
+    // biome-ignore lint/suspicious/noExplicitAny: wrapping opaque Amplify mutation builder
+    const emailBuilder: any = {
         /** Access the underlying mutation — used by a.schema() internals. */
         get data() {
             return mutation.data;
@@ -93,6 +94,17 @@ export function emailAction(config: { sender?: string }) {
             return this;
         },
     };
+
+    // Forward internal symbols (brandSymbol, etc.) from the underlying mutation.
+    // Uses getters so they always read from the current mutation after chaining.
+    for (const sym of Object.getOwnPropertySymbols(mutation)) {
+        if (sym === OVERTONE_EMAIL_META) continue;
+        Object.defineProperty(emailBuilder, sym, {
+            get() {
+                return mutation[sym];
+            },
+        });
+    }
 
     return emailBuilder;
 }

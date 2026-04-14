@@ -18,7 +18,8 @@ import { OVERTONE_USER_ID } from "./types.js";
  * If the argument is named `recipient`, the resolved email is
  * automatically used as the To address.
  */
-export function userId() {
+// biome-ignore lint/suspicious/noExplicitAny: return type is an opaque Amplify field builder
+export function userId(): any {
     const field = a.string().required();
     // biome-ignore lint/suspicious/noExplicitAny: attaching a symbol to an opaque Amplify field builder
     (field as any)[OVERTONE_USER_ID] = true;
