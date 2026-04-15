@@ -2,7 +2,12 @@
     "extends": "../../tsconfig.base.json",
     "compilerOptions": {
         "composite": false,
-        "noEmit": true
+        "noEmit": true,
+        "module": "ES2022",
+        "moduleResolution": "bundler",
+        "paths": {
+            "$amplify/*": ["./.amplify/generated/*"]
+        }
     },
     "include": ["amplify"]
 }
