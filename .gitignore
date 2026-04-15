@@ -47,4 +47,5 @@ packages/website/out/
 
 # Fumadocs generated
 .source/
-packages/test-infra/tsconfig.tsbuildinfo
+
+tsconfig.tsbuildinfo
