@@ -4,5 +4,6 @@
         "composite": false,
         "noEmit": true
     },
-    "files": []
+    "files": [],
+    "references": []
 }

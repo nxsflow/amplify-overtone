@@ -9,5 +9,6 @@
             "$amplify/*": ["./.amplify/generated/*"]
         }
     },
-    "include": ["amplify"]
+    "include": ["amplify"],
+    "references": []
 }

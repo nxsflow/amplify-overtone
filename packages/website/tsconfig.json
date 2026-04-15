@@ -13,7 +13,11 @@
             "@/*": ["./app/*", "./*"],
             "collections/*": ["./.source/*"]
         },
-        "plugins": [{ "name": "next" }]
+        "plugins": [
+            {
+                "name": "next"
+            }
+        ]
     },
     "include": [
         "next-env.d.ts",
@@ -25,5 +29,6 @@
         "components/**/*.tsx",
         ".source/**/*.ts"
     ],
-    "exclude": ["node_modules", ".next"]
+    "exclude": ["node_modules", ".next"],
+    "references": []
 }
