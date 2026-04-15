@@ -54,28 +54,35 @@ export class NpmClient {
 
     /**
      * Configure the .npmrc file with the provided npm token.
-     * If no token is set, throws an error — this client always requires a token
-     * for publishing operations.
+     * If no token is set, configures for a local npm proxy (verdaccio).
      */
     configureNpmRc = async () => {
-        if (!this.npmToken) {
-            throw new Error(
-                "NPM token is required to configure .npmrc. Use loadNpmTokenFromEnvVar() to load it.",
+        if (this.npmToken) {
+            await writeFile(
+                path.join(this.cwd, ".npmrc"),
+                `//registry.npmjs.org/:_authToken=${this.npmToken}${EOL}`,
             );
+        } else {
+            // if there's no npm token, assume we are configuring for a local proxy
+            await writeFile(path.join(this.cwd, ".npmrc"), npmrcLocalTemplate);
         }
-        await writeFile(
-            path.join(this.cwd, ".npmrc"),
-            `//registry.npmjs.org/:_authToken=${this.npmToken}${EOL}`,
-        );
     };
 }
+
+const npmrcLocalTemplate = `
+# this is a test config file used to publish locally
+//localhost:4873/:_authToken=garbage
+
+# this prevents the script-shell setting set by setup:local from being overwritten when copying the localhost config
+script-shell=bash
+`;
 
 /**
  * Loads the npm token from the NPM_TOKEN environment variable.
  * Throws if not present.
  */
 export const loadNpmTokenFromEnvVar = () => {
-    const npmToken = process.env["NPM_TOKEN"];
+    const npmToken = process.env.NPM_TOKEN;
     if (!npmToken) {
         throw new Error("The NPM access token must be set in the NPM_TOKEN environment variable.");
     }

@@ -1,0 +1,35 @@
+storage: verdaccio-cache/storage
+
+auth:
+  htpasswd:
+    file: verdaccio-cache/htpasswd
+
+uplinks:
+  npmjs:
+    url: https://registry.npmjs.org/
+    max_fails: 40
+    maxage: 30m
+    timeout: 60s
+    agent_options:
+      keepAlive: true
+      maxSockets: 40
+      maxFreeSockets: 10
+
+packages:
+  "@*/*":
+    access: $all
+    publish: $all
+    proxy: npmjs
+
+  "**":
+    access: $all
+    publish: $all
+    proxy: npmjs
+
+logs:
+  - { type: stdout, format: pretty, level: warn }
+
+server:
+  keepAliveTimeout: 0
+
+max_body_size: 500mb
