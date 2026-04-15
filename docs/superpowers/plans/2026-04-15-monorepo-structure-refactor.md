@@ -44,93 +44,88 @@ Replace the entire root `package.json` with npm workspace configuration. Key cha
 
 ```json
 {
-    "name": "amplify-overtone",
-    "version": "0.0.1",
-    "private": true,
-    "type": "module",
-    "license": "Apache-2.0",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/nxsflow/amplify-overtone.git"
-    },
-    "scripts": {
-        "build": "tsc --build packages/*",
-        "test": "npm run test:dir $(tsx scripts/get_unit_test_dir_list.ts)",
-        "test:dir": "tsx scripts/run_tests.ts",
-        "test:coverage:threshold": "c8 npm run test",
-        "test:scripts": "npm run test:dir $(glob --cwd=scripts --absolute **/*.test.ts)",
-        "typecheck": "tsc --build packages/*",
-        "lint": "biome check --error-on-warnings . && tsx scripts/check_package_json.ts",
-        "lint:fix": "biome check --write . && biome format --write .",
-        "format": "biome format --write .",
-        "check:api": "npm run update:api && tsx scripts/check_api_extract.ts",
-        "check:dependencies": "tsx scripts/check_dependencies.ts",
-        "check:package-lock": "tsx scripts/check_package_lock.ts",
-        "check:package-versions": "tsx scripts/check_package_versions.ts",
-        "check:tsconfig-refs": "npm run update:tsconfig-refs && tsx scripts/check_no_git_diff.ts",
-        "clean": "npm run clean:build && npm run clean:npm-proxy && rimraf --glob node_modules coverage packages/*/node_modules",
-        "clean:build": "rimraf --glob packages/*/lib packages/*/tsconfig.tsbuildinfo",
-        "clean:npm-proxy": "npm run stop:npm-proxy && rimraf verdaccio-cache verdaccio-logs.txt",
-        "diff:check": "tsx scripts/check_pr_size.ts",
-        "new": "tsx scripts/copy_template.ts",
-        "prepare": "husky",
-        "publish": "tsx scripts/publish.ts",
-        "publish:local": "tsx scripts/publish_local.ts",
-        "publish:snapshot": "tsx scripts/publish_snapshot.ts",
-        "start:npm-proxy": "tsx scripts/start_npm_proxy.ts",
-        "stop:npm-proxy": "tsx scripts/stop_npm_proxy.ts",
-        "update:api": "npm run build && api-extractor run --local -c packages/amplify-overtone/api-extractor.json && api-extractor run --local -c packages/amplify-overtone-client/api-extractor.json",
-        "update:tsconfig-refs": "tsx scripts/update_tsconfig_refs.ts",
-        "vend": "npm run start:npm-proxy && npm run publish:local",
-        "watch": "npm run build -- --watch",
-        "aws:login": "./scripts/aws-login.sh",
-        "overtone:build": "npm run build -w @nxsflow/amplify-overtone",
-        "overtone:test": "npm run test -w @nxsflow/amplify-overtone",
-        "overtone:typecheck": "npm run typecheck -w @nxsflow/amplify-overtone",
-        "client:build": "npm run build -w @nxsflow/amplify-overtone-client",
-        "client:test": "npm run test -w @nxsflow/amplify-overtone-client",
-        "client:typecheck": "npm run typecheck -w @nxsflow/amplify-overtone-client",
-        "test-infra:typecheck": "npm run typecheck -w @nxsflow/test-infra",
-        "test-infra:deploy": "npm run deploy -w @nxsflow/test-infra",
-        "test-infra:destroy": "npm run destroy -w @nxsflow/test-infra",
-        "e2e:typecheck": "npm run typecheck -w @nxsflow/integration-tests",
-        "e2e:test": "npm run test:e2e -w @nxsflow/integration-tests",
-        "website:dev": "npm run dev -w @nxsflow/website",
-        "website:build": "npm run build -w @nxsflow/website",
-        "website:typecheck": "npm run typecheck -w @nxsflow/website"
-    },
-    "engines": {
-        "node": "^18.19.0 || ^20.6.0 || >=22"
-    },
-    "workspaces": [
-        "packages/*"
-    ],
-    "devDependencies": {
-        "@biomejs/biome": "2.4.10",
-        "@changesets/cli": "^2.30.0",
-        "@changesets/get-release-plan": "^4.0.0",
-        "@changesets/types": "^6.0.0",
-        "@microsoft/api-extractor": "^7.57.7",
-        "@octokit/rest": "^22.0.1",
-        "c8": "^10.1.3",
-        "esbuild": "^0.27.7",
-        "glob": "^11.1.0",
-        "husky": "^9.1.7",
-        "lint-staged": "^15.2.10",
-        "rimraf": "^6.0.1",
-        "semver": "^7.5.4",
-        "tsx": "4.19.4",
-        "typescript": "^5.9.3",
-        "verdaccio": "^6.2.5"
-    },
-    "lint-staged": {
-        "*.ts": [
-            "biome check --write",
-            "biome format --write"
-        ],
-        "*.json": "biome format --write",
-        "*.yml": "biome format --write"
-    }
+  "name": "amplify-overtone",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nxsflow/amplify-overtone.git"
+  },
+  "scripts": {
+    "build": "tsc --build packages/*",
+    "test": "npm run test:dir $(tsx scripts/get_unit_test_dir_list.ts)",
+    "test:dir": "tsx scripts/run_tests.ts",
+    "test:coverage:threshold": "c8 npm run test",
+    "test:scripts": "npm run test:dir $(glob --cwd=scripts --absolute **/*.test.ts)",
+    "typecheck": "tsc --build packages/*",
+    "lint": "biome check --error-on-warnings . && tsx scripts/check_package_json.ts",
+    "lint:fix": "biome check --write . && biome format --write .",
+    "format": "biome format --write .",
+    "check:api": "npm run update:api && tsx scripts/check_api_extract.ts",
+    "check:dependencies": "tsx scripts/check_dependencies.ts",
+    "check:package-lock": "tsx scripts/check_package_lock.ts",
+    "check:package-versions": "tsx scripts/check_package_versions.ts",
+    "check:tsconfig-refs": "npm run update:tsconfig-refs && tsx scripts/check_no_git_diff.ts",
+    "clean": "npm run clean:build && npm run clean:npm-proxy && rimraf --glob node_modules coverage packages/*/node_modules",
+    "clean:build": "rimraf --glob packages/*/lib packages/*/tsconfig.tsbuildinfo",
+    "clean:npm-proxy": "npm run stop:npm-proxy && rimraf verdaccio-cache verdaccio-logs.txt",
+    "diff:check": "tsx scripts/check_pr_size.ts",
+    "new": "tsx scripts/copy_template.ts",
+    "prepare": "husky",
+    "publish": "tsx scripts/publish.ts",
+    "publish:local": "tsx scripts/publish_local.ts",
+    "publish:snapshot": "tsx scripts/publish_snapshot.ts",
+    "start:npm-proxy": "tsx scripts/start_npm_proxy.ts",
+    "stop:npm-proxy": "tsx scripts/stop_npm_proxy.ts",
+    "update:api": "npm run build && api-extractor run --local -c packages/amplify-overtone/api-extractor.json && api-extractor run --local -c packages/amplify-overtone-client/api-extractor.json",
+    "update:tsconfig-refs": "tsx scripts/update_tsconfig_refs.ts",
+    "vend": "npm run start:npm-proxy && npm run publish:local",
+    "watch": "npm run build -- --watch",
+    "aws:login": "./scripts/aws-login.sh",
+    "overtone:build": "npm run build -w @nxsflow/amplify-overtone",
+    "overtone:test": "npm run test -w @nxsflow/amplify-overtone",
+    "overtone:typecheck": "npm run typecheck -w @nxsflow/amplify-overtone",
+    "client:build": "npm run build -w @nxsflow/amplify-overtone-client",
+    "client:test": "npm run test -w @nxsflow/amplify-overtone-client",
+    "client:typecheck": "npm run typecheck -w @nxsflow/amplify-overtone-client",
+    "test-infra:typecheck": "npm run typecheck -w @nxsflow/test-infra",
+    "test-infra:deploy": "npm run deploy -w @nxsflow/test-infra",
+    "test-infra:destroy": "npm run destroy -w @nxsflow/test-infra",
+    "e2e:typecheck": "npm run typecheck -w @nxsflow/integration-tests",
+    "e2e:test": "npm run test:e2e -w @nxsflow/integration-tests",
+    "website:dev": "npm run dev -w @nxsflow/website",
+    "website:build": "npm run build -w @nxsflow/website",
+    "website:typecheck": "npm run typecheck -w @nxsflow/website"
+  },
+  "engines": {
+    "node": "^18.19.0 || ^20.6.0 || >=22"
+  },
+  "workspaces": ["packages/*"],
+  "devDependencies": {
+    "@biomejs/biome": "2.4.10",
+    "@changesets/cli": "^2.30.0",
+    "@changesets/get-release-plan": "^4.0.0",
+    "@changesets/types": "^6.0.0",
+    "@microsoft/api-extractor": "^7.57.7",
+    "@octokit/rest": "^22.0.1",
+    "c8": "^10.1.3",
+    "esbuild": "^0.27.7",
+    "glob": "^11.1.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.10",
+    "rimraf": "^6.0.1",
+    "semver": "^7.5.4",
+    "tsx": "4.19.4",
+    "typescript": "^5.9.3",
+    "verdaccio": "^6.2.5"
+  },
+  "lint-staged": {
+    "*.ts": ["biome check --write", "biome format --write"],
+    "*.json": "biome format --write",
+    "*.yml": "biome format --write"
+  }
 }
 ```
 
@@ -141,12 +136,14 @@ Note: Many scripts reference files that don't exist yet (e.g., `scripts/run_test
 In `packages/integration-tests/package.json`, change `workspace:*` to `*`:
 
 Replace:
+
 ```json
 "@nxsflow/amplify-overtone": "workspace:*",
 "@nxsflow/amplify-overtone-client": "workspace:*",
 ```
 
 With:
+
 ```json
 "@nxsflow/amplify-overtone": "*",
 "@nxsflow/amplify-overtone-client": "*",
@@ -159,6 +156,7 @@ In `packages/amplify-overtone/package.json`, update scripts (build/test scripts 
 In `packages/test-infra/package.json`, change lint/format scripts:
 
 Replace:
+
 ```json
 "lint": "biome check",
 "format": "biome format --write",
@@ -175,6 +173,7 @@ npm install
 ```
 
 Verify the lockfile was created:
+
 ```bash
 ls -la package-lock.json
 ```
@@ -316,74 +315,75 @@ amplify-backend enforces snake_case for files and kebab-case for folders via ESL
 
 ```json
 {
-    "$schema": "https://biomejs.dev/schemas/2.4.10/schema.json",
-    "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
-    "files": {
-        "ignoreUnknown": true,
-        "includes": [
-            "**",
-            "!dist",
-            "!lib",
-            "!node_modules",
-            "!*.d.ts",
-            "!.changeset",
-            ".claude/**",
-            "!.next",
-            "!.source",
-            "!temp",
-            "!verdaccio-cache",
-            "!coverage"
-        ]
-    },
-    "formatter": {
-        "enabled": true,
-        "indentStyle": "space",
-        "indentWidth": 4,
-        "lineWidth": 100
-    },
-    "linter": {
-        "enabled": true,
-        "rules": {
-            "recommended": true,
-            "suspicious": {
-                "noUnknownAtRules": "error",
-                "noThenProperty": "off"
-            },
-            "style": {
-                "useImportType": "error",
-                "noNonNullAssertion": "off",
-                "useNodejsImportProtocol": "error",
-                "noDefaultExport": "error"
-            },
-            "complexity": {
-                "noStaticOnlyClass": "error"
-            }
-        }
-    },
-    "assist": { "actions": { "source": { "organizeImports": "on" } } },
-    "javascript": {
-        "formatter": {
-            "quoteStyle": "double",
-            "trailingCommas": "all",
-            "semicolons": "always"
-        }
-    },
-    "overrides": [
-        {
-            "includes": ["*.config.ts", "*.config.js", "next.config.ts"],
-            "linter": {
-                "rules": {
-                    "style": {
-                        "noDefaultExport": "off"
-                    }
-                }
-            }
-        }
+  "$schema": "https://biomejs.dev/schemas/2.4.10/schema.json",
+  "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
+  "files": {
+    "ignoreUnknown": true,
+    "includes": [
+      "**",
+      "!dist",
+      "!lib",
+      "!node_modules",
+      "!*.d.ts",
+      "!.changeset",
+      ".claude/**",
+      "!.next",
+      "!.source",
+      "!temp",
+      "!verdaccio-cache",
+      "!coverage"
     ]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 4,
+    "lineWidth": 100
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "suspicious": {
+        "noUnknownAtRules": "error",
+        "noThenProperty": "off"
+      },
+      "style": {
+        "useImportType": "error",
+        "noNonNullAssertion": "off",
+        "useNodejsImportProtocol": "error",
+        "noDefaultExport": "error"
+      },
+      "complexity": {
+        "noStaticOnlyClass": "error"
+      }
+    }
+  },
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double",
+      "trailingCommas": "all",
+      "semicolons": "always"
+    }
+  },
+  "overrides": [
+    {
+      "includes": ["*.config.ts", "*.config.js", "next.config.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noDefaultExport": "off"
+          }
+        }
+      }
+    }
+  ]
 }
 ```
 
 Key additions matching amplify-backend:
+
 - `useNodejsImportProtocol`: forces `node:` prefix (matches amplify-backend's Node16 resolution)
 - `noDefaultExport`: prefer named exports (matches amplify-backend pattern)
 - `noStaticOnlyClass`: matches amplify-backend's `@shopify/no-fully-static-class`
@@ -398,6 +398,7 @@ npx biome check .
 ```
 
 Fix any violations that arise from the new rules. The most likely issues:
+
 - Missing `node:` prefix on built-in imports → add `node:` prefix
 - Default exports in non-config files → convert to named exports
 
@@ -428,28 +429,28 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 
 ```json
 {
-    "compilerOptions": {
-        "target": "ES2022",
-        "module": "Node16",
-        "moduleResolution": "Node16",
-        "lib": ["ES2022"],
-        "composite": true,
-        "declaration": true,
-        "declarationMap": true,
-        "strict": true,
-        "exactOptionalPropertyTypes": true,
-        "noUncheckedIndexedAccess": true,
-        "noImplicitOverride": true,
-        "noImplicitReturns": true,
-        "noUnusedLocals": false,
-        "noUnusedParameters": false,
-        "skipLibCheck": true,
-        "esModuleInterop": true,
-        "resolveJsonModule": true,
-        "inlineSourceMap": true,
-        "inlineSources": true
-    },
-    "exclude": ["**/node_modules", "**/lib"]
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "Node16",
+    "moduleResolution": "Node16",
+    "lib": ["ES2022"],
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "strict": true,
+    "exactOptionalPropertyTypes": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "inlineSourceMap": true,
+    "inlineSources": true
+  },
+  "exclude": ["**/node_modules", "**/lib"]
 }
 ```
 
@@ -459,7 +460,7 @@ Replace with:
 
 ```json
 {
-    "extends": "./tsconfig.base.json"
+  "extends": "./tsconfig.base.json"
 }
 ```
 
@@ -492,11 +493,11 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 
 ```json
 {
-    "extends": "../../tsconfig.base.json",
-    "compilerOptions": {
-        "rootDir": "src",
-        "outDir": "lib"
-    }
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "lib"
+  }
 }
 ```
 
@@ -506,11 +507,11 @@ Note: We remove `"include": ["src", "test"]` because with composite builds, `roo
 
 ```json
 {
-    "extends": "../../tsconfig.base.json",
-    "compilerOptions": {
-        "rootDir": "src",
-        "outDir": "lib"
-    }
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "lib"
+  }
 }
 ```
 
@@ -520,12 +521,12 @@ For `packages/integration-tests/tsconfig.json` — this is a private package tha
 
 ```json
 {
-    "extends": "../../tsconfig.base.json",
-    "compilerOptions": {
-        "composite": false,
-        "noEmit": true
-    },
-    "include": ["src"]
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": false,
+    "noEmit": true
+  },
+  "include": ["src"]
 }
 ```
 
@@ -533,12 +534,12 @@ For `packages/test-infra/tsconfig.json` — same pattern, private, no build outp
 
 ```json
 {
-    "extends": "../../tsconfig.base.json",
-    "compilerOptions": {
-        "composite": false,
-        "noEmit": true
-    },
-    "include": ["amplify"]
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": false,
+    "noEmit": true
+  },
+  "include": ["amplify"]
 }
 ```
 
@@ -582,61 +583,57 @@ Key changes: remove tsup, remove CJS output, point to `lib/` instead of `dist/`,
 
 ```json
 {
-    "name": "@nxsflow/amplify-overtone",
-    "version": "0.3.0-beta.9",
-    "description": "Extend AWS Amplify Gen 2 with email, collaboration, and local-first support — backend constructs and resolvers",
-    "type": "module",
-    "license": "Apache-2.0",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/nxsflow/amplify-overtone.git",
-        "directory": "packages/amplify-overtone"
+  "name": "@nxsflow/amplify-overtone",
+  "version": "0.3.0-beta.9",
+  "description": "Extend AWS Amplify Gen 2 with email, collaboration, and local-first support — backend constructs and resolvers",
+  "type": "module",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nxsflow/amplify-overtone.git",
+    "directory": "packages/amplify-overtone"
+  },
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "import": "./lib/index.js"
     },
-    "exports": {
-        ".": {
-            "types": "./lib/index.d.ts",
-            "import": "./lib/index.js"
-        },
-        "./email": {
-            "types": "./lib/email/index.d.ts",
-            "import": "./lib/email/index.js"
-        }
-    },
-    "main": "lib/index.js",
-    "types": "lib/index.d.ts",
-    "files": [
-        "lib",
-        "src/email/functions",
-        "src/email/templates",
-        "README.md"
-    ],
-    "scripts": {
-        "build": "tsc --build",
-        "watch": "tsc --build --watch",
-        "test": "node --test lib/test/**/*.test.js",
-        "typecheck": "tsc --build"
-    },
-    "peerDependencies": {
-        "@aws-amplify/backend": "^1.0.0",
-        "@aws-amplify/plugin-types": "^1.0.0",
-        "aws-cdk-lib": "^2.0.0",
-        "constructs": "^10.0.0"
-    },
-    "devDependencies": {
-        "@aws-amplify/backend": "^1.21.0",
-        "@aws-amplify/plugin-types": "^1.12.0",
-        "@aws-sdk/client-cognito-identity-provider": "^3.1019.0",
-        "@aws-sdk/client-sesv2": "^3.1019.0",
-        "@types/node": "^18.15.11",
-        "aws-cdk-lib": "^2.170.0",
-        "aws-sdk-client-mock": "^4.1.0",
-        "constructs": "^10.4.2",
-        "esbuild": "^0.27.0"
+    "./email": {
+      "types": "./lib/email/index.d.ts",
+      "import": "./lib/email/index.js"
     }
+  },
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "files": ["lib", "src/email/functions", "src/email/templates", "README.md"],
+  "scripts": {
+    "build": "tsc --build",
+    "watch": "tsc --build --watch",
+    "test": "node --test lib/test/**/*.test.js",
+    "typecheck": "tsc --build"
+  },
+  "peerDependencies": {
+    "@aws-amplify/backend": "^1.0.0",
+    "@aws-amplify/plugin-types": "^1.0.0",
+    "aws-cdk-lib": "^2.0.0",
+    "constructs": "^10.0.0"
+  },
+  "devDependencies": {
+    "@aws-amplify/backend": "^1.21.0",
+    "@aws-amplify/plugin-types": "^1.12.0",
+    "@aws-sdk/client-cognito-identity-provider": "^3.1019.0",
+    "@aws-sdk/client-sesv2": "^3.1019.0",
+    "@types/node": "^18.15.11",
+    "aws-cdk-lib": "^2.170.0",
+    "aws-sdk-client-mock": "^4.1.0",
+    "constructs": "^10.4.2",
+    "esbuild": "^0.27.0"
+  }
 }
 ```
 
 Key changes:
+
 - Removed `tsup` from devDependencies
 - Removed `vitest` and `@vitest/coverage-v8` (Phase 3 handles test migration)
 - Changed `dist/` to `lib/` everywhere
@@ -649,40 +646,38 @@ Key changes:
 
 ```json
 {
-    "name": "@nxsflow/amplify-overtone-client",
-    "version": "0.1.0",
-    "description": "Extend AWS Amplify Gen 2 with email, collaboration, and local-first support — client runtime",
-    "type": "module",
-    "license": "Apache-2.0",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/nxsflow/amplify-overtone.git",
-        "directory": "packages/amplify-overtone-client"
-    },
-    "exports": {
-        ".": {
-            "types": "./lib/index.d.ts",
-            "import": "./lib/index.js"
-        }
-    },
-    "main": "lib/index.js",
-    "types": "lib/index.d.ts",
-    "files": [
-        "lib"
-    ],
-    "scripts": {
-        "build": "tsc --build",
-        "watch": "tsc --build --watch",
-        "test": "echo 'No tests yet'",
-        "typecheck": "tsc --build"
-    },
-    "peerDependencies": {
-        "aws-amplify": "^6.0.0"
-    },
-    "devDependencies": {
-        "@types/node": "^18.15.11",
-        "aws-amplify": "^6.16.3"
+  "name": "@nxsflow/amplify-overtone-client",
+  "version": "0.1.0",
+  "description": "Extend AWS Amplify Gen 2 with email, collaboration, and local-first support — client runtime",
+  "type": "module",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nxsflow/amplify-overtone.git",
+    "directory": "packages/amplify-overtone-client"
+  },
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "import": "./lib/index.js"
     }
+  },
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "files": ["lib"],
+  "scripts": {
+    "build": "tsc --build",
+    "watch": "tsc --build --watch",
+    "test": "echo 'No tests yet'",
+    "typecheck": "tsc --build"
+  },
+  "peerDependencies": {
+    "aws-amplify": "^6.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.15.11",
+    "aws-amplify": "^6.16.3"
+  }
 }
 ```
 
@@ -698,6 +693,7 @@ grep -r 'from "\.\.' packages/amplify-overtone/src/ | grep -v '\.js"' | grep -v 
 ```
 
 If any imports are missing `.js` extensions, add them. For example:
+
 - `from "./types"` → `from "./types.js"`
 - `from "../email/construct"` → `from "../email/construct.js"`
 
@@ -708,12 +704,14 @@ Do the same for `packages/amplify-overtone-client/src/`.
 amplify-backend compiles tests alongside source code (they live under `src/`). However, overtone has tests in a separate `test/` directory. Since we're using `rootDir: "src"`, tests in `test/` won't be compiled by tsc.
 
 We have two options:
+
 1. Move `test/` into `src/` (matching amplify-backend)
 2. Keep `test/` separate and run them via `tsx` (bypassing tsc for tests)
 
 Option 2 is simpler and avoids shipping test files. Keep tests in `test/` and run them via `tsx` (which handles TypeScript on the fly). Update the test script:
 
 In `packages/amplify-overtone/package.json`, the test script will be:
+
 ```
 "test": "tsx --test test/**/*.test.ts"
 ```
@@ -730,6 +728,7 @@ npm run build
 ```
 
 Verify output:
+
 ```bash
 ls packages/amplify-overtone/lib/
 ls packages/amplify-overtone-client/lib/
@@ -763,32 +762,32 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 
 ```json
 {
-    "$schema": "https://developer.microsoft.com/json-schemas/api-extractor/v7/api-extractor.schema.json",
-    "mainEntryPointFilePath": "<projectFolder>/lib/index.d.ts",
-    "apiReport": {
-        "enabled": true,
-        "reportFileName": "API.md",
-        "reportFolder": "<projectFolder>"
-    },
-    "docModel": {
-        "enabled": false
-    },
-    "dtsRollup": {
-        "enabled": false
-    },
-    "tsdocMetadata": {
-        "enabled": false
-    },
-    "messages": {
-        "extractorMessageReporting": {
-            "ae-missing-release-tag": {
-                "logLevel": "none"
-            },
-            "ae-forgotten-export": {
-                "logLevel": "error"
-            }
-        }
+  "$schema": "https://developer.microsoft.com/json-schemas/api-extractor/v7/api-extractor.schema.json",
+  "mainEntryPointFilePath": "<projectFolder>/lib/index.d.ts",
+  "apiReport": {
+    "enabled": true,
+    "reportFileName": "API.md",
+    "reportFolder": "<projectFolder>"
+  },
+  "docModel": {
+    "enabled": false
+  },
+  "dtsRollup": {
+    "enabled": false
+  },
+  "tsdocMetadata": {
+    "enabled": false
+  },
+  "messages": {
+    "extractorMessageReporting": {
+      "ae-missing-release-tag": {
+        "logLevel": "none"
+      },
+      "ae-forgotten-export": {
+        "logLevel": "error"
+      }
     }
+  }
 }
 ```
 
@@ -796,7 +795,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 
 ```json
 {
-    "extends": "../../api-extractor.base.json"
+  "extends": "../../api-extractor.base.json"
 }
 ```
 
@@ -804,7 +803,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 
 ```json
 {
-    "extends": "../../api-extractor.base.json"
+  "extends": "../../api-extractor.base.json"
 }
 ```
 
@@ -844,22 +843,22 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 
 ```json
 {
-    "lines": 85,
-    "functions": 85,
-    "branches": 85,
-    "exclude": [
-        "docs",
-        "scripts",
-        "packages/website",
-        "packages/test-infra",
-        "packages/integration-tests",
-        "packages/docs",
-        "**/*.test.ts",
-        "**/test/**"
-    ],
-    "all": true,
-    "check-coverage": true,
-    "src": "packages/"
+  "lines": 85,
+  "functions": 85,
+  "branches": 85,
+  "exclude": [
+    "docs",
+    "scripts",
+    "packages/website",
+    "packages/test-infra",
+    "packages/integration-tests",
+    "packages/docs",
+    "**/*.test.ts",
+    "**/test/**"
+  ],
+  "all": true,
+  "check-coverage": true,
+  "src": "packages/"
 }
 ```
 
@@ -887,65 +886,66 @@ This is the largest single task. Each test file needs to be converted from vites
 
 ```typescript
 // Imports
-import { beforeEach, describe, it, mock } from 'node:test';
-import assert from 'node:assert';
+import { beforeEach, describe, it, mock } from "node:test";
+import assert from "node:assert";
 
 // Test structure — use void before describe/it
-void describe('ComponentName', () => {
-    beforeEach(() => {
-        // setup
+void describe("ComponentName", () => {
+  beforeEach(() => {
+    // setup
+  });
+
+  void it("does something specific", () => {
+    // arrange
+    const input = createInput();
+
+    // act
+    const result = doThing(input);
+
+    // assert
+    assert.strictEqual(result, expected);
+  });
+
+  void it("throws on invalid input", () => {
+    assert.throws(() => doThing(invalidInput), {
+      message: "expected error message",
     });
-
-    void it('does something specific', () => {
-        // arrange
-        const input = createInput();
-
-        // act
-        const result = doThing(input);
-
-        // assert
-        assert.strictEqual(result, expected);
-    });
-
-    void it('throws on invalid input', () => {
-        assert.throws(() => doThing(invalidInput), {
-            message: 'expected error message',
-        });
-    });
+  });
 });
 ```
 
 **Conversion reference:**
 
-| vitest | node:test + node:assert |
-|--------|------------------------|
+| vitest                                                          | node:test + node:assert                                                                           |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | `import { describe, it, expect, vi, beforeEach } from 'vitest'` | `import { describe, it, beforeEach, mock } from 'node:test'` + `import assert from 'node:assert'` |
-| `expect(x).toBe(y)` | `assert.strictEqual(x, y)` |
-| `expect(x).toEqual(y)` | `assert.deepStrictEqual(x, y)` |
-| `expect(x).toBeTruthy()` | `assert.ok(x)` |
-| `expect(x).toBeFalsy()` | `assert.ok(!x)` |
-| `expect(x).toBeUndefined()` | `assert.strictEqual(x, undefined)` |
-| `expect(x).toBeDefined()` | `assert.notStrictEqual(x, undefined)` |
-| `expect(x).toBeNull()` | `assert.strictEqual(x, null)` |
-| `expect(x).toContain(y)` | `assert.ok(x.includes(y))` |
-| `expect(x).toHaveLength(n)` | `assert.strictEqual(x.length, n)` |
-| `expect(x).toMatch(/regex/)` | `assert.match(x, /regex/)` |
-| `expect(x).toThrow()` | `assert.throws(() => x())` |
-| `expect(x).toThrow('msg')` | `assert.throws(() => x(), { message: 'msg' })` |
-| `expect(x).toHaveBeenCalled()` | `assert.strictEqual(x.mock.calls.length > 0, true)` |
-| `expect(x).toHaveBeenCalledWith(a, b)` | `assert.deepStrictEqual(x.mock.calls[0].arguments, [a, b])` |
-| `expect(x).toHaveBeenCalledTimes(n)` | `assert.strictEqual(x.mock.calls.length, n)` |
-| `vi.fn()` | `mock.fn()` |
-| `vi.fn(() => value)` | `mock.fn(() => value)` |
-| `vi.spyOn(obj, 'method')` | `mock.method(obj, 'method')` |
-| `describe('name', () => {})` | `void describe('name', () => {})` |
-| `it('name', () => {})` | `void it('name', () => {})` |
+| `expect(x).toBe(y)`                                             | `assert.strictEqual(x, y)`                                                                        |
+| `expect(x).toEqual(y)`                                          | `assert.deepStrictEqual(x, y)`                                                                    |
+| `expect(x).toBeTruthy()`                                        | `assert.ok(x)`                                                                                    |
+| `expect(x).toBeFalsy()`                                         | `assert.ok(!x)`                                                                                   |
+| `expect(x).toBeUndefined()`                                     | `assert.strictEqual(x, undefined)`                                                                |
+| `expect(x).toBeDefined()`                                       | `assert.notStrictEqual(x, undefined)`                                                             |
+| `expect(x).toBeNull()`                                          | `assert.strictEqual(x, null)`                                                                     |
+| `expect(x).toContain(y)`                                        | `assert.ok(x.includes(y))`                                                                        |
+| `expect(x).toHaveLength(n)`                                     | `assert.strictEqual(x.length, n)`                                                                 |
+| `expect(x).toMatch(/regex/)`                                    | `assert.match(x, /regex/)`                                                                        |
+| `expect(x).toThrow()`                                           | `assert.throws(() => x())`                                                                        |
+| `expect(x).toThrow('msg')`                                      | `assert.throws(() => x(), { message: 'msg' })`                                                    |
+| `expect(x).toHaveBeenCalled()`                                  | `assert.strictEqual(x.mock.calls.length > 0, true)`                                               |
+| `expect(x).toHaveBeenCalledWith(a, b)`                          | `assert.deepStrictEqual(x.mock.calls[0].arguments, [a, b])`                                       |
+| `expect(x).toHaveBeenCalledTimes(n)`                            | `assert.strictEqual(x.mock.calls.length, n)`                                                      |
+| `vi.fn()`                                                       | `mock.fn()`                                                                                       |
+| `vi.fn(() => value)`                                            | `mock.fn(() => value)`                                                                            |
+| `vi.spyOn(obj, 'method')`                                       | `mock.method(obj, 'method')`                                                                      |
+| `describe('name', () => {})`                                    | `void describe('name', () => {})`                                                                 |
+| `it('name', () => {})`                                          | `void it('name', () => {})`                                                                       |
 
 - [ ] **Step 1: Convert each test file**
 
 For each of the 12 test files, apply the conversion. Read each file, apply the mapping above, and write the converted version. The `aws-sdk-client-mock` imports and usage stay unchanged — it's framework-agnostic.
 
 Files to convert (do them one at a time, verify each compiles):
+
 1. `test/unit/email/factory.test.ts`
 2. `test/unit/email/idempotent-identity-handler.test.ts`
 3. `test/unit/email/core-template.test.ts`
@@ -966,6 +966,7 @@ Files to convert (do them one at a time, verify each compiles):
 ```
 
 Remove vitest from devDependencies (if not already done in Phase 2):
+
 ```json
 // Remove these:
 "vitest": "^4.1.2",
@@ -984,12 +985,14 @@ Expected: All 12 test files pass with Node test runner output.
 - [ ] **Step 4: Remove vitest from amplify-overtone-client**
 
 In `packages/amplify-overtone-client/package.json`, remove vitest from devDependencies:
+
 ```json
 // Remove:
 "vitest": "^4.1.2",
 ```
 
 Update test script:
+
 ```json
 "test": "echo 'No tests yet'"
 ```
@@ -1037,14 +1040,14 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 
 ```json
 {
-    "extends": "../tsconfig.base.json",
-    "compilerOptions": {
-        "rootDir": ".",
-        "outDir": "../scripts-lib",
-        "composite": false,
-        "noEmit": true
-    },
-    "include": ["."]
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "../scripts-lib",
+    "composite": false,
+    "noEmit": true
+  },
+  "include": ["."]
 }
 ```
 
@@ -1134,6 +1137,7 @@ Read `/Users/ckoch/Development/aws-amplify/amplify-backend/scripts/run_tests.ts`
 Read `/Users/ckoch/Development/aws-amplify/amplify-backend/scripts/get_unit_test_dir_list.ts` and adapt. This lists all packages that have unit tests, excluding integration-tests (but including specific subdirs if needed).
 
 For overtone, unit test directories are:
+
 - `packages/amplify-overtone` (has `test/` dir)
 - `packages/amplify-overtone-client` (when tests exist)
 
@@ -1237,12 +1241,12 @@ uplinks:
       maxFreeSockets: 10
 
 packages:
-  '@*/*':
+  "@*/*":
     access: $all
     publish: $all
     proxy: npmjs
 
-  '**':
+  "**":
     access: $all
     publish: $all
     proxy: npmjs
@@ -1259,6 +1263,7 @@ max_body_size: 500mb
 - [ ] **Step 2: Port publishing scripts**
 
 Read each from amplify-backend and adapt:
+
 - `publish.ts` — entry point calling `runPublish()`
 - `publish_runner.ts` — changeset publish with config options
 - `publish_snapshot.ts` — sets `snapshotRelease: true`
@@ -1270,6 +1275,7 @@ Read each from amplify-backend and adapt:
 - [ ] **Step 3: Port release management scripts**
 
 Read and adapt:
+
 - `deprecate_release.ts` / `restore_release.ts` — entry points
 - `release_deprecator.ts` / `release_restorer.ts` — core logic
 - `dist_tag_mover.ts` — npm dist-tag management
@@ -1300,6 +1306,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 - [ ] **Step 1: Port each utility script**
 
 Read from amplify-backend and adapt:
+
 - `copy_template.ts` — token substitution for new package creation
 - `update_tsconfig_refs.ts` — keeps tsconfig project references in sync
 - `concurrent_workspace_script.ts` — parallel builds with tsbuildinfo-based skip
@@ -1432,6 +1439,7 @@ runs:
 These are thin wrappers around cache restoration with `fail-on-cache-miss: true`.
 
 `restore_install_cache/action.yml`:
+
 ```yaml
 name: Restore Install Cache
 description: Restore node_modules from cache
@@ -1456,6 +1464,7 @@ runs:
 ```
 
 `restore_build_cache/action.yml`:
+
 ```yaml
 name: Restore Build Cache
 description: Restore install and build output from cache
@@ -1542,6 +1551,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 Read `/Users/ckoch/Development/aws-amplify/amplify-backend/.github/workflows/health_checks.yml` and adapt. This is the largest file — adapt the structure but reduce the matrix (fewer packages, fewer test dimensions).
 
 The workflow should include these jobs:
+
 1. `install` — multi-node matrix install + cache
 2. `build` — build + cache
 3. `test_with_coverage` — run tests with c8
@@ -1563,6 +1573,7 @@ Triggers: PR on main, push to main, weekly schedule (Sunday 00:00 UTC), manual d
 Node matrix: `[18, 20, 22]` for test jobs, `22` for everything else.
 
 Write the full workflow file. This will be ~300-500 lines. Reference the amplify-backend version closely but adapt for:
+
 - Biome instead of ESLint+Prettier for lint job
 - Smaller package set
 - npm instead of pnpm
@@ -1610,7 +1621,7 @@ name: Canary Checks
 
 on:
   schedule:
-    - cron: '0 6 */2 * *'  # Every other day at 06:00 UTC
+    - cron: "0 6 */2 * *" # Every other day at 06:00 UTC
   workflow_dispatch:
 
 jobs:
@@ -1666,7 +1677,7 @@ name: E2E Resource Cleanup
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # Daily at midnight UTC
+    - cron: "0 0 * * *" # Daily at midnight UTC
   workflow_dispatch:
 
 jobs:
@@ -1752,37 +1763,37 @@ Note: You'll need to create these GitHub teams (`amplify-overtone-api-approvers`
 ```yaml
 version: 2
 updates:
-  - package-ecosystem: 'npm'
+  - package-ecosystem: "npm"
     directories:
-      - '/'
-      - '/packages/*'
+      - "/"
+      - "/packages/*"
     schedule:
-      interval: 'weekly'
-      time: '09:00'
-      timezone: 'Europe/Berlin'
+      interval: "weekly"
+      time: "09:00"
+      timezone: "Europe/Berlin"
     versioning-strategy: increase-if-necessary
     allow:
-      - dependency-name: '@aws-sdk/*'
-      - dependency-name: '@types/aws-*'
-      - dependency-name: '@smithy/*'
-      - dependency-name: 'aws-cdk'
-      - dependency-name: 'aws-cdk-lib'
-      - dependency-name: '@aws-cdk/*'
+      - dependency-name: "@aws-sdk/*"
+      - dependency-name: "@types/aws-*"
+      - dependency-name: "@smithy/*"
+      - dependency-name: "aws-cdk"
+      - dependency-name: "aws-cdk-lib"
+      - dependency-name: "@aws-cdk/*"
     open-pull-requests-limit: 10
     groups:
       aws-sdk:
         patterns:
-          - '@aws-sdk/*'
-          - '@types/aws-*'
+          - "@aws-sdk/*"
+          - "@types/aws-*"
       changesets:
         patterns:
-          - '@changesets/*'
+          - "@changesets/*"
       smithy:
         patterns:
-          - '@smithy/*'
+          - "@smithy/*"
     ignore:
-      - dependency-name: '@microsoft/api-extractor'
-      - dependency-name: '@types/node'
+      - dependency-name: "@microsoft/api-extractor"
+      - dependency-name: "@types/node"
 ```
 
 - [ ] **Step 3: Create dependency_review_config.yml**
@@ -1826,8 +1837,8 @@ allow-licenses:
   - zlib-acknowledgement
   - Zlib
 allow-ghsas:
-  - 'GHSA-8gc5-j5rx-235r'
-  - 'GHSA-jp2q-39xq-3w4g'
+  - "GHSA-8gc5-j5rx-235r"
+  - "GHSA-jp2q-39xq-3w4g"
 ```
 
 - [ ] **Step 4: Create PULL_REQUEST_TEMPLATE.md**
@@ -1855,6 +1866,7 @@ _By submitting this pull request, I confirm that my contribution is made under t
 - [ ] **Step 5: Create issue templates**
 
 `ISSUE_TEMPLATE/config.yml`:
+
 ```yaml
 blank_issues_enabled: false
 contact_links:
@@ -1864,10 +1876,11 @@ contact_links:
 ```
 
 `ISSUE_TEMPLATE/bug-report.yml`:
+
 ```yaml
 name: Bug Report
 description: Report a bug in Amplify Overtone
-labels: ['bug']
+labels: ["bug"]
 body:
   - type: textarea
     attributes:
@@ -1896,10 +1909,11 @@ body:
 ```
 
 `ISSUE_TEMPLATE/feature-request.yml`:
+
 ```yaml
 name: Feature Request
 description: Suggest a new feature
-labels: ['feature-request']
+labels: ["feature-request"]
 body:
   - type: textarea
     attributes:
@@ -1932,7 +1946,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 
 **Files:**
 
-- Create: `docs/superpowers/specs/github-actions-aws-access.md`
+- Create: `docs/specs/github-actions-aws-access.md`
 
 - [ ] **Step 1: Write the documentation**
 
@@ -1950,6 +1964,7 @@ This document explains how GitHub Actions authenticate with AWS for E2E testing.
 
 4. **GitHub Secrets Structure**:
    - `E2E_TEST_ACCOUNTS` — JSON array of account objects:
+
      ```json
      [
        {
@@ -1959,6 +1974,7 @@ This document explains how GitHub Actions authenticate with AWS for E2E testing.
        }
      ]
      ```
+
    - `E2E_REGIONS` — JSON array: `["us-east-1", "eu-central-1"]`
 
 5. **Step-by-step preparation guide**:
@@ -2002,6 +2018,7 @@ Read from amplify-backend and adapt. Randomly selects an account from `E2E_TEST_
 - [ ] **Step 2: Port cleanup_e2e_resources.ts**
 
 Read from amplify-backend and adapt. Deletes stale resources:
+
 - CloudFormation stacks (with "overtone" or "amplify" prefix older than 4 hours)
 - S3 buckets (empty and delete)
 - Cognito user pools
@@ -2012,6 +2029,7 @@ Read from amplify-backend and adapt. Deletes stale resources:
 - [ ] **Step 3: Port generate_sparse_test_matrix.ts**
 
 Read from amplify-backend and adapt. For overtone, the dimensions are simpler:
+
 - Test suites: `[email, auth-inheritance, collaborative, local-first, actions]` (from integration-tests/src/e2e/)
 - OS: `[ubuntu-latest]` (start simple)
 - Node: `[18, 20, 22]`
@@ -2019,6 +2037,7 @@ Read from amplify-backend and adapt. For overtone, the dimensions are simpler:
 - [ ] **Step 4: Port do_include_e2e.ts**
 
 Read from amplify-backend and adapt. Returns true for:
+
 - Push to main
 - PR with `run-e2e` label
 - Manual dispatch
@@ -2088,6 +2107,7 @@ runs:
 - [ ] **Step 2: Create run_with_e2e_account action**
 
 Read from amplify-backend and adapt. This is the most complex action — it orchestrates:
+
 1. Cache restoration
 2. Account selection
 3. OIDC credential retrieval for both roles
@@ -2119,41 +2139,41 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 Add after the existing jobs:
 
 ```yaml
-  do_include_e2e:
-    runs-on: ubuntu-latest
-    needs: [build]
-    outputs:
-      include_e2e: ${{ steps.check.outputs.include_e2e }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/restore_build_cache
-        with:
-          node-version: 22
-      - id: check
-        run: echo "include_e2e=$(npx tsx scripts/do_include_e2e.ts)" >> $GITHUB_OUTPUT
-        env:
-          GITHUB_EVENT_NAME: ${{ github.event_name }}
-          GITHUB_EVENT_ACTION: ${{ github.event.action }}
-          PR_LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
+do_include_e2e:
+  runs-on: ubuntu-latest
+  needs: [build]
+  outputs:
+    include_e2e: ${{ steps.check.outputs.include_e2e }}
+  steps:
+    - uses: actions/checkout@v4
+    - uses: ./.github/actions/restore_build_cache
+      with:
+        node-version: 22
+    - id: check
+      run: echo "include_e2e=$(npx tsx scripts/do_include_e2e.ts)" >> $GITHUB_OUTPUT
+      env:
+        GITHUB_EVENT_NAME: ${{ github.event_name }}
+        GITHUB_EVENT_ACTION: ${{ github.event.action }}
+        PR_LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
 
-  e2e_tests:
-    needs: [do_include_e2e]
-    if: needs.do_include_e2e.outputs.include_e2e == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-    strategy:
-      fail-fast: false
-      matrix:
-        test-suite: [actions, auth-inheritance, collaborative, local-first]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./.github/actions/run_with_e2e_account
-        with:
-          node-version: 22
-          e2e-test-accounts: ${{ secrets.E2E_TEST_ACCOUNTS }}
-          test-command: npm run e2e:test -- --test-name-pattern="${{ matrix.test-suite }}"
+e2e_tests:
+  needs: [do_include_e2e]
+  if: needs.do_include_e2e.outputs.include_e2e == 'true'
+  runs-on: ubuntu-latest
+  permissions:
+    id-token: write
+    contents: read
+  strategy:
+    fail-fast: false
+    matrix:
+      test-suite: [actions, auth-inheritance, collaborative, local-first]
+  steps:
+    - uses: actions/checkout@v4
+    - uses: ./.github/actions/run_with_e2e_account
+      with:
+        node-version: 22
+        e2e-test-accounts: ${{ secrets.E2E_TEST_ACCOUNTS }}
+        test-command: npm run e2e:test -- --test-name-pattern="${{ matrix.test-suite }}"
 ```
 
 - [ ] **Step 2: Update e2e_resource_cleanup.yml**
@@ -2165,7 +2185,7 @@ name: E2E Resource Cleanup
 
 on:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: "0 0 * * *"
   workflow_dispatch:
 
 permissions:
@@ -2221,6 +2241,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 - [ ] **Step 1: Rewrite CLAUDE.md**
 
 Update to reflect all infrastructure changes:
+
 - npm (not pnpm) — all script commands
 - tsc (not tsup) — build output in `lib/` not `dist/`
 - Node test runner + c8 (not vitest)
@@ -2314,6 +2335,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 - [ ] **Step 1: Update permissions**
 
 Replace pnpm-specific permissions with npm equivalents:
+
 - Remove: `pnpm build`, `pnpm test`, `pnpm lint`, etc.
 - Add: `npm run build`, `npm run test`, `npm run lint`, `npm ci`, `npm install`, etc.
 - Add: `npx api-extractor`, `npx c8`

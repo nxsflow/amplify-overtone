@@ -4,18 +4,18 @@ Align amplify-overtone's project infrastructure with amplify-backend's patterns:
 
 ## Decisions
 
-| Area | Current | Target |
-|---|---|---|
-| Package manager | pnpm | npm workspaces |
-| Build | tsup (ESM+CJS) | tsc (ESM only, composite projects) |
-| Linter/formatter | Biome | Biome (rules tightened to match amplify-backend conventions) |
-| Test runner | vitest | Node test runner (`node:test` + `node:assert`) |
-| Coverage | vitest built-in | c8 (85% thresholds) |
-| API surface tracking | none | Microsoft API Extractor (API.md per package) |
-| CI/CD | 2 simple workflows | Full health_checks pattern with composite actions |
-| E2E | single account, .env | multi-account OIDC with random selection |
-| Local publishing | none | verdaccio |
-| Git hooks | none | husky + lint-staged |
+| Area                 | Current              | Target                                                       |
+| -------------------- | -------------------- | ------------------------------------------------------------ |
+| Package manager      | pnpm                 | npm workspaces                                               |
+| Build                | tsup (ESM+CJS)       | tsc (ESM only, composite projects)                           |
+| Linter/formatter     | Biome                | Biome (rules tightened to match amplify-backend conventions) |
+| Test runner          | vitest               | Node test runner (`node:test` + `node:assert`)               |
+| Coverage             | vitest built-in      | c8 (85% thresholds)                                          |
+| API surface tracking | none                 | Microsoft API Extractor (API.md per package)                 |
+| CI/CD                | 2 simple workflows   | Full health_checks pattern with composite actions            |
+| E2E                  | single account, .env | multi-account OIDC with random selection                     |
+| Local publishing     | none                 | verdaccio                                                    |
+| Git hooks            | none                 | husky + lint-staged                                          |
 
 ## Phases
 
@@ -28,6 +28,7 @@ Each phase is a separate PR, merged sequentially.
 **Scope:** Package manager migration and root config harmonization.
 
 **Changes:**
+
 - Delete `pnpm-workspace.yaml`, `pnpm-lock.yaml`
 - Add `"workspaces": ["packages/*"]` to root `package.json`
 - Replace all `pnpm` references in scripts with `npm` equivalents (`pnpm build` becomes `npm run build`, `pnpm --filter` becomes `npm -w`)
@@ -50,6 +51,7 @@ Each phase is a separate PR, merged sequentially.
 **Scope:** Build tooling migration and public API surface tracking.
 
 **TypeScript build:**
+
 - Add `tsconfig.base.json` at root (ES2022, Node16 module resolution, strict mode, composite: true, declaration: true)
 - Update root `tsconfig.json` to extend base with project references
 - Each publishable package gets `tsconfig.json` extending base with `outDir: "lib"`, `rootDir: "src"`
@@ -59,6 +61,7 @@ Each phase is a separate PR, merged sequentially.
 - ESM only output (drop CJS, matching amplify-backend)
 
 **API Extractor:**
+
 - Add `api-extractor.base.json` at root
 - Add `api-extractor.json` per publishable package (`amplify-overtone`, `amplify-overtone-client`)
 - Add `update:api` and `check:api` scripts
@@ -66,6 +69,7 @@ Each phase is a separate PR, merged sequentially.
 - Commit initial `API.md` files
 
 **Build scripts:**
+
 - Root `build` becomes `tsc --build packages/* scripts`
 - Add `watch` script: `npm run build -- --watch`
 
@@ -80,6 +84,7 @@ Each phase is a separate PR, merged sequentially.
 **Scope:** Test framework migration.
 
 **Test framework:**
+
 - Remove `vitest` from all packages
 - Rewrite tests to use `node:test` (`describe`, `it`, `before`, `beforeEach`, `after`) and `node:assert`
 - API mapping:
@@ -93,10 +98,12 @@ Each phase is a separate PR, merged sequentially.
 **Tests must follow amplify-backend patterns** for how a test is prepared (setup/fixtures), executed (assertions), and how teardown is processed (cleanup in `after`/`afterEach`). Use tests from the amplify-backend repository as reference examples.
 
 **Coverage:**
+
 - Add `.c8rc.json` (85% thresholds for lines, functions, branches)
 - Exclude: docs, scripts, test files, website, test-infra, integration-tests, `lib/`
 
 **Test scripts:**
+
 - Add `scripts/run_tests.ts` (adapted from amplify-backend)
 - Add `scripts/get_unit_test_dir_list.ts`
 - Root `test` becomes `npm run test:dir $(tsx scripts/get_unit_test_dir_list.ts)`
@@ -110,6 +117,7 @@ Each phase is a separate PR, merged sequentially.
 **Scope:** Port automation scripts from amplify-backend, adapted for overtone.
 
 **Scripts ported (adapted):**
+
 - `scripts/run_tests.ts` — Node test runner wrapper
 - `scripts/get_unit_test_dir_list.ts` — enumerate test directories
 - `scripts/concurrent_workspace_script.ts` — parallel builds with skip logic
@@ -134,6 +142,7 @@ Each phase is a separate PR, merged sequentially.
 - `scripts/copy_template.ts` — create new package from template
 
 **Shared utilities (`scripts/components/`):**
+
 - `git_client.ts`, `npm_client.ts`, `github_client.ts` — external system clients
 - `package_json.ts` — read/write package.json
 - `dependencies_validator.ts`, `package_lock_validator.ts` — validators
@@ -143,6 +152,7 @@ Each phase is a separate PR, merged sequentially.
 - `create_changeset_file.ts` — programmatic changeset creation
 
 **Root config:**
+
 - `verdaccio.config.yaml`
 - `scripts/tsconfig.json`
 - New npm scripts in root package.json: `check:api`, `check:dependencies`, `check:package-lock`, `vend`, `start:npm-proxy`, `stop:npm-proxy`, `new`, etc.
@@ -160,6 +170,7 @@ Each phase is a separate PR, merged sequentially.
 **Scope:** Complete CI/CD overhaul.
 
 **Composite actions (`.github/actions/`):**
+
 - `setup_node/action.yml` — Node.js setup with cache
 - `install_with_cache/action.yml` — `npm ci` with cache keyed by OS + lockfile + Node version
 - `build_with_cache/action.yml` — build + cache keyed by commit SHA
@@ -169,6 +180,7 @@ Each phase is a separate PR, merged sequentially.
 **Workflows:**
 
 `health_checks.yml` — Primary CI:
+
 - Triggers: PR on main, push to main, weekly schedule, manual dispatch
 - Jobs: install, build, test_with_coverage, lint, check_dependencies, check_api_extract, check_api_changes, check_pr_size, check_pr_changesets, check_package_versions, dependency-review, codeql
 - Multi-OS/Node matrix where appropriate
@@ -187,6 +199,7 @@ Each phase is a separate PR, merged sequentially.
 `issue-pending-response.yml` — Auto-label issues on maintainer comment.
 
 **GitHub config:**
+
 - `CODEOWNERS` — default `@nxsflow/amplify-overtone`, elevated approval for API.md + package.json
 - `dependabot.yml` — weekly updates, grouped by ecosystem (AWS SDK, CDK, changesets)
 - `dependency_review_config.yml` — allowed licenses (Apache, MIT, BSD, ISC, etc.)
@@ -202,26 +215,31 @@ Each phase is a separate PR, merged sequentially.
 **Scope:** Production-grade E2E testing with multi-account AWS access.
 
 **AWS account setup (documented, not automated):**
+
 - Multiple AWS test accounts with IAM roles for GitHub Actions OIDC federation
 - Dual role pattern: tooling role (setup/teardown) + execution role (test runner)
 - Accounts stored as JSON secret in GitHub (`E2E_TEST_ACCOUNTS`)
 - Target regions: `us-east-1`, `eu-central-1`
 
 **Composite actions:**
+
 - `select_e2e_account/action.yml` — random selection from account pool
 - `run_with_e2e_account/action.yml` — orchestrator: cache restore, account selection, IAM profile setup, test execution with retry (configurable attempts, timeout, delay)
 
 **Scripts:**
+
 - `scripts/select_e2e_test_account.ts`
 - `scripts/cleanup_e2e_resources.ts` — delete stale CloudFormation stacks, S3 buckets, Cognito pools, SES identities, IAM roles, SSM parameters
 - `scripts/generate_sparse_test_matrix.ts` — minimal matrix covering tests x OS x Node
 - `scripts/do_include_e2e.ts` — gate on event type and `run-e2e` label
 
 **Workflows wired:**
+
 - E2E jobs in `health_checks.yml` activated
 - `e2e_resource_cleanup.yml` — daily, iterates accounts x regions with retry
 
 **Documentation:**
+
 - `docs/superpowers/specs/github-actions-aws-access.md` — OIDC federation setup, IAM trust policies, role structure, GitHub secrets, step-by-step preparation guide
 
 **What stays:** test-infra package, E2E test code, `.env`-based local dev flow.
@@ -233,6 +251,7 @@ Each phase is a separate PR, merged sequentially.
 **Scope:** Update project documentation and Claude Code skills to reflect new tooling. Done last.
 
 **CLAUDE.md:**
+
 - Rewrite for npm, tsc, Node test runner + c8
 - Update script references and build output paths (`lib/` not `dist/`)
 - Add API Extractor, verdaccio, scripts conventions
@@ -240,6 +259,7 @@ Each phase is a separate PR, merged sequentially.
 - Remove duplicated biome config details
 
 **Skills updated:**
+
 - `commit` — npm changeset commands
 - `versioning-and-releases` — npm commands, verdaccio/local publish, deprecation/restore scripts
 - `cdk-construct-development` — tsc build, lib/ output, API Extractor workflow
