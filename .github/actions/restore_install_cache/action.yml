@@ -1,0 +1,20 @@
+name: Restore Install Cache
+description: Restore node_modules from cache
+
+inputs:
+  node-version:
+    description: Node.js version
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+    - name: Restore node_modules
+      uses: actions/cache/restore@v4
+      with:
+        path: node_modules
+        key: ${{ runner.os }}-node-${{ inputs.node-version }}-${{ hashFiles('package-lock.json') }}
+        fail-on-cache-miss: true
