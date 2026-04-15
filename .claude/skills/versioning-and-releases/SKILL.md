@@ -151,11 +151,11 @@ This spins up a local registry at `http://localhost:4873`. Useful for testing pa
 
 ## CI Pipeline
 
-See `.github/workflows/publish.yml` for implementation. Key behaviors:
+See `.github/workflows/health_checks.yml` for implementation. Key behaviors:
 
-- **main push**: `changesets/action` creates a "Version Packages" PR (bumps versions, updates changelogs). Merging that PR publishes to npm with `latest` tag after manual approval (`production` environment).
-- **alpha/beta push**: Runs `changeset publish` directly. Pre mode sets the dist-tag automatically.
-- **PRs to main**: `.github/workflows/ci.yml` runs all four gates (build, typecheck, test, lint).
+- **main push**: `changesets/action` creates a "Version Packages" PR (bumps versions, updates changelogs). Merging that PR publishes to npm with `latest` tag after manual approval (`release` environment).
+- **alpha/beta push**: `publish_prerelease` job runs `changeset publish` directly. Pre mode sets the dist-tag automatically.
+- **PRs to main, alpha, or beta**: CI runs all gates (build, typecheck, test, lint, API checks).
 - **Publishing uses npm Trusted Publishing (OIDC)** — no npm token needed.
 
 ## Rollback

@@ -4,9 +4,13 @@ on:
   pull_request:
     branches:
       - main
+      - alpha
+      - beta
   push:
     branches:
       - main
+      - alpha
+      - beta
   schedule:
     # Run every Sunday at midnight UTC
     - cron: '0 0 * * 0'
@@ -270,14 +274,13 @@ jobs:
           # Omit NPM_TOKEN to prevent accidental publish during this step
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # ─── Publish Package Versions (Version PR merge only) ────────────────────────
+  # ─── Publish Package Versions (Version PR merge to main only) ────────────────
   publish_package_versions:
     if: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
     needs:
       - test_with_coverage
       - lint
       - check_api_extract
-      # E2E: e2e_tests is conditional (label-gated) and not a hard dep for publish
     runs-on: ubuntu-latest
     environment: release
     permissions:
@@ -298,6 +301,25 @@ jobs:
           publish: npm run publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TRUSTED_PUBLISHER: 'true'
+
+  # ─── Pre-release Publish (alpha/beta push only) ──────────────────────────────
+  publish_prerelease:
+    if: ${{ github.event_name == 'push' && (github.ref_name == 'alpha' || github.ref_name == 'beta') }}
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/restore_build_cache
+        with:
+          node-version: 22
+      - name: Publish pre-release packages
+        run: npx changeset publish
+        env:
           NPM_TRUSTED_PUBLISHER: 'true'
 
   # ─── E2E Gate ─────────────────────────────────────────────────────────────────
