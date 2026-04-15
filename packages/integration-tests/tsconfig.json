@@ -1,8 +1,8 @@
 {
-    "extends": "../../tsconfig.json",
-    "include": ["src"],
-    "exclude": ["src/test-projects/*/amplify"],
+    "extends": "../../tsconfig.base.json",
     "compilerOptions": {
-        "types": ["node"]
-    }
+        "composite": false,
+        "noEmit": true
+    },
+    "include": ["src"]
 }

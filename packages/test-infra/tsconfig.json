@@ -1,5 +1,8 @@
 {
-    "extends": "./amplify/tsconfig.json",
-    "include": ["amplify/**/*.ts"],
-    "exclude": ["node_modules", "amplify/functions"]
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        "composite": false,
+        "noEmit": true
+    },
+    "include": ["amplify"]
 }
