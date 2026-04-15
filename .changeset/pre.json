@@ -1,0 +1,27 @@
+{
+  "mode": "pre",
+  "tag": "alpha",
+  "initialVersions": {
+    "@nxsflow/amplify-overtone": "0.3.0-beta.9",
+    "@nxsflow/amplify-overtone-client": "0.1.0",
+    "@nxsflow/docs": "0.0.0",
+    "@nxsflow/integration-tests": "0.0.0",
+    "@nxsflow/test-infra": "0.0.1",
+    "@nxsflow/website": "0.0.0"
+  },
+  "changesets": [
+    "add-email-schema-actions",
+    "auto-wire-email-resolvers",
+    "brand-email-templates",
+    "client-generate-client",
+    "email-template-api",
+    "fix-custom-output-key",
+    "fix-custom-outputs-structure",
+    "fix-identity-drift",
+    "fix-npm-dist-alpha",
+    "idempotent-email-identity",
+    "lambda-backed-custom-resource",
+    "promote-to-beta",
+    "stable-sandbox-recipient-ids"
+  ]
+}
