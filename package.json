@@ -83,7 +83,6 @@
             "biome check --write",
             "biome format --write"
         ],
-        "*.json": "biome format --write",
-        "*.yml": "biome format --write"
+        "*.json": "biome format --write"
     }
 }
