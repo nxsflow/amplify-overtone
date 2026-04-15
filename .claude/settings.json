@@ -16,6 +16,7 @@
             "Bash(git ls-tree:*)",
             "Bash(npm view:*)",
             "Bash(npx biome:*)",
+            "Bash(npx vitest run:*)",
             "Bash(pnpm add:*)",
             "Bash(pnpm biome check:*)",
             "Bash(pnpm build)",

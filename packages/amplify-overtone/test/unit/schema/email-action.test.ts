@@ -173,6 +173,26 @@ describe("n.email()", () => {
         expect(schema).toBeDefined();
     });
 
+    it("transform() called twice produces consistent output", () => {
+        const emailOp = emailAction({ sender: "noreply" })
+            .arguments({ name: a.string().required() })
+            .template({ subject: "Hi", header: "Hi", body: "Body." })
+            // biome-ignore lint/suspicious/noExplicitAny: Amplify authorization callback type not publicly exported
+            .authorization((allow: any) => [allow.authenticated()]);
+
+        const schema = a.schema({ sendEmail: emailOp });
+        // biome-ignore lint/suspicious/noExplicitAny: testing internal Amplify schema processing
+        const result1 = (schema as any).transform();
+        // biome-ignore lint/suspicious/noExplicitAny: testing internal Amplify schema processing
+        const result2 = (schema as any).transform();
+
+        // Both calls should produce the same schema string
+        expect(result1.schema).toBe(result2.schema);
+
+        // Log for debugging
+        console.log("transform schema output:", result1.schema?.slice(0, 300));
+    });
+
     it("survives schema.transform() with plain args (CDK synthesis)", () => {
         const emailOp = emailAction({ sender: "noreply" })
             .arguments({ name: a.string().required() })
