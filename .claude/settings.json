@@ -43,6 +43,7 @@
             "Bash(pnpm test-infra:typecheck)",
             "Bash(pnpm typecheck:*)",
             "Bash(pnpm --filter website build)",
+            "Bash(pnpm --filter @nxsflow/test-infra typecheck:*)",
             "Fetch",
             "mcp__aws-knowledge-mcp-server__*",
             "mcp__awslabs_aws-documentation-mcp-server__*",
