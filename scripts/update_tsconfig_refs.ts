@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import fsp from "node:fs/promises";
 import path from "node:path";
@@ -77,11 +78,15 @@ const updatePromises = Object.values(repoPackagesInfoRecord).map(
             .filter((dep) => dep in repoPackagesInfoRecord)
             .map((dep) => ({ path: repoPackagesInfoRecord[dep]!.relativeReferencePath }));
 
-        // Write the updated tsconfig with 2-space indentation.
-        await fsp.writeFile(tsconfigPath, `${JSON.stringify(tsconfig, null, 2)}\n`);
+        await fsp.writeFile(tsconfigPath, `${JSON.stringify(tsconfig, null, 4)}\n`);
     },
 );
 
 await Promise.all(updatePromises);
+
+// Run Biome format on all written tsconfig files so the output is canonical
+// (JSON.stringify formatting differs from Biome, e.g. single-element arrays).
+const tsconfigPaths = Object.values(repoPackagesInfoRecord).map((p) => p.tsconfigPath);
+execFileSync("npx", ["biome", "format", "--write", ...tsconfigPaths], { stdio: "inherit" });
 
 console.log("tsconfig references updated.");
