@@ -1,0 +1,5 @@
+{
+    "extends": "./amplify/tsconfig.json",
+    "include": ["amplify/**/*.ts"],
+    "exclude": ["node_modules"]
+}
