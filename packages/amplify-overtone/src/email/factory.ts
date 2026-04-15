@@ -3,6 +3,9 @@ import type {
     ConstructFactoryGetInstanceProps,
     ResourceProvider,
 } from "@aws-amplify/plugin-types";
+import { Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
+import type { Function as LambdaFunction, IFunction } from "aws-cdk-lib/aws-lambda";
+import { getRegisteredActions } from "../schema/action-registry.js";
 import { AmplifyEmail } from "./construct.js";
 import type { EmailDefinition, EmailProps, EmailResources } from "./types.js";
 
@@ -29,36 +32,113 @@ export class EmailFactory implements ConstructFactory<ResourceProvider<EmailReso
     getInstance(factoryProps: ConstructFactoryGetInstanceProps): ResourceProvider<EmailResources> {
         if (!this.instance) {
             const emailProps = this.props;
-            const outputStrategy = factoryProps.outputStorageStrategy;
+            let emailConstruct: AmplifyEmail | undefined;
+
             const provider = factoryProps.constructContainer.getOrCompute({
                 resourceGroupName: "email",
                 generateContainerEntry: ({ scope }) => {
-                    const construct = new AmplifyEmail(scope, "AmplifyEmail", emailProps);
-
-                    // Register outputs so schema actions (Spec B) can discover config
-                    outputStrategy.addBackendOutputEntry("AWS::Amplify::Custom", {
-                        version: "1",
-                        payload: {
-                            customOutputs: JSON.stringify({
-                                custom: {
-                                    email: {
-                                        sendFunctionName: construct.resources.lambdaFunctionName,
-                                        ...(construct.resources.emailDomain
-                                            ? { domain: construct.resources.emailDomain }
-                                            : {}),
-                                        defaultSender: emailProps.defaultSender ?? "noreply",
-                                    },
-                                },
-                            }),
-                        },
-                    });
-
-                    return { resources: construct.resources };
+                    emailConstruct = new AmplifyEmail(scope, "AmplifyEmail", emailProps);
+                    return { resources: emailConstruct.resources };
                 },
             });
             this.instance = provider as ResourceProvider<EmailResources>;
+
+            // Auto-wire email action resolvers after construct creation
+            if (emailConstruct) {
+                this.wireEmailActions(emailConstruct, factoryProps);
+            }
         }
         return this.instance;
+    }
+
+    private wireEmailActions(
+        construct: AmplifyEmail,
+        factoryProps: ConstructFactoryGetInstanceProps,
+    ): void {
+        const actions = getRegisteredActions();
+        if (actions.length === 0) return;
+
+        // Validate senders
+        const validSenders = construct.resources.senderKeys;
+        for (const action of actions) {
+            if (action.meta.sender && !validSenders.includes(action.meta.sender)) {
+                throw new Error(
+                    `Email action "${action.id}" references sender "${action.meta.sender}" ` +
+                        `which is not defined in defineEmail(). Available senders: ${validSenders.join(", ")}`,
+                );
+            }
+        }
+
+        // Discover the data construct via the construct container.
+        // If data was already computed (registered by defineData()), getOrCompute returns the
+        // cached AmplifyGraphqlApi instance. If not, the generator throws and we skip wiring.
+        // biome-ignore lint/suspicious/noExplicitAny: AmplifyGraphqlApi not imported as peer dep
+        let dataConstruct: any;
+        try {
+            dataConstruct = factoryProps.constructContainer.getOrCompute({
+                resourceGroupName: "data",
+                generateContainerEntry: () => {
+                    throw new Error("No data construct registered");
+                },
+            });
+        } catch {
+            // No data construct — email actions require defineData() in the backend
+            return;
+        }
+
+        // Register sendLambda as a Lambda data source on the AppSync API
+        const emailDS = dataConstruct.addLambdaDataSource(
+            "OvertoneEmailDS",
+            construct.resources.sendLambda,
+        );
+
+        // Build EMAIL_TEMPLATES env var (keyed by action ID)
+        const templateMap: Record<string, unknown> = {};
+        for (const action of actions) {
+            templateMap[action.id] = {
+                subject: action.meta.compiledTemplate?.subject,
+                header: action.meta.compiledTemplate?.header,
+                body: action.meta.compiledTemplate?.body,
+                callToAction: action.meta.compiledTemplate?.callToAction,
+                footer: action.meta.compiledTemplate?.footer,
+                sender: action.meta.sender,
+                userIdArgs: action.meta.userIdArgNames,
+                recipientArg: action.meta.hasRecipientUserId ? "recipient" : undefined,
+            };
+        }
+        (construct.resources.sendLambda as LambdaFunction).addEnvironment(
+            "EMAIL_TEMPLATES",
+            JSON.stringify(templateMap),
+        );
+
+        // If any action needs Cognito user lookup, discover auth and set USER_POOL_ID
+        const needsUserLookup = actions.some((a) => a.meta.userIdArgNames.length > 0);
+        if (needsUserLookup) {
+            const authFactory =
+                factoryProps.constructContainer.getConstructFactory("AuthResources");
+            if (authFactory) {
+                const authProvider = authFactory.getInstance(factoryProps);
+                // biome-ignore lint/suspicious/noExplicitAny: AuthResources type not imported
+                const authResources = (authProvider as any).resources;
+                const userPoolId: string | undefined = authResources?.userPool?.userPoolId;
+
+                if (userPoolId) {
+                    (construct.resources.sendLambda as LambdaFunction).addEnvironment(
+                        "USER_POOL_ID",
+                        userPoolId,
+                    );
+
+                    // Grant AdminGetUser permission
+                    (construct.resources.sendLambda as IFunction).addToRolePolicy?.(
+                        new PolicyStatement({
+                            effect: Effect.ALLOW,
+                            actions: ["cognito-idp:AdminGetUser"],
+                            resources: [authResources.userPool.userPoolArn],
+                        }),
+                    );
+                }
+            }
+        }
     }
 }
 

@@ -1,5 +1,11 @@
 # @nxsflow/amplify-overtone
 
+## 0.3.0-beta.9
+
+### Patch Changes
+
+- Promote to beta: stable hash-based sandbox recipient IDs, wildcard IAM policy for identity handler, SES identity drift recovery.
+
 ## 0.3.0-alpha.8
 
 ### Patch Changes

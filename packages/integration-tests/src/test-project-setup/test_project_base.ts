@@ -23,7 +23,9 @@ export abstract class TestProjectBase {
 
     async deploy(environment?: Record<string, string>) {
         await ampxCli(["sandbox", "--once"], this.projectDirPath, {
-            ...(environment ? { env: environment } : {}),
+            ...(environment
+                ? { env: { ...process.env, ...environment } as Record<string, string> }
+                : {}),
         })
             .do(waitForSandboxDeploymentToPrintTotalTime())
             .run();

@@ -1,7 +1,6 @@
 export type {
     EmailProps,
     EmailResources,
-    EmailTemplateName,
     SendEmailPayload,
     SendEmailResult,
     SenderConfig,
@@ -9,3 +8,18 @@ export type {
     SenderWithPrefix,
 } from "./email/index.js";
 export { defineEmail } from "./email/index.js";
+export type {
+    CallToActionInput,
+    CognitoUserFields,
+    CompiledCallToAction,
+    CompiledTemplate,
+    EmailTemplateInput,
+    OvertoneEmailMeta,
+    TemplateField,
+} from "./schema/index.js";
+export {
+    isUserIdField,
+    n,
+    OVERTONE_EMAIL_META,
+    OVERTONE_USER_ID,
+} from "./schema/index.js";

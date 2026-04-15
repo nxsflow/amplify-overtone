@@ -1,25 +1,54 @@
 import assert from "node:assert";
 import { after, before, describe, it } from "node:test";
-import { InvokeCommand, LambdaClient } from "@aws-sdk/client-lambda";
+import {
+    CognitoIdentityProviderClient,
+    InitiateAuthCommand,
+} from "@aws-sdk/client-cognito-identity-provider";
 import type { TestProjectBase } from "../../test-project-setup/test_project_base.js";
 import { defaultEmailTestProjectCreator } from "../../test-projects/default-email/test_project_creator.js";
-import { assertEmailOutputsExist } from "../../utilities/amplify_outputs_validator.js";
 import { S3Mailbox } from "../../utilities/s3_mailbox.js";
 import { loadTestInfraConfig } from "../../utilities/test_infra_config.js";
 
 describe("default-email integration test", { concurrency: false }, () => {
     let testProject: TestProjectBase;
     let mailbox: S3Mailbox;
+    let graphqlUrl: string;
+    let idToken: string;
     const e2eProjectDir = "./e2e-tests";
-    const lambda = new LambdaClient({});
+    const cognito = new CognitoIdentityProviderClient({});
 
     before(
         async () => {
             const infra = await loadTestInfraConfig();
             mailbox = new S3Mailbox(infra.receiptS3Bucket);
 
-            testProject = await defaultEmailTestProjectCreator.createProject(e2eProjectDir);
+            // Authenticate to get an ID token for GraphQL calls
+            const ownerTestUser = infra.testUsers.owner;
+            assert.ok(ownerTestUser, "Owner test user should exist");
+
+            const authResult = await cognito.send(
+                new InitiateAuthCommand({
+                    AuthFlow: "USER_PASSWORD_AUTH",
+                    ClientId: infra.userPoolClientId,
+                    AuthParameters: {
+                        USERNAME: ownerTestUser.email,
+                        PASSWORD: ownerTestUser.password,
+                    },
+                }),
+            );
+            idToken = authResult.AuthenticationResult?.IdToken ?? "";
+            assert.ok(idToken, "Should receive an ID token");
+
+            // Deploy the test project
+            testProject = await defaultEmailTestProjectCreator.createProject(e2eProjectDir, infra);
             await testProject.deploy();
+
+            // Extract the AppSync endpoint
+            const outputs = await testProject.getAmplifyOutputs();
+            const dataOutputs = outputs.data as Record<string, unknown> | undefined;
+            assert.ok(dataOutputs, "amplify_outputs.json should contain data config");
+            graphqlUrl = dataOutputs.url as string;
+            assert.ok(graphqlUrl, "Data outputs should contain a GraphQL URL");
         },
         { timeout: 600_000 },
     );
@@ -31,47 +60,65 @@ describe("default-email integration test", { concurrency: false }, () => {
         { timeout: 300_000 },
     );
 
-    it("amplify_outputs.json contains email config", async () => {
-        await testProject.assertPostDeployment();
-        const outputs = await testProject.getAmplifyOutputs();
-        assertEmailOutputsExist(outputs);
-    });
-
-    it("send-email Lambda sends confirmation-code and email arrives in S3", {
+    it("sendNotification mutation delivers email via schema action", {
         timeout: 120_000,
     }, async () => {
-        const outputs = await testProject.getAmplifyOutputs();
-        const emailOutputs = assertEmailOutputsExist(outputs);
+        const mutation = /* GraphQL */ `
+			mutation SendNotification(
+				$recipient: AWSEmail!
+				$subject: String!
+				$header: String!
+				$body: String!
+			) {
+				sendNotification(
+					recipient: $recipient
+					subject: $subject
+					header: $header
+					body: $body
+				)
+			}
+		`;
 
-        const result = await lambda.send(
-            new InvokeCommand({
-                FunctionName: emailOutputs.sendFunctionName,
-                InvocationType: "RequestResponse",
-                Payload: new TextEncoder().encode(
-                    JSON.stringify({
-                        template: "confirmation-code",
-                        to: "reader@amp-recv.nxsflowmail.com",
-                        data: { code: "123456" },
-                    }),
-                ),
+        const response = await fetch(graphqlUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: idToken,
+            },
+            body: JSON.stringify({
+                query: mutation,
+                variables: {
+                    recipient: "reader@amp-recv.nxsflowmail.com",
+                    subject: "Your confirmation code",
+                    header: "Confirmation Code",
+                    body: "Use the code below to verify your identity: 123456",
+                },
             }),
-        );
+        });
 
-        assert.strictEqual(result.StatusCode, 200, "Lambda should execute successfully");
-        assert.ok(!result.FunctionError, `Lambda should not error: ${result.FunctionError}`);
+        assert.ok(response.ok, `GraphQL request failed: ${response.status}`);
+        const result = (await response.json()) as {
+            data?: Record<string, unknown>;
+            errors?: unknown[];
+        };
+        assert.ok(!result.errors, `GraphQL errors: ${JSON.stringify(result.errors)}`);
+        assert.ok(result.data?.sendNotification !== undefined, "Mutation should return a result");
 
-        const responsePayload = JSON.parse(new TextDecoder().decode(result.Payload));
-        assert.ok(responsePayload.messageId, "Response should contain messageId");
-
+        // Verify email delivery
         const email = await mailbox.waitForEmail("reader/your-confirmation-code", 60_000);
         assert.ok(email, "Email should be delivered to S3");
         assert.ok(
             email.subject?.includes("Your confirmation code"),
             `Subject should match, got: ${email.subject}`,
         );
-        assert.ok(
-            email.from?.includes("owner@amp-recv.nxsflowmail.com"),
-            `From should match, got: ${email.from}`,
-        );
+    });
+
+    it("template renders header, body, and footer", { timeout: 120_000 }, async () => {
+        const email = await mailbox.waitForEmail("reader/your-confirmation-code", 10_000);
+        assert.ok(email, "Email should exist in mailbox");
+
+        assert.ok(email.body.includes("Confirmation Code"), "Should contain header");
+        assert.ok(email.body.includes("Use the code below"), "Should contain body text");
+        assert.ok(email.body.includes("Sent by Overtone Test"), "Should contain footer");
     });
 });

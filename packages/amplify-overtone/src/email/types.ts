@@ -217,41 +217,26 @@ export interface EmailProps {
 // ---------------------------------------------------------------------------
 
 /**
- * Built-in email template keys.
- */
-export type EmailTemplateName =
-    | "confirmation-code"
-    | "password-reset"
-    | "invite"
-    | "getting-started";
-
-/**
  * Payload for the send-email Lambda function.
  *
- * Used by integration tests, schema action resolvers (Spec B), and
- * any code that invokes the Lambda directly.
- *
- * @example
- * ```ts
- * const payload: SendEmailPayload = {
- *   template: "invite",
- *   to: "colleague@example.com",
- *   data: {
- *     inviterName: "Alice",
- *     inviteLink: "https://app.example.com/invite/abc",
- *   },
- * };
- * ```
+ * Contains pre-resolved core email fields. The AppSync resolver interpolates
+ * user arguments into these fields before invoking the Lambda.
  */
 export interface SendEmailPayload {
-    /** Built-in template to render. */
-    template: EmailTemplateName;
     /** Full recipient email address. */
     to: string;
     /** Key from the senders map. Defaults to the `defaultSender` configured on `defineEmail()`. */
     sender?: string;
-    /** Template-specific data values. All values are HTML-escaped before rendering. */
-    data: Record<string, string>;
+    /** Email subject line (pre-interpolated by the resolver). */
+    subject: string;
+    /** Header text rendered at the top of the email. */
+    header: string;
+    /** Body text — the main content of the email. */
+    body: string;
+    /** Optional call-to-action button. */
+    callToAction?: { label: string; href: string };
+    /** Optional footer text rendered below the body. */
+    footer?: string;
 }
 
 /**
@@ -268,7 +253,7 @@ export interface SendEmailResult {
 
 export interface EmailResources {
     /** The send-email Lambda function (for grantInvoke, addEnvironment). */
-    lambda: IFunction;
+    sendLambda: IFunction;
 
     /**
      * The custom mail domain, or `undefined` when no domain is configured.
@@ -287,8 +272,8 @@ export interface EmailResources {
      */
     sesIdentityArn: string | undefined;
 
-    /** Send-email Lambda function name — used in Amplify outputs for client discovery. */
-    lambdaFunctionName: string;
+    /** Configured sender keys (e.g., ["noreply", "support"]). Used by addToBackend() for validation. */
+    senderKeys: string[];
 }
 
 /**

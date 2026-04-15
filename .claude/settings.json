@@ -1,20 +1,22 @@
 {
     "permissions": {
         "allow": [
-            "Bash(biome check:*)",
             "Bash(cat:*)",
-            "Bash(curl -s http://localhost:3000)",
             "Bash(find:*)",
             "Bash(gh api:*)",
+            "Bash(gh issue list:*)",
+            "Bash(gh issue view:*)",
+            "Bash(gh label list:*)",
             "Bash(gh pr checks:*)",
             "Bash(gh pr list:*)",
             "Bash(gh pr view:*)",
             "Bash(gh repo:*)",
             "Bash(gh run view:*)",
             "Bash(gh search:*)",
-            "Bash(ls .changeset/*.md)",
+            "Bash(git ls-tree:*)",
             "Bash(npm view:*)",
             "Bash(npx biome:*)",
+            "Bash(npx vitest run:*)",
             "Bash(pnpm add:*)",
             "Bash(pnpm biome check:*)",
             "Bash(pnpm build)",
@@ -45,7 +47,6 @@
             "mcp__aws-knowledge-mcp-server__*",
             "mcp__awslabs_aws-documentation-mcp-server__*",
             "mcp__playwright__*",
-            "Read(//Users/ckoch/.claude/**)",
             "Skill",
             "WebFetch",
             "WebSearch"
