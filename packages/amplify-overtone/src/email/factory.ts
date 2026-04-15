@@ -4,7 +4,7 @@ import type {
     ResourceProvider,
 } from "@aws-amplify/plugin-types";
 import { Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
-import type { Function as LambdaFunction, IFunction } from "aws-cdk-lib/aws-lambda";
+import type { IFunction, Function as LambdaFunction } from "aws-cdk-lib/aws-lambda";
 import { getRegisteredActions } from "../schema/action-registry.js";
 import { AmplifyEmail } from "./construct.js";
 import type { EmailDefinition, EmailProps, EmailResources } from "./types.js";
@@ -87,7 +87,7 @@ export class EmailFactory implements ConstructFactory<ResourceProvider<EmailReso
         }
 
         // Register sendLambda as a Lambda data source on the AppSync API
-        const emailDS = dataConstruct.addLambdaDataSource(
+        const _emailDS = dataConstruct.addLambdaDataSource(
             "OvertoneEmailDS",
             construct.resources.sendLambda,
         );

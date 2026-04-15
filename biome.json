@@ -6,12 +6,16 @@
         "includes": [
             "**",
             "!dist",
+            "!lib",
             "!node_modules",
             "!*.d.ts",
             "!.changeset",
             ".claude/**",
             "!.next",
-            "!.source"
+            "!.source",
+            "!temp",
+            "!verdaccio-cache",
+            "!coverage"
         ]
     },
     "formatter": {
@@ -30,7 +34,12 @@
             },
             "style": {
                 "useImportType": "error",
-                "noNonNullAssertion": "off"
+                "noNonNullAssertion": "off",
+                "useNodejsImportProtocol": "error",
+                "noDefaultExport": "error"
+            },
+            "complexity": {
+                "noStaticOnlyClass": "error"
             }
         }
     },
@@ -41,5 +50,24 @@
             "trailingCommas": "all",
             "semicolons": "always"
         }
-    }
+    },
+    "overrides": [
+        {
+            "includes": [
+                "*.config.ts",
+                "*.config.js",
+                "*.config.mjs",
+                "next.config.ts",
+                "**/tsup.config.ts",
+                "packages/website/**"
+            ],
+            "linter": {
+                "rules": {
+                    "style": {
+                        "noDefaultExport": "off"
+                    }
+                }
+            }
+        }
+    ]
 }
