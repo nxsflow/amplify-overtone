@@ -1,0 +1,21 @@
+name: Snapshot Release
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/build_with_cache
+        with:
+          node-version: 22
+      - name: Publish snapshot
+        run: npm run publish:snapshot
+        env:
+          NPM_CONFIG_PROVENANCE: true
