@@ -58,7 +58,7 @@ This preserves the invariant that `beta` is always a superset of `alpha` at the 
 
 ```bash
 # Create changeset with your feature
-pnpm changeset
+npx changeset
 git add .changeset/ && git commit -m "feat: description"
 # Open PR targeting `alpha` (or `beta` if skipping alpha)
 ```
@@ -74,13 +74,13 @@ When the user says a feature is "ready for alpha":
 
    ```bash
    git checkout alpha
-   pnpm changeset pre enter alpha
+   npx changeset pre enter alpha
    ```
 
 3. **Version and publish:**
 
    ```bash
-   pnpm changeset version          # bumps to X.Y.Z-alpha.N
+   npx changeset version           # bumps to X.Y.Z-alpha.N
    git add .changeset/ packages/
    git commit -m "chore(release): version X.Y.Z-alpha.N"
    git push                        # CI publishes automatically
@@ -96,9 +96,9 @@ When the user says features are "ready for beta":
 
    ```bash
    git checkout beta && git merge alpha
-   pnpm changeset pre exit
-   pnpm changeset pre enter beta
-   pnpm changeset version          # bumps to X.Y.Z-beta.0
+   npx changeset pre exit
+   npx changeset pre enter beta
+   npx changeset version           # bumps to X.Y.Z-beta.0
    git add .changeset/ packages/
    git commit -m "chore(release): version X.Y.Z-beta.0"
    git push                        # CI publishes automatically
@@ -112,8 +112,8 @@ When the user says it's "ready to release" or "ready for stable":
 
    ```bash
    git checkout beta
-   pnpm changeset pre exit
-   pnpm changeset version          # bumps to stable X.Y.Z
+   npx changeset pre exit
+   npx changeset version           # bumps to stable X.Y.Z
    git add .changeset/ packages/
    git commit -m "chore(release): exit pre-release, bump to X.Y.Z"
    git push
@@ -138,6 +138,16 @@ When the user says it's "ready to release" or "ready for stable":
 npm view @nxsflow/amplify-overtone dist-tags
 npm view @nxsflow/amplify-overtone-client dist-tags
 ```
+
+## Local Publish Workflow (Verdaccio)
+
+Use `npm run vend` to publish packages locally via Verdaccio for manual integration testing before pushing to npm:
+
+```bash
+npm run vend          # starts Verdaccio, builds, and publishes packages locally
+```
+
+This spins up a local registry at `http://localhost:4873`. Useful for testing package installs in a consumer project without publishing to npm.
 
 ## CI Pipeline
 
