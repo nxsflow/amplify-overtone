@@ -1,0 +1,18 @@
+{
+    "lines": 85,
+    "functions": 85,
+    "branches": 85,
+    "exclude": [
+        "docs",
+        "scripts",
+        "packages/website",
+        "packages/test-infra",
+        "packages/integration-tests",
+        "packages/docs",
+        "**/*.test.ts",
+        "**/test/**"
+    ],
+    "all": true,
+    "check-coverage": true,
+    "src": "packages/"
+}
