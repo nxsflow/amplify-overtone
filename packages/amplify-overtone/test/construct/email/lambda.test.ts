@@ -1,21 +1,21 @@
+import { describe, it } from "node:test";
 import { Match } from "aws-cdk-lib/assertions";
-import { describe, it } from "vitest";
 import { createEmailTemplate, createNoDomainTemplate } from "./helpers.js";
 
 // ---------------------------------------------------------------------------
 // Lambda function tests
 // ---------------------------------------------------------------------------
 
-describe("Lambda — Mode 3 (domain + Route 53)", () => {
+void describe("Lambda — Mode 3 (domain + Route 53)", () => {
     const template = createEmailTemplate();
 
-    it("creates a Lambda with Node 22 runtime", () => {
+    void it("creates a Lambda with Node 22 runtime", () => {
         template.hasResourceProperties("AWS::Lambda::Function", {
             Runtime: "nodejs22.x",
         });
     });
 
-    it("sets SENDERS_CONFIG env var with normalized sender", () => {
+    void it("sets SENDERS_CONFIG env var with normalized sender", () => {
         template.hasResourceProperties("AWS::Lambda::Function", {
             Environment: {
                 Variables: Match.objectLike({
@@ -30,7 +30,7 @@ describe("Lambda — Mode 3 (domain + Route 53)", () => {
         });
     });
 
-    it("sets DEFAULT_SENDER env var", () => {
+    void it("sets DEFAULT_SENDER env var", () => {
         template.hasResourceProperties("AWS::Lambda::Function", {
             Environment: {
                 Variables: Match.objectLike({
@@ -40,7 +40,7 @@ describe("Lambda — Mode 3 (domain + Route 53)", () => {
         });
     });
 
-    it("sets EMAIL_DOMAIN env var when domain is configured", () => {
+    void it("sets EMAIL_DOMAIN env var when domain is configured", () => {
         template.hasResourceProperties("AWS::Lambda::Function", {
             Environment: {
                 Variables: Match.objectLike({
@@ -50,17 +50,17 @@ describe("Lambda — Mode 3 (domain + Route 53)", () => {
         });
     });
 
-    it("uses default 15s timeout", () => {
+    void it("uses default 15s timeout", () => {
         template.hasResourceProperties("AWS::Lambda::Function", {
             Timeout: 15,
         });
     });
 });
 
-describe("Lambda — Mode 1 (no domain)", () => {
+void describe("Lambda — Mode 1 (no domain)", () => {
     const template = createNoDomainTemplate();
 
-    it("does NOT set EMAIL_DOMAIN env var", () => {
+    void it("does NOT set EMAIL_DOMAIN env var", () => {
         template.hasResourceProperties("AWS::Lambda::Function", {
             Environment: {
                 Variables: Match.not(Match.objectLike({ EMAIL_DOMAIN: Match.anyValue() })),
@@ -68,7 +68,7 @@ describe("Lambda — Mode 1 (no domain)", () => {
         });
     });
 
-    it("sets SENDERS_CONFIG with normalized sender email", () => {
+    void it("sets SENDERS_CONFIG with normalized sender email", () => {
         template.hasResourceProperties("AWS::Lambda::Function", {
             Environment: {
                 Variables: Match.objectLike({
@@ -84,10 +84,10 @@ describe("Lambda — Mode 1 (no domain)", () => {
     });
 });
 
-describe("Lambda — custom timeout", () => {
+void describe("Lambda — custom timeout", () => {
     const template = createEmailTemplate({ timeoutSeconds: 30 });
 
-    it("uses the provided timeout", () => {
+    void it("uses the provided timeout", () => {
         template.hasResourceProperties("AWS::Lambda::Function", {
             Timeout: 30,
         });

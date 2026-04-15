@@ -1,18 +1,19 @@
-import { describe, expect, it } from "vitest";
+import assert from "node:assert";
+import { describe, it } from "node:test";
 import { coreTemplate } from "../../../src/email/templates/defaults/core.js";
 
-describe("coreTemplate", () => {
-    describe("renderHtml", () => {
-        it("renders header and body", () => {
+void describe("coreTemplate", () => {
+    void describe("renderHtml", () => {
+        void it("renders header and body", () => {
             const html = coreTemplate.renderHtml(
                 { header: "Welcome", body: "Hello there." },
                 "TestBrand",
             );
-            expect(html).toContain("Welcome");
-            expect(html).toContain("Hello there.");
+            assert.ok(html.includes("Welcome"));
+            assert.ok(html.includes("Hello there."));
         });
 
-        it("renders callToAction as a button when label and href provided", () => {
+        void it("renders callToAction as a button when label and href provided", () => {
             const html = coreTemplate.renderHtml(
                 {
                     header: "Invite",
@@ -22,58 +23,58 @@ describe("coreTemplate", () => {
                 },
                 "TestBrand",
             );
-            expect(html).toContain("Accept");
-            expect(html).toContain('href="https://example.com/accept"');
+            assert.ok(html.includes("Accept"));
+            assert.ok(html.includes('href="https://example.com/accept"'));
         });
 
-        it("omits callToAction section when no label/href provided", () => {
+        void it("omits callToAction section when no label/href provided", () => {
             const html = coreTemplate.renderHtml(
                 { header: "Info", body: "Just a message." },
                 "TestBrand",
             );
-            expect(html).not.toContain("<a ");
+            assert.ok(!html.includes("<a "));
         });
 
-        it("omits callToAction when only label provided without href", () => {
+        void it("omits callToAction when only label provided without href", () => {
             const html = coreTemplate.renderHtml(
                 { header: "Hi", body: "Content.", callToActionLabel: "Click" },
                 "TestBrand",
             );
-            expect(html).not.toContain("<a ");
+            assert.ok(!html.includes("<a "));
         });
 
-        it("renders footer when provided", () => {
+        void it("renders footer when provided", () => {
             const html = coreTemplate.renderHtml(
                 { header: "Hi", body: "Content.", footer: "Unsubscribe info." },
                 "TestBrand",
             );
-            expect(html).toContain("Unsubscribe info.");
+            assert.ok(html.includes("Unsubscribe info."));
         });
 
-        it("throws when header is missing", () => {
-            expect(() => coreTemplate.renderHtml({ body: "Content." }, "TestBrand")).toThrow(
-                "requires data.header",
-            );
+        void it("throws when header is missing", () => {
+            assert.throws(() => coreTemplate.renderHtml({ body: "Content." }, "TestBrand"), {
+                message: /requires data.header/,
+            });
         });
 
-        it("throws when body is missing", () => {
-            expect(() => coreTemplate.renderHtml({ header: "Hi" }, "TestBrand")).toThrow(
-                "requires data.body",
-            );
+        void it("throws when body is missing", () => {
+            assert.throws(() => coreTemplate.renderHtml({ header: "Hi" }, "TestBrand"), {
+                message: /requires data.body/,
+            });
         });
     });
 
-    describe("renderText", () => {
-        it("renders header and body as plain text", () => {
+    void describe("renderText", () => {
+        void it("renders header and body as plain text", () => {
             const text = coreTemplate.renderText(
                 { header: "Welcome", body: "Hello there." },
                 "TestBrand",
             );
-            expect(text).toContain("Welcome");
-            expect(text).toContain("Hello there.");
+            assert.ok(text.includes("Welcome"));
+            assert.ok(text.includes("Hello there."));
         });
 
-        it("includes CTA as labeled link", () => {
+        void it("includes CTA as labeled link", () => {
             const text = coreTemplate.renderText(
                 {
                     header: "Invite",
@@ -83,27 +84,27 @@ describe("coreTemplate", () => {
                 },
                 "TestBrand",
             );
-            expect(text).toContain("Accept: https://example.com/accept");
+            assert.ok(text.includes("Accept: https://example.com/accept"));
         });
 
-        it("includes footer", () => {
+        void it("includes footer", () => {
             const text = coreTemplate.renderText(
                 { header: "Hi", body: "Content.", footer: "Unsubscribe." },
                 "TestBrand",
             );
-            expect(text).toContain("Unsubscribe.");
+            assert.ok(text.includes("Unsubscribe."));
         });
 
-        it("throws when header is missing", () => {
-            expect(() => coreTemplate.renderText({ body: "Content." }, "TestBrand")).toThrow(
-                "requires data.header",
-            );
+        void it("throws when header is missing", () => {
+            assert.throws(() => coreTemplate.renderText({ body: "Content." }, "TestBrand"), {
+                message: /requires data.header/,
+            });
         });
 
-        it("throws when body is missing", () => {
-            expect(() => coreTemplate.renderText({ header: "Hi" }, "TestBrand")).toThrow(
-                "requires data.body",
-            );
+        void it("throws when body is missing", () => {
+            assert.throws(() => coreTemplate.renderText({ header: "Hi" }, "TestBrand"), {
+                message: /requires data.body/,
+            });
         });
     });
 });

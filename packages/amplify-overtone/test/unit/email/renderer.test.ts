@@ -1,37 +1,38 @@
-import { describe, expect, it } from "vitest";
+import assert from "node:assert";
+import { describe, it } from "node:test";
 import { escapeHtml, renderEmail } from "../../../src/email/templates/renderer.js";
 
-describe("escapeHtml", () => {
-    it('escapes <script>alert("xss")</script> correctly', () => {
+void describe("escapeHtml", () => {
+    void it('escapes <script>alert("xss")</script> correctly', () => {
         const result = escapeHtml(`<script>alert("xss")</script>`);
-        expect(result).toBe("&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;");
+        assert.strictEqual(result, "&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;");
     });
 
-    it("passes through 'hello world' unchanged", () => {
-        expect(escapeHtml("hello world")).toBe("hello world");
+    void it("passes through 'hello world' unchanged", () => {
+        assert.strictEqual(escapeHtml("hello world"), "hello world");
     });
 
-    it("escapes & before < and > to avoid double-escaping", () => {
-        expect(escapeHtml("a & b < c > d")).toBe("a &amp; b &lt; c &gt; d");
+    void it("escapes & before < and > to avoid double-escaping", () => {
+        assert.strictEqual(escapeHtml("a & b < c > d"), "a &amp; b &lt; c &gt; d");
     });
 });
 
-describe("renderEmail", () => {
-    it("renders core fields into HTML with base layout", () => {
+void describe("renderEmail", () => {
+    void it("renders core fields into HTML with base layout", () => {
         const result = renderEmail({ header: "Welcome", body: "Hello there." }, "TestBrand");
-        expect(result.html).toContain("<!DOCTYPE html>");
-        expect(result.html).toContain("Welcome");
-        expect(result.html).toContain("Hello there.");
-        expect(result.html).toContain("TestBrand");
+        assert.ok(result.html.includes("<!DOCTYPE html>"));
+        assert.ok(result.html.includes("Welcome"));
+        assert.ok(result.html.includes("Hello there."));
+        assert.ok(result.html.includes("TestBrand"));
     });
 
-    it("renders plain text", () => {
+    void it("renders plain text", () => {
         const result = renderEmail({ header: "Welcome", body: "Hello there." }, "TestBrand");
-        expect(result.text).toContain("Welcome");
-        expect(result.text).toContain("Hello there.");
+        assert.ok(result.text.includes("Welcome"));
+        assert.ok(result.text.includes("Hello there."));
     });
 
-    it("renders CTA button in HTML", () => {
+    void it("renders CTA button in HTML", () => {
         const result = renderEmail(
             {
                 header: "Invite",
@@ -41,33 +42,33 @@ describe("renderEmail", () => {
             },
             "TestBrand",
         );
-        expect(result.html).toContain('href="https://example.com"');
-        expect(result.html).toContain("Accept");
+        assert.ok(result.html.includes('href="https://example.com"'));
+        assert.ok(result.html.includes("Accept"));
     });
 
-    it("renders footer", () => {
+    void it("renders footer", () => {
         const result = renderEmail(
             { header: "Hi", body: "Content.", footer: "Unsubscribe info." },
             "TestBrand",
         );
-        expect(result.html).toContain("Unsubscribe info.");
-        expect(result.text).toContain("Unsubscribe info.");
+        assert.ok(result.html.includes("Unsubscribe info."));
+        assert.ok(result.text.includes("Unsubscribe info."));
     });
 
-    it("escapes HTML in all data values", () => {
+    void it("escapes HTML in all data values", () => {
         const result = renderEmail(
             { header: "<script>xss</script>", body: "Safe content." },
             "TestBrand",
         );
-        expect(result.html).not.toContain("<script>xss</script>");
-        expect(result.html).toContain("&lt;script&gt;");
+        assert.ok(!result.html.includes("<script>xss</script>"));
+        assert.ok(result.html.includes("&lt;script&gt;"));
     });
 
-    it("throws when header is missing", () => {
-        expect(() => renderEmail({ body: "Content." }, "Test")).toThrow();
+    void it("throws when header is missing", () => {
+        assert.throws(() => renderEmail({ body: "Content." }, "Test"));
     });
 
-    it("throws when body is missing", () => {
-        expect(() => renderEmail({ header: "Hi" }, "Test")).toThrow();
+    void it("throws when body is missing", () => {
+        assert.throws(() => renderEmail({ header: "Hi" }, "Test"));
     });
 });

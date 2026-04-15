@@ -1,39 +1,40 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import assert from "node:assert";
+import { beforeEach, describe, it } from "node:test";
 import { EmailFactory } from "../../../src/email/factory.js";
 import { defineEmail } from "../../../src/email/index.js";
 
-describe("defineEmail", () => {
+void describe("defineEmail", () => {
     beforeEach(() => {
         EmailFactory.factoryCount = 0;
     });
 
-    it("returns an object with a getInstance method", () => {
+    void it("returns an object with a getInstance method", () => {
         const factory = defineEmail();
-        expect(factory).toBeDefined();
-        expect(typeof factory.getInstance).toBe("function");
+        assert.notStrictEqual(factory, undefined);
+        assert.strictEqual(typeof factory.getInstance, "function");
     });
 
-    it("throws on second call", () => {
+    void it("throws on second call", () => {
         defineEmail();
-        expect(() => defineEmail()).toThrow(/only be called once/);
+        assert.throws(() => defineEmail(), /only be called once/);
     });
 
-    it("accepts no props (minimal config)", () => {
+    void it("accepts no props (minimal config)", () => {
         const factory = defineEmail();
-        expect(factory).toBeDefined();
+        assert.notStrictEqual(factory, undefined);
     });
 
-    it("accepts domain-only props with senderPrefix", () => {
+    void it("accepts domain-only props with senderPrefix", () => {
         const factory = defineEmail({
             domain: "mail.example.com",
             senders: {
                 noreply: { senderPrefix: "noreply", displayName: "Test" },
             },
         });
-        expect(factory).toBeDefined();
+        assert.notStrictEqual(factory, undefined);
     });
 
-    it("accepts full Route 53 props with senderPrefix", () => {
+    void it("accepts full Route 53 props with senderPrefix", () => {
         const factory = defineEmail({
             domain: "mail.example.com",
             hostedZoneId: "Z1234567890",
@@ -42,15 +43,15 @@ describe("defineEmail", () => {
                 noreply: { senderPrefix: "noreply", displayName: "Test" },
             },
         });
-        expect(factory).toBeDefined();
+        assert.notStrictEqual(factory, undefined);
     });
 
-    it("accepts no-domain props with senderEmail", () => {
+    void it("accepts no-domain props with senderEmail", () => {
         const factory = defineEmail({
             senders: {
                 noreply: { senderEmail: "noreply@gmail.com", displayName: "Test" },
             },
         });
-        expect(factory).toBeDefined();
+        assert.notStrictEqual(factory, undefined);
     });
 });
