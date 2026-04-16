@@ -7,7 +7,6 @@ result = result.filter(
     (pkg) =>
         !pkg.includes("integration-tests") &&
         !pkg.includes("test-infra") &&
-        !pkg.includes("test-import") &&
         !pkg.includes("docs") &&
         !pkg.includes("website"),
 );

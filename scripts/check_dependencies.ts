@@ -1,5 +1,6 @@
 import { glob } from "glob";
 import { DependenciesValidator } from "./components/dependencies_validator.js";
+import { hasPackageJson } from "./components/package_json.js";
 
 /**
  * Validates dependency rules across all packages.
@@ -12,7 +13,7 @@ import { DependenciesValidator } from "./components/dependencies_validator.js";
  * should depend on aws-amplify (as a peer dep).
  */
 await new DependenciesValidator(
-    await glob("packages/*"),
+    (await glob("packages/*")).filter(hasPackageJson),
     {
         // aws-amplify is a peer dep of amplify-overtone-client only.
         // integration-tests and test-infra are allowed for e2e purposes.

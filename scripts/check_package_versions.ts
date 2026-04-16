@@ -1,12 +1,12 @@
 import { glob } from "glob";
-import { readPackageJson } from "./components/package_json.js";
+import { hasPackageJson, readPackageJson } from "./components/package_json.js";
 
 /**
  * Verifies expected major versions for all packages in the repo.
  * This is to prevent accidental major version bumps.
  */
 
-const packagePaths = await glob("./packages/*");
+const packagePaths = (await glob("./packages/*")).filter(hasPackageJson);
 
 const getExpectedMajorVersion = (packageName: string) => {
     switch (packageName) {
