@@ -1,0 +1,22 @@
+name: Issue Pending Response
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  pending-response:
+    runs-on: ubuntu-latest
+    if: github.event.issue.state == 'open' && github.event.comment.user.login != github.event.issue.user.login
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add pending-response label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['pending-response']
+            });

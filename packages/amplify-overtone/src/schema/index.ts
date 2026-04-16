@@ -1,4 +1,5 @@
-export { isUserIdField } from "./field-types.js";
+export { emailAction } from "./email-action.js";
+export { isUserIdField, userId } from "./field-types.js";
 export { n } from "./namespace.js";
 export type {
     CallToActionInput,

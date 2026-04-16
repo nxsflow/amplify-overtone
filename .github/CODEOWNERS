@@ -1,0 +1,9 @@
+# Default owners
+*  @nxsflow/amplify-overtone
+
+# API approval - public surface and dependencies
+**/API.md @nxsflow/amplify-overtone-api-approvers
+**/package.json @nxsflow/amplify-overtone-api-approvers
+
+# GitHub actions/checks approval
+/.github/ @nxsflow/amplify-overtone-admins

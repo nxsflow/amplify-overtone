@@ -4,16 +4,14 @@ frontend:
     preBuild:
       commands:
         - nvm use 22
-        - corepack enable
-        - corepack prepare pnpm@latest --activate
-        - pnpm install --frozen-lockfile
+        - npm ci
     build:
       commands:
-        - pnpm website:build
+        - npm run website:build
   artifacts:
     baseDirectory: packages/website/out
     files:
       - "**/*"
   cache:
     paths:
-      - $(pnpm store path)
+      - node_modules

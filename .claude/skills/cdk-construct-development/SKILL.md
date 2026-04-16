@@ -88,7 +88,8 @@ CDK provides a powerful assertions API. Use it for construct unit tests:
 // packages/amplify-overtone/test/construct.test.ts
 import { App, Stack } from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
-import { describe, expect, it } from "vitest";
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 import { OvertoneConstruct } from "../src/construct.js";
 
 describe("OvertoneConstruct construct", () => {
@@ -122,7 +123,7 @@ describe("OvertoneConstruct construct", () => {
 
     const template = Template.fromStack(stack);
     // Assert on any additional resources created by the construct
-    expect(template.toJSON()).toBeDefined();
+    assert.ok(template.toJSON());
   });
 });
 ```
@@ -170,14 +171,24 @@ template.hasResourceProperties("AWS::IAM::Policy", {
 
 ---
 
-## tsup Build Notes
+## Build Notes
 
-The library uses tsup with `external: ["aws-cdk-lib", "constructs", "@aws-amplify/plugin-types"]`.
+The library uses `tsc` (TypeScript compiler) for building. Output goes to `lib/`.
 
-- All CDK imports are externalized — they must be provided by the consumer's project
-- Use `.js` extensions in source imports (tsup resolves them to `.ts` during build)
-- `dts: true` generates `.d.ts` files from TypeScript source
-- Build output: `dist/index.js` (ESM), `dist/index.cjs` (CJS), `dist/index.d.ts`
+- All CDK imports are externalized — they must be provided by the consumer's project (listed as peer deps in `package.json`)
+- Use `.js` extensions in source imports (tsc resolves them to `.ts` during build)
+- Build output: `lib/index.js` (ESM), `lib/index.d.ts` (declaration file)
+
+### API Extractor
+
+The library uses [API Extractor](https://api-extractor.com/) to enforce the public API surface. After changing public exports, run:
+
+```bash
+npm run check:api     # verifies the public API matches the committed report
+npm run update:api    # updates the API report file (commit the result)
+```
+
+The API report lives at `packages/amplify-overtone/api-report/amplify-overtone.api.md`. Commit changes to this file alongside the code change. CI runs `check:api` and fails if the report is out of date.
 
 ### Lambda handler bundling
 
@@ -195,7 +206,7 @@ Lambda handlers inside the construct (e.g. `packages/amplify-overtone/src/functi
 
 **Rules:**
 
-- Never bundle peer deps — they're externalized in tsup config
+- Never bundle peer deps — they're listed as `peerDependencies` in `package.json` and excluded from the build output
 - Test against the minimum supported version, not latest
 - Keep ranges permissive (`^2.0.0` not `^2.170.0`) — consumers have their own CDK constraints
 - Bumping a peer dep minimum range is a **major** version bump for this library

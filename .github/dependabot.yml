@@ -1,0 +1,33 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directories:
+      - "/"
+      - "/packages/*"
+    schedule:
+      interval: "weekly"
+      time: "09:00"
+      timezone: "Europe/Berlin"
+    versioning-strategy: increase-if-necessary
+    allow:
+      - dependency-name: "@aws-sdk/*"
+      - dependency-name: "@types/aws-*"
+      - dependency-name: "@smithy/*"
+      - dependency-name: "aws-cdk"
+      - dependency-name: "aws-cdk-lib"
+      - dependency-name: "@aws-cdk/*"
+    open-pull-requests-limit: 10
+    groups:
+      aws-sdk:
+        patterns:
+          - "@aws-sdk/*"
+          - "@types/aws-*"
+      changesets:
+        patterns:
+          - "@changesets/*"
+      smithy:
+        patterns:
+          - "@smithy/*"
+    ignore:
+      - dependency-name: "@microsoft/api-extractor"
+      - dependency-name: "@types/node"

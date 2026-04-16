@@ -5,27 +5,27 @@
 ```bash
 git clone https://github.com/nxsflow/amplify-overtone.git
 cd amplify-overtone
-pnpm install
+npm install
 ```
 
 ### Development Commands
 
 ```bash
-pnpm install          # install all workspace deps
-pnpm build            # build all packages
-pnpm test             # run all unit tests
-pnpm lint             # biome check
-pnpm format           # biome format --write
+npm install          # install all workspace deps
+npm run build        # build all packages
+npm test             # run all unit tests
+npm run lint         # biome check
+npm run format       # biome format --write
 ```
 
 To work on a single package, use the root convenience scripts:
 
 ```bash
-pnpm overtone:build      # build backend package
-pnpm overtone:test       # test backend package
-pnpm overtone:typecheck  # typecheck backend package
-pnpm client:build        # build client package
-pnpm client:test         # test client package
+npm run overtone:build      # build backend package
+npm run overtone:test       # test backend package
+npm run overtone:typecheck  # typecheck backend package
+npm run client:build        # build client package
+npm run client:test         # test client package
 ```
 
 ## Project Structure
@@ -58,7 +58,7 @@ packages/
 Run all unit tests across the monorepo:
 
 ```bash
-pnpm test
+npm test
 ```
 
 #### When to Write Which Test
@@ -73,35 +73,37 @@ End-to-end tests deploy real Amplify backends and verify behavior.
 ```bash
 # One-time setup
 cp .env.example .env                    # fill in real AWS values (incl. AWS_PROFILE)
-pnpm test-infra:deploy                  # deploy test infrastructure
+npm run test-infra:deploy               # deploy test infrastructure
 
 # Run e2e tests
-pnpm e2e:test
+npm run e2e:test
 
 # Tear down test infrastructure
-pnpm test-infra:destroy
+npm run test-infra:destroy
 ```
 
 Test infrastructure outputs (user pool IDs, S3 bucket, IAM role ARNs) are written to `packages/test-infra/amplify_outputs.json` by the deploy step. Test user credentials are stored in AWS Secrets Manager and fetched at test runtime.
 
 ## Making Changes
 
-### 1. Branch from main
+### 1. Branch from alpha
 
 ```bash
-git checkout -b feat/my-feature main
+git checkout -b feat/my-feature alpha
 ```
+
+Feature branches target `alpha` (or `beta` if skipping alpha), never `main` directly.
 
 ### 2. Make your changes
 
-Follow the existing code style. Run `pnpm format` before committing.
+Follow the existing code style. Run `npm run format` before committing.
 
 ### 3. Add a changeset
 
 Every user-facing change needs a changeset:
 
 ```bash
-pnpm changeset
+npx changeset
 ```
 
 Choose the bump type:
@@ -114,7 +116,7 @@ Commit the `.changeset/*.md` file with your feature.
 
 ### 4. Open a PR
 
-Push your branch and open a pull request against `main`. CI runs build, typecheck, test, and lint.
+Push your branch and open a pull request against `alpha`. CI runs build, typecheck, test, and lint.
 
 ## Versioning
 
@@ -132,41 +134,50 @@ A single changeset can bump both packages if a change affects both.
 
 Pre-releases allow testing unreleased versions before they reach `latest`:
 
-| Channel | Version format  | Install command                            |
-| ------- | --------------- | ------------------------------------------ |
-| Alpha   | `0.2.0-alpha.0` | `pnpm add @nxsflow/amplify-overtone@alpha` |
-| Beta    | `0.2.0-beta.0`  | `pnpm add @nxsflow/amplify-overtone@beta`  |
-| Stable  | `0.2.0`         | `pnpm add @nxsflow/amplify-overtone`       |
+| Channel | Version format  | Install command                               |
+| ------- | --------------- | --------------------------------------------- |
+| Alpha   | `0.2.0-alpha.0` | `npm install @nxsflow/amplify-overtone@alpha` |
+| Beta    | `0.2.0-beta.0`  | `npm install @nxsflow/amplify-overtone@beta`  |
+| Stable  | `0.2.0`         | `npm install @nxsflow/amplify-overtone`       |
 
 **Alpha** is for early iteration (breaking changes expected). **Beta** is feature-complete and fully validated. **Stable** requires manual approval.
+
+### Branch Strategy
+
+```
+feat/foo ──┐
+feat/bar ──┤──► alpha ──► beta ──► main
+feat/baz ──┘
+```
+
+Feature branches merge into `alpha`. When features are validated, `alpha` is promoted to `beta`. `beta` is promoted to `main` for stable release.
 
 ## Release Setup (one-time)
 
 Publishing uses **npm Trusted Publishing (OIDC)** — no npm tokens needed. GitHub Actions authenticates directly with npm via short-lived tokens.
 
-To enable stable release approval, create a `production` GitHub environment:
+To enable stable release approval, create a `release` GitHub environment:
 
-1. Go to repo Settings → Environments → New environment → "production"
+1. Go to repo Settings → Environments → New environment → "release"
 2. Add required reviewers (at least one maintainer)
 
 ## Release Process
 
 ### Stable Releases
 
-1. Merge your PR (with changeset) to `main`
+1. Promote `beta` → `main` via PR (exit pre-release mode first)
 2. CI creates a "Version Packages" PR that bumps `package.json` and updates `CHANGELOG.md`
 3. A maintainer reviews and merges the Version Packages PR
 4. CI publishes to npm with the `latest` tag
 
 ### Pre-releases
 
-1. Create a branch: `git checkout -b alpha/my-feature`
-2. Enter pre-release mode: `pnpm changeset pre enter alpha`
-3. Add changesets: `pnpm changeset`
-4. Bump version: `pnpm changeset version`
-5. Push to the branch — CI publishes with the `alpha` dist-tag
+1. Merge your feature PR into `alpha`
+2. On `alpha`, enter pre-release mode: `npx changeset pre enter alpha`
+3. Version: `npx changeset version`
+4. Push — CI publishes with the `alpha` dist-tag
 
-Replace `alpha` with `beta` for beta releases (which run full test + lint gates).
+Promote `alpha` → `beta`: merge, switch pre-release mode to `beta`, version, push.
 
 ## Claude Code Users
 
@@ -174,5 +185,4 @@ This project includes Claude Code skills with deeper guidance:
 
 - **cdk-testing**: Test organization, CDK assertions API, concrete assertion recipes
 - **cdk-construct-development**: ConstructFactory pattern, peer deps, build config
-- **version-management**: Changesets workflow, pre-release channels, dist-tags
-- **release-management**: CI/CD pipeline, GitHub Actions, tiered quality gates
+- **versioning-and-releases**: Changesets workflow, pre-release channels, dist-tags

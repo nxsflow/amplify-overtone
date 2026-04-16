@@ -36,16 +36,16 @@ new AddLifeCycleRule(backend.storage.stack, "StorageLifecycle", {
 new CreateTestUsers(backend.auth.stack, "CreateTestUsers", {
     createUserFn: backend.createUser.resources.lambda,
     userPool: backend.auth.resources.userPool,
-    recipientDomain: process.env.TEST_RECIPIENT_DOMAIN,
+    recipientDomain: process.env.TEST_RECIPIENT_DOMAIN ?? "",
     secretName: testUsersSecretName,
 });
 
 new ReceiveEmails(backend.createStack("receive-emails"), "ReceiveEmails", {
     emailBucket: backend.storage.resources.bucket,
     emailRouter: backend.routeEmail.resources.lambda,
-    hostedZoneDomain: process.env.TEST_RECIPIENT_HOSTED_ZONE_DOMAIN,
-    hostedZoneId: process.env.TEST_RECIPIENT_HOSTED_ZONE_ID,
-    recipientDomain: process.env.TEST_RECIPIENT_DOMAIN,
+    hostedZoneDomain: process.env.TEST_RECIPIENT_HOSTED_ZONE_DOMAIN ?? "",
+    hostedZoneId: process.env.TEST_RECIPIENT_HOSTED_ZONE_ID ?? "",
+    recipientDomain: process.env.TEST_RECIPIENT_DOMAIN ?? "",
 });
 
 backend.addOutput({

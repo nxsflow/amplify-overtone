@@ -5,6 +5,7 @@
         "lib": ["ES2022", "DOM", "DOM.Iterable"],
         "module": "ESNext",
         "moduleResolution": "bundler",
+        "composite": false,
         "noEmit": true,
         "declaration": false,
         "declarationMap": false,
@@ -12,7 +13,11 @@
             "@/*": ["./app/*", "./*"],
             "collections/*": ["./.source/*"]
         },
-        "plugins": [{ "name": "next" }]
+        "plugins": [
+            {
+                "name": "next"
+            }
+        ]
     },
     "include": [
         "next-env.d.ts",
@@ -24,5 +29,6 @@
         "components/**/*.tsx",
         ".source/**/*.ts"
     ],
-    "exclude": ["node_modules", ".next"]
+    "exclude": ["node_modules", ".next"],
+    "references": []
 }

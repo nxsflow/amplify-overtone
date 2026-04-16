@@ -1,0 +1,33 @@
+name: E2E Resource Cleanup
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        region: [us-east-1, eu-central-1]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - name: Assume tooling role
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.E2E_CLEANUP_ROLE_ARN }}
+          aws-region: ${{ matrix.region }}
+      - name: Cleanup resources
+        run: npx tsx scripts/cleanup_e2e_resources.ts
+        env:
+          AWS_REGION: ${{ matrix.region }}

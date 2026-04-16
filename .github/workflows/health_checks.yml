@@ -1,0 +1,361 @@
+name: health_checks
+
+on:
+  pull_request:
+    branches:
+      - main
+      - alpha
+      - beta
+  push:
+    branches:
+      - main
+      - alpha
+      - beta
+  schedule:
+    # Run every Sunday at midnight UTC
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+    inputs:
+      node:
+        description: 'Node versions list (as JSON array).'
+        required: false
+        type: string
+        default: '["18", "20", "22"]'
+
+jobs:
+  # ─── Install ──────────────────────────────────────────────────────────────────
+  install:
+    strategy:
+      matrix:
+        node: [18, 20, 22]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/install_with_cache
+        with:
+          node-version: ${{ matrix.node }}
+
+  # ─── Build ────────────────────────────────────────────────────────────────────
+  build:
+    runs-on: ubuntu-latest
+    needs:
+      - install
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/build_with_cache
+        with:
+          node-version: 22
+
+  # ─── Test with Coverage ───────────────────────────────────────────────────────
+  test_with_coverage:
+    needs:
+      - build
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [18, 20, 22]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/restore_build_cache
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Run tests with coverage
+        run: npm run test:coverage:threshold
+
+  # ─── Lint ─────────────────────────────────────────────────────────────────────
+  lint:
+    runs-on: ubuntu-latest
+    needs:
+      - build
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/restore_build_cache
+        with:
+          node-version: 22
+      - run: npm run lint
+
+  # ─── Check Dependencies ───────────────────────────────────────────────────────
+  check_dependencies:
+    runs-on: ubuntu-latest
+    needs:
+      - install
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/restore_install_cache
+        with:
+          node-version: 22
+      - run: npm run check:dependencies
+
+  # ─── Check API Extract ────────────────────────────────────────────────────────
+  check_api_extract:
+    runs-on: ubuntu-latest
+    needs:
+      - build
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/restore_build_cache
+        with:
+          node-version: 22
+      - run: npm run check:api
+
+  # ─── Check API Changes (PR only) ─────────────────────────────────────────────
+  check_api_changes:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    needs:
+      - build
+    steps:
+      - name: Checkout pull request ref
+        uses: actions/checkout@v4
+      - uses: ./.github/actions/restore_build_cache
+        with:
+          node-version: 22
+      - name: Publish packages locally
+        timeout-minutes: 5
+        run: |
+          npm run start:npm-proxy
+          npm run publish:local -- --keepGitDiff
+      - name: Checkout base branch
+        uses: actions/checkout@v4
+        with:
+          path: base-branch-content
+          ref: ${{ github.event.pull_request.base.sha }}
+      - name: Check API changes
+        run: |
+          mkdir -p api-validation-projects
+          npx tsx scripts/check_api_changes.ts base-branch-content api-validation-projects
+
+  # ─── Check PR Size (PR only) ─────────────────────────────────────────────────
+  check_pr_size:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    needs:
+      - install
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/restore_install_cache
+        with:
+          node-version: 22
+      - run: git fetch origin
+      - run: npm run diff:check "$BASE_SHA"
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+
+  # ─── Check PR Changesets (PR only, skip Version Packages PRs) ────────────────
+  check_pr_changesets:
+    if: github.event_name == 'pull_request' && github.event.pull_request.user.login != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    needs:
+      - install
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/restore_install_cache
+        with:
+          node-version: 22
+      - name: Validate that PR has changeset
+        run: npx --package @changesets/cli -- changeset status --since origin/"$BASE_REF"
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+
+  # ─── Check Package Versions (PR only) ────────────────────────────────────────
+  check_package_versions:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs:
+      - install
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/restore_install_cache
+        with:
+          node-version: 22
+      - run: npx --verbose --package @changesets/cli -- changeset version
+      - run: npm run check:package-versions
+
+  # ─── Dependency Review (PR only) ─────────────────────────────────────────────
+  dependency_review:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Dependency Review
+        id: dep-review
+        continue-on-error: true
+        uses: actions/dependency-review-action@v4
+        with:
+          config-file: ./.github/dependency_review_config.yml
+      - name: Check dependency review result
+        if: always()
+        shell: bash
+        run: |
+          # Truncate step summary to avoid GitHub's 1MB upload limit
+          if [ -f "$GITHUB_STEP_SUMMARY" ]; then
+            summary_size=$(wc -c < "$GITHUB_STEP_SUMMARY")
+            if [ "$summary_size" -gt 1000000 ]; then
+              head -c 900000 "$GITHUB_STEP_SUMMARY" > /tmp/truncated_summary.md
+              printf '\n\n---\n⚠️ Summary was truncated because it exceeded the 1MB GitHub limit.\n' >> /tmp/truncated_summary.md
+              cp /tmp/truncated_summary.md "$GITHUB_STEP_SUMMARY"
+            fi
+          fi
+          has_issues=false
+          vulnerable='${{ steps.dep-review.outputs.vulnerable-changes }}'
+          if [ -n "$vulnerable" ] && [ "$vulnerable" != "[]" ]; then
+            echo "::error::Dependency review found vulnerable packages."
+            has_issues=true
+          fi
+          denied='${{ steps.dep-review.outputs.denied-changes }}'
+          if [ -n "$denied" ] && [ "$denied" != "[]" ]; then
+            echo "::error::Dependency review found denied packages."
+            has_issues=true
+          fi
+          if [ "$has_issues" = "true" ]; then
+            exit 1
+          fi
+          if [ "${{ steps.dep-review.outcome }}" = "failure" ]; then
+            echo "::warning::Dependency review step failed (likely due to step summary size limit). Check logs for details."
+          fi
+          echo "Dependency review passed — no vulnerable or denied packages found"
+
+  # ─── CodeQL Security Analysis ─────────────────────────────────────────────────
+  codeql:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript
+          queries: +security-and-quality
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: /language:javascript
+
+  # ─── Update Package Versions (main push only) ─────────────────────────────────
+  update_package_versions:
+    if: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
+    needs:
+      - install
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/restore_install_cache
+        with:
+          node-version: 22
+      - id: is_version_packages_commit
+        run: echo "is_version_packages_commit=$(npx tsx scripts/is_version_packages_commit.ts)" >> "$GITHUB_OUTPUT"
+      - name: Create or update Version Packages PR
+        # Only create/update the Version PR when this push is NOT merging a version packages PR
+        if: ${{ steps.is_version_packages_commit.outputs.is_version_packages_commit == 'false' }}
+        uses: changesets/action@v1
+        with:
+          createGithubReleases: false
+          # Safety valve: this should never run during the update step
+          publish: echo Cannot publish during update version step
+        env:
+          # Omit NPM_TOKEN to prevent accidental publish during this step
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ─── Publish Package Versions (Version PR merge to main only) ────────────────
+  publish_package_versions:
+    if: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
+    needs:
+      - test_with_coverage
+      - lint
+      - check_api_extract
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      id-token: write
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/restore_build_cache
+        with:
+          node-version: 22
+      - id: is_version_packages_commit
+        run: echo "is_version_packages_commit=$(npx tsx scripts/is_version_packages_commit.ts)" >> "$GITHUB_OUTPUT"
+      - name: Publish packages
+        # Only publish when this push merges a Version Packages PR
+        if: ${{ steps.is_version_packages_commit.outputs.is_version_packages_commit == 'true' }}
+        uses: changesets/action@v1
+        with:
+          publish: npm run publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TRUSTED_PUBLISHER: 'true'
+
+  # ─── Pre-release Publish (alpha/beta push only) ──────────────────────────────
+  publish_prerelease:
+    if: ${{ github.event_name == 'push' && (github.ref_name == 'alpha' || github.ref_name == 'beta') }}
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/restore_build_cache
+        with:
+          node-version: 22
+      - name: Publish pre-release packages
+        run: npx changeset publish
+        env:
+          NPM_TRUSTED_PUBLISHER: 'true'
+
+  # ─── E2E Gate ─────────────────────────────────────────────────────────────────
+  do_include_e2e:
+    runs-on: ubuntu-latest
+    needs: [build]
+    outputs:
+      include_e2e: ${{ steps.check.outputs.include_e2e }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/restore_build_cache
+        with:
+          node-version: 22
+      - id: check
+        run: echo "include_e2e=$(npx tsx scripts/do_include_e2e.ts)" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_EVENT_ACTION: ${{ github.event.action }}
+          PR_LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
+
+  # ─── E2E Tests ────────────────────────────────────────────────────────────────
+  e2e_tests:
+    needs: [do_include_e2e]
+    if: needs.do_include_e2e.outputs.include_e2e == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        test-suite: [actions, auth-inheritance, collaborative, local-first]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/run_with_e2e_account
+        with:
+          node-version: 22
+          e2e-test-accounts: ${{ secrets.E2E_TEST_ACCOUNTS }}
+          test-command: npm run e2e:test -- --test-name-pattern="${{ matrix.test-suite }}"

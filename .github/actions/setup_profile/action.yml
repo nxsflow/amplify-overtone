@@ -1,0 +1,30 @@
+name: Setup AWS Profile
+description: Create AWS CLI profile from temporary credentials
+
+inputs:
+  profile-name:
+    description: AWS profile name
+    required: true
+  region:
+    description: AWS region
+    required: true
+  access-key-id:
+    description: AWS access key ID
+    required: true
+  secret-access-key:
+    description: AWS secret access key
+    required: true
+  session-token:
+    description: AWS session token
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Configure AWS profile
+      shell: bash
+      run: |
+        aws configure set aws_access_key_id "${{ inputs.access-key-id }}" --profile "${{ inputs.profile-name }}"
+        aws configure set aws_secret_access_key "${{ inputs.secret-access-key }}" --profile "${{ inputs.profile-name }}"
+        aws configure set aws_session_token "${{ inputs.session-token }}" --profile "${{ inputs.profile-name }}"
+        aws configure set region "${{ inputs.region }}" --profile "${{ inputs.profile-name }}"

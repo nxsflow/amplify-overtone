@@ -1,23 +1,16 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import assert from "node:assert";
+import { beforeEach, describe, it } from "node:test";
+import {
+    AdminGetUserCommand,
+    CognitoIdentityProviderClient,
+} from "@aws-sdk/client-cognito-identity-provider";
+import { SESv2Client, SendEmailCommand } from "@aws-sdk/client-sesv2";
+import { mockClient } from "aws-sdk-client-mock";
 
-const mockSesSend = vi.fn().mockResolvedValue({ MessageId: "test-msg-id" });
-const mockCognitoSend = vi.fn();
-
-vi.mock("@aws-sdk/client-sesv2", () => ({
-    SESv2Client: class {
-        send = mockSesSend;
-    },
-    SendEmailCommand: vi.fn(),
-}));
-
-vi.mock("@aws-sdk/client-cognito-identity-provider", () => ({
-    CognitoIdentityProviderClient: class {
-        send = mockCognitoSend;
-    },
-    AdminGetUserCommand: class {
-        constructor(public params: unknown) {}
-    },
-}));
+// aws-sdk-client-mock intercepts at the SmithyClient level, so it works even
+// when the clients are created at module top-level.
+const sesMock = mockClient(SESv2Client);
+const cognitoMock = mockClient(CognitoIdentityProviderClient);
 
 const BASE_TEMPLATE = {
     subject: "Hello {{projectName}}",
@@ -26,10 +19,14 @@ const BASE_TEMPLATE = {
     userIdArgs: [],
 };
 
-describe("send-email handler", () => {
+// Import the handler once after mocks are set up
+const { handler } = await import("../../../src/email/functions/send/handler.js");
+
+void describe("send-email handler", () => {
     beforeEach(() => {
-        vi.clearAllMocks();
-        mockSesSend.mockResolvedValue({ MessageId: "test-msg-id" });
+        sesMock.reset();
+        cognitoMock.reset();
+        sesMock.on(SendEmailCommand).resolves({ MessageId: "test-msg-id" });
         process.env.SENDERS_CONFIG = JSON.stringify({
             noreply: { email: "noreply@test.com", displayName: "TestApp" },
         });
@@ -37,7 +34,7 @@ describe("send-email handler", () => {
         process.env.USER_POOL_ID = "us-east-1_TestPool";
     });
 
-    it("sends email using template config with plain argument interpolation", async () => {
+    void it("sends email using template config with plain argument interpolation", async () => {
         process.env.EMAIL_TEMPLATES = JSON.stringify({
             "email-action-1": {
                 ...BASE_TEMPLATE,
@@ -46,17 +43,16 @@ describe("send-email handler", () => {
             },
         });
 
-        const { handler } = await import("../../../src/email/functions/send/handler.js");
         const result = await handler({
             actionId: "email-action-1",
             fieldName: "sendInvite",
             arguments: { projectName: "MyProject", recipient: "user@example.com" },
         });
 
-        expect(result.messageId).toBe("test-msg-id");
+        assert.strictEqual(result.messageId, "test-msg-id");
     });
 
-    it("interpolates template fields with argument values", async () => {
+    void it("interpolates template fields with argument values", async () => {
         process.env.EMAIL_TEMPLATES = JSON.stringify({
             "email-action-1": {
                 subject: "{{greeting}} from {{sender}}",
@@ -66,19 +62,17 @@ describe("send-email handler", () => {
             },
         });
 
-        const { handler } = await import("../../../src/email/functions/send/handler.js");
         await handler({
             actionId: "email-action-1",
             fieldName: "sendMessage",
             arguments: { greeting: "Hello", sender: "Alice", recipient: "bob@example.com" },
         });
 
-        const [sendEmailCommand] = mockSesSend.mock.calls[0]!;
-        expect(sendEmailCommand).toBeDefined();
+        assert.strictEqual(sesMock.commandCalls(SendEmailCommand).length > 0, true);
     });
 
-    it("resolves Cognito users for userIdArgs and exposes flattened vars", async () => {
-        mockCognitoSend.mockResolvedValueOnce({
+    void it("resolves Cognito users for userIdArgs and exposes flattened vars", async () => {
+        cognitoMock.on(AdminGetUserCommand).resolves({
             UserAttributes: [
                 { Name: "name", Value: "Alice Smith" },
                 { Name: "email", Value: "alice@example.com" },
@@ -97,19 +91,18 @@ describe("send-email handler", () => {
             },
         });
 
-        const { handler } = await import("../../../src/email/functions/send/handler.js");
         const result = await handler({
             actionId: "email-action-2",
             fieldName: "sendInvite",
             arguments: { invitedBy: "user-123", recipient: "target@example.com" },
         });
 
-        expect(result.messageId).toBe("test-msg-id");
-        expect(mockCognitoSend).toHaveBeenCalledTimes(1);
+        assert.strictEqual(result.messageId, "test-msg-id");
+        assert.strictEqual(cognitoMock.commandCalls(AdminGetUserCommand).length, 1);
     });
 
-    it("uses recipientArg's resolved email as the To address", async () => {
-        mockCognitoSend.mockResolvedValueOnce({
+    void it("uses recipientArg's resolved email as the To address", async () => {
+        cognitoMock.on(AdminGetUserCommand).resolves({
             UserAttributes: [
                 { Name: "name", Value: "Bob Jones" },
                 { Name: "email", Value: "bob@example.com" },
@@ -128,32 +121,31 @@ describe("send-email handler", () => {
             },
         });
 
-        const { handler } = await import("../../../src/email/functions/send/handler.js");
         const result = await handler({
             actionId: "email-action-3",
             fieldName: "sendWelcome",
             arguments: { recipient: "user-bob-456" },
         });
 
-        expect(result.messageId).toBe("test-msg-id");
+        assert.strictEqual(result.messageId, "test-msg-id");
         // Cognito was called once for the recipient userId
-        expect(mockCognitoSend).toHaveBeenCalledTimes(1);
+        assert.strictEqual(cognitoMock.commandCalls(AdminGetUserCommand).length, 1);
     });
 
-    it("throws when actionId is not found in EMAIL_TEMPLATES", async () => {
+    void it("throws when actionId is not found in EMAIL_TEMPLATES", async () => {
         process.env.EMAIL_TEMPLATES = JSON.stringify({});
 
-        const { handler } = await import("../../../src/email/functions/send/handler.js");
-        await expect(
+        await assert.rejects(
             handler({
                 actionId: "unknown-action",
                 fieldName: "sendSomething",
                 arguments: {},
             }),
-        ).rejects.toThrow('Template config for action "unknown-action" not found');
+            { message: /Template config for action "unknown-action" not found/ },
+        );
     });
 
-    it("throws when sender not found in SENDERS_CONFIG", async () => {
+    void it("throws when sender not found in SENDERS_CONFIG", async () => {
         process.env.EMAIL_TEMPLATES = JSON.stringify({
             "email-action-1": {
                 ...BASE_TEMPLATE,
@@ -162,17 +154,17 @@ describe("send-email handler", () => {
             },
         });
 
-        const { handler } = await import("../../../src/email/functions/send/handler.js");
-        await expect(
+        await assert.rejects(
             handler({
                 actionId: "email-action-1",
                 fieldName: "sendInvite",
                 arguments: { recipient: "user@example.com" },
             }),
-        ).rejects.toThrow('Sender "nonexistent" not found');
+            { message: /Sender "nonexistent" not found/ },
+        );
     });
 
-    it("throws when recipient cannot be determined", async () => {
+    void it("throws when recipient cannot be determined", async () => {
         process.env.EMAIL_TEMPLATES = JSON.stringify({
             "email-action-1": {
                 ...BASE_TEMPLATE,
@@ -180,17 +172,17 @@ describe("send-email handler", () => {
             },
         });
 
-        const { handler } = await import("../../../src/email/functions/send/handler.js");
-        await expect(
+        await assert.rejects(
             handler({
                 actionId: "email-action-1",
                 fieldName: "sendInvite",
                 arguments: { projectName: "MyProject" },
             }),
-        ).rejects.toThrow("Could not determine recipient email address");
+            { message: /Could not determine recipient email address/ },
+        );
     });
 
-    it("uses callToAction and footer from template when provided", async () => {
+    void it("uses callToAction and footer from template when provided", async () => {
         process.env.EMAIL_TEMPLATES = JSON.stringify({
             "email-action-cta": {
                 subject: "Join {{projectName}}",
@@ -205,7 +197,6 @@ describe("send-email handler", () => {
             },
         });
 
-        const { handler } = await import("../../../src/email/functions/send/handler.js");
         const result = await handler({
             actionId: "email-action-cta",
             fieldName: "sendInvite",
@@ -217,6 +208,6 @@ describe("send-email handler", () => {
             },
         });
 
-        expect(result.messageId).toBe("test-msg-id");
+        assert.strictEqual(result.messageId, "test-msg-id");
     });
 });

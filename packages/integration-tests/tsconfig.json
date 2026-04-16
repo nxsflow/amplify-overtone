@@ -1,8 +1,17 @@
 {
-    "extends": "../../tsconfig.json",
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        "composite": false,
+        "noEmit": true
+    },
     "include": ["src"],
     "exclude": ["src/test-projects/*/amplify"],
-    "compilerOptions": {
-        "types": ["node"]
-    }
+    "references": [
+        {
+            "path": "../amplify-overtone"
+        },
+        {
+            "path": "../amplify-overtone-client"
+        }
+    ]
 }

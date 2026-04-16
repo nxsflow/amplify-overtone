@@ -1,0 +1,33 @@
+name: Select E2E Account
+description: Randomly select an E2E test account
+
+inputs:
+  e2e-test-accounts:
+    description: JSON array of test account objects
+    required: true
+
+outputs:
+  execution-role-arn:
+    description: ARN of the execution role
+    value: ${{ steps.select.outputs.execution-role-arn }}
+  tooling-role-arn:
+    description: ARN of the tooling role
+    value: ${{ steps.select.outputs.tooling-role-arn }}
+  account-id:
+    description: AWS account ID
+    value: ${{ steps.select.outputs.account-id }}
+
+runs:
+  using: composite
+  steps:
+    - id: select
+      shell: bash
+      run: |
+        ACCOUNT=$(echo '${{ inputs.e2e-test-accounts }}' | node -e "
+          const accounts = JSON.parse(require('fs').readFileSync('/dev/stdin', 'utf8'));
+          const selected = accounts[Math.floor(Math.random() * accounts.length)];
+          console.log(JSON.stringify(selected));
+        ")
+        echo "execution-role-arn=$(echo $ACCOUNT | jq -r '.executionRoleArn')" >> $GITHUB_OUTPUT
+        echo "tooling-role-arn=$(echo $ACCOUNT | jq -r '.toolingRoleArn')" >> $GITHUB_OUTPUT
+        echo "account-id=$(echo $ACCOUNT | jq -r '.accountId')" >> $GITHUB_OUTPUT

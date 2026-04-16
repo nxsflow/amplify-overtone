@@ -138,7 +138,7 @@ BREAKING CHANGE: OvertoneProps.config is now overtoneConfig
 This project uses `@changesets/cli` to track version bumps. When your commit affects the published package (new feature, bug fix, breaking change), you need a changeset:
 
 ```bash
-pnpm changeset
+npx changeset
 ```
 
 This creates a `.changeset/<random-name>.md` file. Commit it alongside your code:

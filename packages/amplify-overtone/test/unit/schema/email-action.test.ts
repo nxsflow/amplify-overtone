@@ -1,8 +1,9 @@
+import assert from "node:assert";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
+import { afterEach, beforeEach, describe, it } from "node:test";
 import { a } from "@aws-amplify/backend";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { clearActionRegistry, getRegisteredActions } from "../../../src/schema/action-registry.js";
 import { emailAction } from "../../../src/schema/email-action.js";
 import { userId } from "../../../src/schema/field-types.js";
@@ -14,7 +15,7 @@ function getMeta(action: unknown): OvertoneEmailMeta {
     return (action as any)[OVERTONE_EMAIL_META];
 }
 
-describe("action registry", () => {
+void describe("action registry", () => {
     beforeEach(() => {
         clearActionRegistry();
     });
@@ -23,20 +24,20 @@ describe("action registry", () => {
         clearActionRegistry();
     });
 
-    it("starts empty after clear", () => {
-        expect(getRegisteredActions()).toHaveLength(0);
+    void it("starts empty after clear", () => {
+        assert.strictEqual(getRegisteredActions().length, 0);
     });
 
-    it("registers an action when .template() is called", () => {
+    void it("registers an action when .template() is called", () => {
         emailAction({ sender: "noreply" })
             .arguments({ name: a.string().required() })
             .template({ subject: "Hello", header: "Hi", body: "Welcome." });
 
         const actions = getRegisteredActions();
-        expect(actions).toHaveLength(1);
+        assert.strictEqual(actions.length, 1);
     });
 
-    it("assigns unique IDs to multiple actions", () => {
+    void it("assigns unique IDs to multiple actions", () => {
         emailAction({ sender: "noreply" })
             .arguments({ name: a.string().required() })
             .template({ subject: "Hello", header: "Hi", body: "Welcome." });
@@ -46,16 +47,16 @@ describe("action registry", () => {
             .template({ subject: "Support", header: "Hello", body: "Contact us." });
 
         const actions = getRegisteredActions();
-        expect(actions).toHaveLength(2);
+        assert.strictEqual(actions.length, 2);
 
         const ids = actions.map((a) => a.id);
-        expect(new Set(ids).size).toBe(2);
+        assert.strictEqual(new Set(ids).size, 2);
         for (const id of ids) {
-            expect(id).toMatch(/^email-action-\d+$/);
+            assert.match(id, /^email-action-\d+$/);
         }
     });
 
-    it("stores compiled template in registry entry", () => {
+    void it("stores compiled template in registry entry", () => {
         emailAction({ sender: "noreply" })
             .arguments({ recipient: userId(), projectName: a.string().required() })
             .template({
@@ -66,37 +67,37 @@ describe("action registry", () => {
             });
 
         const actions = getRegisteredActions();
-        expect(actions).toHaveLength(1);
+        assert.strictEqual(actions.length, 1);
 
         const { meta } = actions[0]!;
-        expect(meta.compiledTemplate?.subject).toBe("Invite to {{projectName}}");
-        expect(meta.compiledTemplate?.header).toBe("Invitation");
-        expect(meta.sender).toBe("noreply");
-        expect(meta.userIdArgNames).toContain("recipient");
-        expect(meta.hasRecipientUserId).toBe(true);
+        assert.strictEqual(meta.compiledTemplate?.subject, "Invite to {{projectName}}");
+        assert.strictEqual(meta.compiledTemplate?.header, "Invitation");
+        assert.strictEqual(meta.sender, "noreply");
+        assert.ok(meta.userIdArgNames.includes("recipient"));
+        assert.strictEqual(meta.hasRecipientUserId, true);
     });
 
-    it("writes a resolver file to the temp directory", () => {
+    void it("writes a resolver file to the temp directory", () => {
         emailAction({ sender: "noreply" })
             .arguments({ name: a.string().required() })
             .template({ subject: "Hello", header: "Hi", body: "Welcome." });
 
         const actions = getRegisteredActions();
-        expect(actions).toHaveLength(1);
+        assert.strictEqual(actions.length, 1);
 
         const actionId = actions[0]!.id;
         const expectedPath = path.join(os.tmpdir(), "overtone-resolvers", `${actionId}.js`);
-        expect(fs.existsSync(expectedPath)).toBe(true);
+        assert.ok(fs.existsSync(expectedPath));
 
         const content = fs.readFileSync(expectedPath, "utf8");
-        expect(content).toContain(`actionId: "${actionId}"`);
-        expect(content).toContain("export function request(ctx)");
-        expect(content).toContain("export function response(ctx)");
+        assert.ok(content.includes(`actionId: "${actionId}"`));
+        assert.ok(content.includes("export function request(ctx)"));
+        assert.ok(content.includes("export function response(ctx)"));
     });
 });
 
-describe("n.email()", () => {
-    it("is accepted by a.schema() as a mutation", () => {
+void describe("n.email()", () => {
+    void it("is accepted by a.schema() as a mutation", () => {
         const emailOp = emailAction({ sender: "noreply" })
             .arguments({ name: a.string().required() })
             .template({
@@ -109,15 +110,15 @@ describe("n.email()", () => {
 
         // Should not throw — a.schema() accepts it as a CustomOperation
         const schema = a.schema({ sendEmail: emailOp });
-        expect(schema).toBeDefined();
+        assert.notStrictEqual(schema, undefined);
     });
 
-    it("stores sender in Overtone metadata", () => {
+    void it("stores sender in Overtone metadata", () => {
         const emailOp = emailAction({ sender: "support" });
-        expect(getMeta(emailOp).sender).toBe("support");
+        assert.strictEqual(getMeta(emailOp).sender, "support");
     });
 
-    it("stores compiled template after .template() call", () => {
+    void it("stores compiled template after .template() call", () => {
         const emailOp = emailAction({ sender: "noreply" })
             .arguments({
                 invitedBy: userId(),
@@ -132,14 +133,15 @@ describe("n.email()", () => {
             });
 
         const meta = getMeta(emailOp);
-        expect(meta.compiledTemplate?.subject).toBe(
+        assert.strictEqual(
+            meta.compiledTemplate?.subject,
             "{{invitedByGivenName}} invited you to {{projectName}}",
         );
-        expect(meta.compiledTemplate?.header).toBe("Invitation");
-        expect(meta.compiledTemplate?.body).toBe("You are invited.");
+        assert.strictEqual(meta.compiledTemplate?.header, "Invitation");
+        assert.strictEqual(meta.compiledTemplate?.body, "You are invited.");
     });
 
-    it("detects n.userId() arguments", () => {
+    void it("detects n.userId() arguments", () => {
         const emailOp = emailAction({ sender: "noreply" }).arguments({
             recipient: userId(),
             invitedBy: userId(),
@@ -147,22 +149,22 @@ describe("n.email()", () => {
         });
 
         const meta = getMeta(emailOp);
-        expect(meta.userIdArgNames).toContain("recipient");
-        expect(meta.userIdArgNames).toContain("invitedBy");
-        expect(meta.userIdArgNames).not.toContain("projectName");
+        assert.ok(meta.userIdArgNames.includes("recipient"));
+        assert.ok(meta.userIdArgNames.includes("invitedBy"));
+        assert.ok(!meta.userIdArgNames.includes("projectName"));
     });
 
-    it("detects recipient convention", () => {
+    void it("detects recipient convention", () => {
         const withRecipient = emailAction({ sender: "noreply" }).arguments({ recipient: userId() });
-        expect(getMeta(withRecipient).hasRecipientUserId).toBe(true);
+        assert.strictEqual(getMeta(withRecipient).hasRecipientUserId, true);
 
         const withoutRecipient = emailAction({ sender: "noreply" }).arguments({
             invitedBy: userId(),
         });
-        expect(getMeta(withoutRecipient).hasRecipientUserId).toBe(false);
+        assert.strictEqual(getMeta(withoutRecipient).hasRecipientUserId, false);
     });
 
-    it("passes .authorization() through to Amplify mutation", () => {
+    void it("passes .authorization() through to Amplify mutation", () => {
         const emailOp = emailAction({ sender: "noreply" })
             .arguments({ name: a.string().required() })
             .template({ subject: "Hi", header: "Hi", body: "Body." })
@@ -170,10 +172,10 @@ describe("n.email()", () => {
             .authorization((allow: any) => [allow.authenticated()]);
 
         const schema = a.schema({ sendEmail: emailOp });
-        expect(schema).toBeDefined();
+        assert.notStrictEqual(schema, undefined);
     });
 
-    it("transform() called twice produces consistent output", () => {
+    void it("transform() called twice produces consistent output", () => {
         const emailOp = emailAction({ sender: "noreply" })
             .arguments({ name: a.string().required() })
             .template({ subject: "Hi", header: "Hi", body: "Body." })
@@ -187,13 +189,13 @@ describe("n.email()", () => {
         const result2 = (schema as any).transform();
 
         // Both calls should produce the same schema string
-        expect(result1.schema).toBe(result2.schema);
+        assert.strictEqual(result1.schema, result2.schema);
 
         // Log for debugging
         console.log("transform schema output:", result1.schema?.slice(0, 300));
     });
 
-    it("survives schema.transform() with plain args (CDK synthesis)", () => {
+    void it("survives schema.transform() with plain args (CDK synthesis)", () => {
         const emailOp = emailAction({ sender: "noreply" })
             .arguments({ name: a.string().required() })
             .template({ subject: "Hi", header: "Hi", body: "Body." })
@@ -203,10 +205,10 @@ describe("n.email()", () => {
         const schema = a.schema({ sendEmail: emailOp });
         // biome-ignore lint/suspicious/noExplicitAny: testing internal Amplify schema processing
         const result = (schema as any).transform();
-        expect(result).toBeDefined();
+        assert.notStrictEqual(result, undefined);
     });
 
-    it("survives schema.transform() with n.userId() args (CDK synthesis)", () => {
+    void it("survives schema.transform() with n.userId() args (CDK synthesis)", () => {
         const emailOp = emailAction({ sender: "noreply" })
             .arguments({
                 recipient: userId(),
@@ -227,6 +229,6 @@ describe("n.email()", () => {
         const schema = a.schema({ sendInvite: emailOp });
         // biome-ignore lint/suspicious/noExplicitAny: testing internal Amplify schema processing
         const result = (schema as any).transform();
-        expect(result).toBeDefined();
+        assert.notStrictEqual(result, undefined);
     });
 });

@@ -1,3 +1,5 @@
+import assert from "node:assert";
+import { afterEach, describe, it } from "node:test";
 import {
     AlreadyExistsException,
     CreateEmailIdentityCommand,
@@ -6,7 +8,6 @@ import {
     SESv2Client,
 } from "@aws-sdk/client-sesv2";
 import { mockClient } from "aws-sdk-client-mock";
-import { afterEach, describe, expect, it } from "vitest";
 import { handler } from "../../../src/email/functions/idempotent-identity/handler.js";
 
 const sesMock = mockClient(SESv2Client);
@@ -19,8 +20,8 @@ afterEach(() => {
 // Create
 // ---------------------------------------------------------------------------
 
-describe("Create", () => {
-    it("creates a new identity and marks it as 'created'", async () => {
+void describe("Create", () => {
+    void it("creates a new identity and marks it as 'created'", async () => {
         sesMock.on(CreateEmailIdentityCommand).resolves({});
 
         const result = await handler({
@@ -28,14 +29,14 @@ describe("Create", () => {
             ResourceProperties: { Email: "new@example.com", ServiceToken: "" },
         });
 
-        expect(result.PhysicalResourceId).toBe("ses-identity:new@example.com:created");
-        expect(sesMock.commandCalls(CreateEmailIdentityCommand)).toHaveLength(1);
-        expect(sesMock.commandCalls(CreateEmailIdentityCommand)[0]?.args[0].input).toEqual({
+        assert.strictEqual(result.PhysicalResourceId, "ses-identity:new@example.com:created");
+        assert.strictEqual(sesMock.commandCalls(CreateEmailIdentityCommand).length, 1);
+        assert.deepStrictEqual(sesMock.commandCalls(CreateEmailIdentityCommand)[0]?.args[0].input, {
             EmailIdentity: "new@example.com",
         });
     });
 
-    it("marks a pre-existing identity as 'preexisted'", async () => {
+    void it("marks a pre-existing identity as 'preexisted'", async () => {
         sesMock
             .on(CreateEmailIdentityCommand)
             .rejects(new AlreadyExistsException({ message: "Already exists", $metadata: {} }));
@@ -45,18 +46,22 @@ describe("Create", () => {
             ResourceProperties: { Email: "existing@example.com", ServiceToken: "" },
         });
 
-        expect(result.PhysicalResourceId).toBe("ses-identity:existing@example.com:preexisted");
+        assert.strictEqual(
+            result.PhysicalResourceId,
+            "ses-identity:existing@example.com:preexisted",
+        );
     });
 
-    it("propagates unexpected errors", async () => {
+    void it("propagates unexpected errors", async () => {
         sesMock.on(CreateEmailIdentityCommand).rejects(new Error("Throttled"));
 
-        await expect(
+        await assert.rejects(
             handler({
                 RequestType: "Create",
                 ResourceProperties: { Email: "test@example.com", ServiceToken: "" },
             }),
-        ).rejects.toThrow("Throttled");
+            { message: "Throttled" },
+        );
     });
 });
 
@@ -64,8 +69,8 @@ describe("Create", () => {
 // Update
 // ---------------------------------------------------------------------------
 
-describe("Update", () => {
-    it("ensures identity exists and preserves physical ID when email is unchanged", async () => {
+void describe("Update", () => {
+    void it("ensures identity exists and preserves physical ID when email is unchanged", async () => {
         sesMock
             .on(CreateEmailIdentityCommand)
             .rejects(new AlreadyExistsException({ message: "Already exists", $metadata: {} }));
@@ -77,11 +82,11 @@ describe("Update", () => {
             PhysicalResourceId: "ses-identity:same@example.com:created",
         });
 
-        expect(result.PhysicalResourceId).toBe("ses-identity:same@example.com:created");
-        expect(sesMock.commandCalls(CreateEmailIdentityCommand)).toHaveLength(1);
+        assert.strictEqual(result.PhysicalResourceId, "ses-identity:same@example.com:created");
+        assert.strictEqual(sesMock.commandCalls(CreateEmailIdentityCommand).length, 1);
     });
 
-    it("re-creates identity after drift and preserves physical ID", async () => {
+    void it("re-creates identity after drift and preserves physical ID", async () => {
         sesMock.on(CreateEmailIdentityCommand).resolves({});
 
         const result = await handler({
@@ -91,11 +96,11 @@ describe("Update", () => {
             PhysicalResourceId: "ses-identity:same@example.com:created",
         });
 
-        expect(result.PhysicalResourceId).toBe("ses-identity:same@example.com:created");
-        expect(sesMock.commandCalls(CreateEmailIdentityCommand)).toHaveLength(1);
+        assert.strictEqual(result.PhysicalResourceId, "ses-identity:same@example.com:created");
+        assert.strictEqual(sesMock.commandCalls(CreateEmailIdentityCommand).length, 1);
     });
 
-    it("preserves 'preexisted' flag on update", async () => {
+    void it("preserves 'preexisted' flag on update", async () => {
         sesMock
             .on(CreateEmailIdentityCommand)
             .rejects(new AlreadyExistsException({ message: "Already exists", $metadata: {} }));
@@ -107,10 +112,10 @@ describe("Update", () => {
             PhysicalResourceId: "ses-identity:same@example.com:preexisted",
         });
 
-        expect(result.PhysicalResourceId).toBe("ses-identity:same@example.com:preexisted");
+        assert.strictEqual(result.PhysicalResourceId, "ses-identity:same@example.com:preexisted");
     });
 
-    it("creates a new identity and returns a new physical ID when the email changes", async () => {
+    void it("creates a new identity and returns a new physical ID when the email changes", async () => {
         sesMock.on(CreateEmailIdentityCommand).resolves({});
 
         const result = await handler({
@@ -120,13 +125,13 @@ describe("Update", () => {
             PhysicalResourceId: "ses-identity:old@example.com:created",
         });
 
-        expect(result.PhysicalResourceId).toBe("ses-identity:new@example.com:created");
-        expect(sesMock.commandCalls(CreateEmailIdentityCommand)[0]?.args[0].input).toEqual({
+        assert.strictEqual(result.PhysicalResourceId, "ses-identity:new@example.com:created");
+        assert.deepStrictEqual(sesMock.commandCalls(CreateEmailIdentityCommand)[0]?.args[0].input, {
             EmailIdentity: "new@example.com",
         });
     });
 
-    it("detects pre-existing identity on email change", async () => {
+    void it("detects pre-existing identity on email change", async () => {
         sesMock
             .on(CreateEmailIdentityCommand)
             .rejects(new AlreadyExistsException({ message: "Already exists", $metadata: {} }));
@@ -138,7 +143,10 @@ describe("Update", () => {
             PhysicalResourceId: "ses-identity:old@example.com:created",
         });
 
-        expect(result.PhysicalResourceId).toBe("ses-identity:existing@example.com:preexisted");
+        assert.strictEqual(
+            result.PhysicalResourceId,
+            "ses-identity:existing@example.com:preexisted",
+        );
     });
 });
 
@@ -146,8 +154,8 @@ describe("Update", () => {
 // Delete
 // ---------------------------------------------------------------------------
 
-describe("Delete", () => {
-    it("deletes an identity that was created by this stack", async () => {
+void describe("Delete", () => {
+    void it("deletes an identity that was created by this stack", async () => {
         sesMock.on(DeleteEmailIdentityCommand).resolves({});
 
         const result = await handler({
@@ -156,25 +164,25 @@ describe("Delete", () => {
             PhysicalResourceId: "ses-identity:test@example.com:created",
         });
 
-        expect(result.PhysicalResourceId).toBe("ses-identity:test@example.com:created");
-        expect(sesMock.commandCalls(DeleteEmailIdentityCommand)).toHaveLength(1);
-        expect(sesMock.commandCalls(DeleteEmailIdentityCommand)[0]?.args[0].input).toEqual({
+        assert.strictEqual(result.PhysicalResourceId, "ses-identity:test@example.com:created");
+        assert.strictEqual(sesMock.commandCalls(DeleteEmailIdentityCommand).length, 1);
+        assert.deepStrictEqual(sesMock.commandCalls(DeleteEmailIdentityCommand)[0]?.args[0].input, {
             EmailIdentity: "test@example.com",
         });
     });
 
-    it("skips deletion of a pre-existing identity", async () => {
+    void it("skips deletion of a pre-existing identity", async () => {
         const result = await handler({
             RequestType: "Delete",
             ResourceProperties: { Email: "test@example.com", ServiceToken: "" },
             PhysicalResourceId: "ses-identity:test@example.com:preexisted",
         });
 
-        expect(result.PhysicalResourceId).toBe("ses-identity:test@example.com:preexisted");
-        expect(sesMock.commandCalls(DeleteEmailIdentityCommand)).toHaveLength(0);
+        assert.strictEqual(result.PhysicalResourceId, "ses-identity:test@example.com:preexisted");
+        assert.strictEqual(sesMock.commandCalls(DeleteEmailIdentityCommand).length, 0);
     });
 
-    it("ignores NotFoundException when identity was already deleted", async () => {
+    void it("ignores NotFoundException when identity was already deleted", async () => {
         sesMock
             .on(DeleteEmailIdentityCommand)
             .rejects(new NotFoundException({ message: "Not found", $metadata: {} }));
@@ -185,18 +193,19 @@ describe("Delete", () => {
             PhysicalResourceId: "ses-identity:test@example.com:created",
         });
 
-        expect(result.PhysicalResourceId).toBe("ses-identity:test@example.com:created");
+        assert.strictEqual(result.PhysicalResourceId, "ses-identity:test@example.com:created");
     });
 
-    it("propagates unexpected errors on delete", async () => {
+    void it("propagates unexpected errors on delete", async () => {
         sesMock.on(DeleteEmailIdentityCommand).rejects(new Error("AccessDenied"));
 
-        await expect(
+        await assert.rejects(
             handler({
                 RequestType: "Delete",
                 ResourceProperties: { Email: "test@example.com", ServiceToken: "" },
                 PhysicalResourceId: "ses-identity:test@example.com:created",
             }),
-        ).rejects.toThrow("AccessDenied");
+            { message: "AccessDenied" },
+        );
     });
 });

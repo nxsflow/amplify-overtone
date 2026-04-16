@@ -1,5 +1,5 @@
-import type { TemplateDefinition } from "../types.js";
 import * as S from "../styles.js";
+import type { TemplateDefinition } from "../types.js";
 
 export const coreTemplate: TemplateDefinition = {
     subject: "",

@@ -23,7 +23,7 @@ packages/amplify-overtone/test/
 packages/integration-tests/  # E2E tests against deployed infrastructure (private)
 ```
 
-Vitest config for the construct package: `packages/amplify-overtone/vitest.config.ts` matches `include: ["test/**/*.test.ts"]`.
+Tests use the Node.js native test runner (`node:test`). Run them with `npm test` in the package or `npm test` from the repo root.
 
 **When to write which:**
 
@@ -40,7 +40,8 @@ Vitest config for the construct package: `packages/amplify-overtone/vitest.confi
 `OvertoneFactory` uses a static counter to enforce one `defineOvertone()` per backend. Reset between tests:
 
 ```typescript
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, it } from "node:test";
+import assert from "node:assert/strict";
 import { OvertoneFactory } from "../../src/factory.js"; // relative within packages/amplify-overtone/
 import { defineOvertone } from "../../src/index.js";
 
@@ -51,13 +52,13 @@ describe("defineOvertone", () => {
 
   it("returns an object with a getInstance method", () => {
     const factory = defineOvertone({});
-    expect(factory).toBeDefined();
-    expect(typeof factory.getInstance).toBe("function");
+    assert.ok(factory);
+    assert.strictEqual(typeof factory.getInstance, "function");
   });
 
   it("throws on second call", () => {
     defineOvertone({});
-    expect(() => defineOvertone({})).toThrow();
+    assert.throws(() => defineOvertone({}));
   });
 });
 ```
@@ -68,7 +69,8 @@ Test that invalid props produce clear error messages:
 
 ```typescript
 it("rejects invalid configuration", () => {
-  expect(() => defineOvertone({ invalidProp: "value" } as any)).toThrow(
+  assert.throws(
+    () => defineOvertone({ invalidProp: "value" } as any),
     /invalid/i,
   );
 });
@@ -118,13 +120,15 @@ import { Capture, Match, Template } from "aws-cdk-lib/assertions";
 Capture a dynamic value from the template for later assertion:
 
 ```typescript
+import assert from "node:assert/strict";
+
 const arnCapture = new Capture();
 template.hasResourceProperties("AWS::IAM::Policy", {
   PolicyDocument: {
     Statement: [{ Resource: arnCapture }],
   },
 });
-expect(arnCapture.asString()).toContain(":lambda:");
+assert.ok(arnCapture.asString().includes(":lambda:"));
 ```
 
 ### Key Principles
@@ -165,7 +169,7 @@ Common `beforeEach` pattern:
 
 ```typescript
 import { type Template } from "aws-cdk-lib/assertions";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, it } from "node:test";
 import { createOvertoneTemplate } from "./helpers.js";
 
 let template: Template;
@@ -181,7 +185,8 @@ beforeEach(() => {
 
 ```typescript
 import { Match, type Template } from "aws-cdk-lib/assertions";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, it } from "node:test";
+import assert from "node:assert/strict";
 import { createOvertoneTemplate } from "./helpers.js";
 
 describe("Core resources", () => {
@@ -194,7 +199,7 @@ describe("Core resources", () => {
   it("creates the primary resource", () => {
     // Assert the main AWS resource type created by OvertoneConstruct
     // Replace "AWS::SomeService::SomeResource" with the actual resource type
-    expect(template.toJSON().Resources).toBeDefined();
+    assert.ok(template.toJSON().Resources);
   });
 
   it("creates exactly one handler Lambda", () => {
@@ -207,7 +212,7 @@ describe("Core resources", () => {
 
 ```typescript
 import { Match, type Template } from "aws-cdk-lib/assertions";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, it } from "node:test";
 import { createOvertoneTemplate } from "./helpers.js";
 
 describe("Handler Lambda", () => {
@@ -240,7 +245,7 @@ describe("Handler Lambda", () => {
 
 ```typescript
 import { Match, type Template } from "aws-cdk-lib/assertions";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, it } from "node:test";
 import { createOvertoneTemplate } from "./helpers.js";
 
 describe("IAM permissions", () => {

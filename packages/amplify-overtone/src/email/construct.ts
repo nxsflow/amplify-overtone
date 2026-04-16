@@ -32,8 +32,8 @@ import { IdempotentEmailIdentity } from "./idempotent-email-identity.js";
 import type { EmailProps, EmailResources, SenderWithEmail, SenderWithPrefix } from "./types.js";
 
 // Find the package root by walking up from this file's directory until we find package.json.
-// Works regardless of whether we're loaded from src/ (tsx) or dist/ (compiled),
-// and regardless of symlinks (pnpm workspace, file: deps).
+// Works regardless of whether we're loaded from src/ (tsx) or lib/ (compiled),
+// and regardless of symlinks (npm/pnpm/yarn workspaces, file: deps).
 function findPackageRoot(startDir: string): string {
     let dir = startDir;
     while (dir !== path.dirname(dir)) {

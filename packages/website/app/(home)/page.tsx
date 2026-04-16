@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { Markdown } from "fumadocs-core/content";
+import { Markdown } from "fumadocs-core/content/md";
 import defaultMdxComponents from "fumadocs-ui/mdx";
 import remarkGfm from "remark-gfm";
 

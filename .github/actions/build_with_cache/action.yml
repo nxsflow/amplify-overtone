@@ -1,0 +1,26 @@
+name: Build with Cache
+description: Build with install and build output cache
+
+inputs:
+  node-version:
+    description: Node.js version
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - uses: ./.github/actions/install_with_cache
+      with:
+        node-version: ${{ inputs.node-version }}
+    - name: Cache build output
+      uses: actions/cache@v4
+      with:
+        path: |
+          packages/*/lib
+          packages/*/tsconfig.tsbuildinfo
+        key: ${{ runner.os }}-build-${{ inputs.node-version }}-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-build-${{ inputs.node-version }}-
+    - name: Build
+      shell: bash
+      run: npm run build
