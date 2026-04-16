@@ -19,8 +19,10 @@ export type {
     TemplateField,
 } from "./schema/index.js";
 export {
+    emailAction,
     isUserIdField,
     n,
     OVERTONE_EMAIL_META,
     OVERTONE_USER_ID,
+    userId,
 } from "./schema/index.js";

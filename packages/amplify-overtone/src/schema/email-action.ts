@@ -23,6 +23,8 @@ let actionCounter = 0;
  *
  * Methods modify internal state and return `this` — same pattern as `a.model()`.
  * The underlying mutation object is exposed to `a.schema()` via symbol access.
+ *
+ * @internal
  */
 export function emailAction(config: { sender?: string }) {
     // biome-ignore lint/suspicious/noExplicitAny: Amplify mutation builder types are not publicly exposed

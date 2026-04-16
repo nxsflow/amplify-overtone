@@ -50,10 +50,18 @@ export interface CompiledTemplate {
     subject: string;
 }
 
-// Warning: (ae-forgotten-export) The symbol "EmailDefinition" needs to be exported by the entry point index.d.ts
-//
 // @public
 export const defineEmail: (props?: EmailProps) => EmailDefinition;
+
+// Warning: (ae-internal-missing-underscore) The name "emailAction" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function emailAction(config: {
+    sender?: string;
+}): any;
+
+// @public
+export type EmailDefinition = ConstructFactory<ResourceProvider<EmailResources>>;
 
 // @public
 export interface EmailProps {
@@ -149,10 +157,15 @@ export interface SenderWithPrefix {
 // @public (undocumented)
 export type TemplateField = string | ((args: Record<string, string | CognitoUserFields>) => string);
 
+// Warning: (ae-internal-missing-underscore) The name "userId" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export function userId(): any;
+
 // Warnings were encountered during analysis:
 //
-// src/schema/namespace.ts:24:15 - (ae-forgotten-export) The symbol "emailAction" needs to be exported by the entry point index.d.ts
-// src/schema/namespace.ts:24:15 - (ae-forgotten-export) The symbol "userId" needs to be exported by the entry point index.d.ts
+// src/schema/namespace.ts:24:15 - (ae-incompatible-release-tags) The symbol "email" is marked as @public, but its signature references "emailAction" which is marked as @internal
+// src/schema/namespace.ts:24:15 - (ae-incompatible-release-tags) The symbol "userId" is marked as @public, but its signature references "userId" which is marked as @internal
 
 // (No @packageDocumentation comment for this package)
 
