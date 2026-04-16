@@ -9,12 +9,12 @@
         "url": "https://github.com/nxsflow/amplify-overtone.git"
     },
     "scripts": {
-        "build": "tsc --build packages/*",
+        "build": "tsc --build packages/amplify-overtone packages/amplify-overtone-client",
         "test": "npm run test:dir $(tsx scripts/get_unit_test_dir_list.ts)",
         "test:dir": "tsx scripts/run_tests.ts",
         "test:coverage:threshold": "c8 npm run test",
         "test:scripts": "npm run test:dir $(glob --cwd=scripts --absolute **/*.test.ts)",
-        "typecheck": "tsc --build packages/*",
+        "typecheck": "tsc --build packages/amplify-overtone packages/amplify-overtone-client",
         "lint": "biome check --error-on-warnings . && tsx scripts/check_package_json.ts",
         "lint:fix": "biome check --write . && biome format --write .",
         "format": "biome format --write .",
