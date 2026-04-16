@@ -62,13 +62,12 @@ function transformApiReport(rawContent, npmName) {
 
     const codeBlock = content.slice(fenceStart + 5, fenceEnd).trim();
 
-    // Remove trailing comment lines (warnings, @packageDocumentation notes)
+    // Remove trailing comment and blank lines (warnings, @packageDocumentation notes)
     const lines = codeBlock.split("\n");
-    while (lines.length > 0 && lines[lines.length - 1].startsWith("//")) {
-        lines.pop();
-    }
-    // Remove trailing blank lines
-    while (lines.length > 0 && lines[lines.length - 1].trim() === "") {
+    while (
+        lines.length > 0 &&
+        (lines[lines.length - 1].startsWith("//") || lines[lines.length - 1].trim() === "")
+    ) {
         lines.pop();
     }
 
