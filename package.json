@@ -90,6 +90,6 @@
             "biome check --write",
             "biome format --write"
         ],
-        "*.json": "biome format --write"
+        "!(*lock).json": "biome format --write"
     }
 }
