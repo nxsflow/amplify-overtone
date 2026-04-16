@@ -190,6 +190,7 @@ export class DependenciesValidator {
             (
                 await this.execa("npm", ["ls", "--all", "--json"], {
                     cwd: packagePath,
+                    reject: false,
                 })
             ).stdout.toString(),
         );
