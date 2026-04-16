@@ -13,7 +13,7 @@ import { type PackageJson, writePackageJson } from "./components/package_json.js
  *
  * After creation:
  *   cd test-projects/<name>
- *   npm install       # install packages from local npm proxy (pnpm vend)
+ *   npm install       # install packages from local npm proxy (npm run vend)
  *   npx tsc --noEmit  # verify types compile cleanly
  */
 

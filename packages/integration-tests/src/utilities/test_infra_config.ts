@@ -24,7 +24,7 @@ let cached: TestInfraConfig | undefined;
  * test user credentials from Secrets Manager.
  * Caches the result for the lifetime of the process.
  *
- * @throws If the file does not exist (run `pnpm test-infra:deploy` first)
+ * @throws If the file does not exist (run `npm run test-infra:deploy` first)
  */
 export async function loadTestInfraConfig(): Promise<TestInfraConfig> {
     if (cached) return cached;
@@ -35,7 +35,7 @@ export async function loadTestInfraConfig(): Promise<TestInfraConfig> {
     } catch {
         throw new Error(
             `amplify_outputs.json not found at ${configPath}. ` +
-                "Run `pnpm test-infra:deploy` to deploy test infrastructure first.",
+                "Run `npm run test-infra:deploy` to deploy test infrastructure first.",
         );
     }
 
@@ -62,7 +62,7 @@ export async function loadTestInfraConfig(): Promise<TestInfraConfig> {
     if (!secret.SecretString) {
         throw new Error(
             `Secret '${secretName}' has no value. ` +
-                "Run `pnpm test-infra:deploy` to create test users.",
+                "Run `npm run test-infra:deploy` to create test users.",
         );
     }
 

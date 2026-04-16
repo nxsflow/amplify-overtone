@@ -83,7 +83,7 @@ The E2E testing setup uses two IAM roles with distinct permission levels to enfo
 **When Used**:
 
 - GitHub Actions workflow prepares the environment before test execution
-- Called via `pnpm test-infra:deploy` in CI
+- Called via `npm run test-infra:deploy` in CI
 - Requires broad AWS permissions to create, modify, and delete resources
 
 **Assumptions Made by Tooling Role**:
@@ -476,7 +476,7 @@ For local E2E testing (running tests on your machine), AWS credentials are obtai
 4. **Login to AWS SSO**:
 
    ```bash
-   pnpm aws:login
+   npm run aws:login
    ```
 
    This command calls `aws sso login --profile $AWS_PROFILE` to refresh temporary credentials.
@@ -485,16 +485,16 @@ For local E2E testing (running tests on your machine), AWS credentials are obtai
 
 ```bash
 # 1. Login to AWS SSO
-pnpm aws:login
+npm run aws:login
 
 # 2. Deploy test infrastructure (creates S3, Cognito, SES)
-pnpm test-infra:deploy
+npm run test-infra:deploy
 
 # 3. Run E2E tests
-pnpm e2e:test
+npm run e2e:test
 
 # 4. When done, tear down infrastructure
-pnpm test-infra:destroy
+npm run test-infra:destroy
 ```
 
 ### Local vs GitHub Actions
@@ -505,15 +505,15 @@ pnpm test-infra:destroy
 | Account            | Shared dev account                               | Dedicated E2E accounts (optionally multiple) |
 | Permissions        | User's own IAM permissions                       | Execution role + tooling role                |
 | Duration           | Credentials expire after 12 hours (configurable) | Token-based, ~1 hour validity                |
-| Cleanup            | Manual (`pnpm test-infra:destroy`)               | Automated workflow step                      |
+| Cleanup            | Manual (`npm run test-infra:destroy`)               | Automated workflow step                      |
 
 ### Common Issues
 
-**Issue**: `pnpm aws:login` fails with "The SSO authorization request was not approved"
+**Issue**: `npm run aws:login` fails with "The SSO authorization request was not approved"
 
 **Solution**: Check that your AWS SSO session is active. Run `aws sso login --profile $AWS_PROFILE` directly to debug.
 
-**Issue**: `pnpm test-infra:deploy` fails with "AccessDenied"
+**Issue**: `npm run test-infra:deploy` fails with "AccessDenied"
 
 **Solution**: Ensure your AWS SSO user has permissions to create CloudFormation stacks, Cognito user pools, S3 buckets, and SES configuration. Contact your AWS account administrator.
 

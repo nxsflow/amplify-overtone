@@ -52,7 +52,9 @@ AI agents powered by Amazon Bedrock AgentCore — `defineAgent()` provisions the
 ## Getting Started
 
 ```bash
-pnpm add @nxsflow/amplify-overtone
+npm install @nxsflow/amplify-overtone
+# or: pnpm add @nxsflow/amplify-overtone
+# or: yarn add @nxsflow/amplify-overtone
 ```
 
 > The packages are not yet published to npm. Check back soon.

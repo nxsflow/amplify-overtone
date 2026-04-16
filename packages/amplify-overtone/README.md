@@ -5,7 +5,9 @@ Backend package for [Amplify Overtone](https://github.com/nxsflow/amplify-overto
 ## Install
 
 ```bash
-pnpm add @nxsflow/amplify-overtone
+npm install @nxsflow/amplify-overtone
+# or: pnpm add @nxsflow/amplify-overtone
+# or: yarn add @nxsflow/amplify-overtone
 ```
 
 ## Email (`defineEmail()`)
@@ -17,30 +19,30 @@ import { defineEmail } from "@nxsflow/amplify-overtone";
 
 // Custom domain with Route 53 (automatic DNS)
 export const email = defineEmail({
-    domain: "mail.example.com",
-    hostedZoneId: "Z0123456789ABCDEFGHIJ",
-    hostedZoneDomain: "example.com",
-    senders: {
-        noreply: { senderPrefix: "noreply", displayName: "MyApp" },
-    },
+  domain: "mail.example.com",
+  hostedZoneId: "Z0123456789ABCDEFGHIJ",
+  hostedZoneDomain: "example.com",
+  senders: {
+    noreply: { senderPrefix: "noreply", displayName: "MyApp" },
+  },
 });
 
 // Or without a custom domain
 export const email = defineEmail({
-    senders: {
-        noreply: { senderEmail: "noreply@gmail.com", displayName: "MyApp" },
-    },
+  senders: {
+    noreply: { senderEmail: "noreply@gmail.com", displayName: "MyApp" },
+  },
 });
 ```
 
 ### Built-in Templates
 
-| Template             | Default Subject                      |
-| -------------------- | ------------------------------------ |
-| `confirmation-code`  | Your confirmation code               |
-| `password-reset`     | Reset your password                  |
-| `invite`             | You've been invited to collaborate   |
-| `getting-started`    | Welcome — get started                |
+| Template            | Default Subject                    |
+| ------------------- | ---------------------------------- |
+| `confirmation-code` | Your confirmation code             |
+| `password-reset`    | Reset your password                |
+| `invite`            | You've been invited to collaborate |
+| `getting-started`   | Welcome — get started              |
 
 ## Roadmap
 

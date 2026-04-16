@@ -8,7 +8,9 @@ description: Install and configure Amplify Overtone in your Amplify Gen 2 projec
 ## Installation
 
 ```bash
-pnpm add @nxsflow/amplify-overtone
+npm install @nxsflow/amplify-overtone
+# or: pnpm add @nxsflow/amplify-overtone
+# or: yarn add @nxsflow/amplify-overtone
 ```
 
 ## Setup
