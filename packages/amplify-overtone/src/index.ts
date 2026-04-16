@@ -1,4 +1,5 @@
 export type {
+    EmailDefinition,
     EmailProps,
     EmailResources,
     SendEmailPayload,
