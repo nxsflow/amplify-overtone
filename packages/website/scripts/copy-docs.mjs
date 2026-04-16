@@ -113,7 +113,7 @@ async function copyDocsFiles() {
 }
 
 async function transformApiReports() {
-    const apiRefDir = join(publicDocsDir, "api-reference");
+    const apiRefDir = join(docsDir, "api-reference");
     await mkdir(apiRefDir, { recursive: true });
 
     let count = 0;
@@ -123,16 +123,16 @@ async function transformApiReports() {
         const transformed = transformApiReport(content, pkg.npm);
         const dest = join(apiRefDir, `${pkg.dir}.md`);
         await writeFile(dest, transformed, "utf8");
-        console.log(`  ${pkg.dir}/API.api.md → public/docs/api-reference/${pkg.dir}.md`);
+        console.log(`  ${pkg.dir}/API.api.md → docs/api-reference/${pkg.dir}.md`);
         count++;
     }
 
-    console.log(`\nTransformed ${count} API report(s) to public/docs/api-reference/`);
+    console.log(`\nTransformed ${count} API report(s) to docs/api-reference/`);
 }
 
 async function main() {
-    await copyDocsFiles();
     await transformApiReports();
+    await copyDocsFiles();
 }
 
 main().catch((err) => {
